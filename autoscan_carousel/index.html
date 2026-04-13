@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ID Assist | AutoScan Splash Page</title>
+
+  <!--
+    INTEGRATION NOTES
+    ─────────────────────────────────────────────────────────────────────────
+    • Drop the contents of .splash-modal-container into the existing
+      ngb-modal-window / modal-interstitial-page Angular component.
+    • Bootstrap 4, Source Sans Pro, and the global ID Assist stylesheet are
+      assumed to be loaded by the host application.
+    • Wire the footer button IDs to your Angular component logic:
+        – #carousel-btn-primary  → advance slide OR trigger "Connect My Inbox"
+        – #carousel-btn-remind   → existing "Remind me later" handler
+        – #carousel-checkbox     → existing "don't show again" handler
+    • Strip the <html>/<head>/<body> wrappers and CDN links before integrating.
+    • The slide indicators and carousel JS are self-contained vanilla JS —
+      no additional dependencies required.
+
+    ACCESSIBILITY NOTES (WCAG)
+    ─────────────────────────────────────────────────────────────────────────
+    • Modal uses role="dialog" and aria-modal="true".
+    • A polite aria-live region (#carouselLiveRegion) announces slide changes
+      to screen reader users as "Slide X of Y: <title>".
+    • Tab dots include aria-controls referencing their corresponding panel.
+    • Decorative arrow glyph in the Back button is hidden from assistive tech.
+    ─────────────────────────────────────────────────────────────────────────
+  -->
+
+  <!-- DEV PREVIEW ONLY — remove in Angular integration -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
+  <style>
+    /* ── Base (matches existing ID Assist globals) ──────────────────────── */
+    body {
+      font-family: 'Source Sans 3', 'Source Sans Pro', Helvetica, Arial, sans-serif;
+      background: #f2f2f2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    /* ── Visually hidden (for screen reader only content) ──────────────── */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* ── Modal Container ────────────────────────────────────────────────── */
+    .splash-modal-container {
+      width: 64vw;
+      max-width: 52rem;
+      display: flex;
+      flex-direction: column;
+      background-color: #fff;
+      align-self: center;
+      border-radius: 1.5625rem;
+      box-shadow: 0 4px 24px 0 rgba(64, 63, 52, 0.18);
+      overflow: hidden;
+    }
+
+    @media (max-width: 36rem) {
+      .splash-modal-container {
+        width: 100%;
+        border-radius: 0;
+        min-height: 100vh;
+      }
+    }
+
+    /* ── Splash Container (content area) ───────────────────────────────── */
+    .splash-container {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .splash-container:focus {
+      outline: none;
+    }
+
+    /* ── Step Indicator Bar ─────────────────────────────────────────────── */
+    .slide-progress-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 1.25rem 1.5rem 0;
+    }
+
+    .slide-dot {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background-color: #d0d0d0;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      cursor: pointer;
+      border: none;
+      padding: 0;
+    }
+
+    .slide-dot.active {
+      background-color: #E8292F;
+      transform: scale(1.4);
+    }
+
+    /* ── Carousel Track ─────────────────────────────────────────────────── */
+    .carousel-track-wrapper {
+      overflow: hidden;
+      position: relative;
+    }
+
+    .carousel-track {
+      display: flex;
+      transition: transform 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: transform;
+    }
+
+    .carousel-slide {
+      flex: 0 0 100%;
+      min-width: 0;
+      padding: 1.5rem 3rem 1rem;
+      box-sizing: border-box;
+    }
+
+    @media (max-width: 48rem) {
+      .carousel-slide {
+        padding: 1.25rem 1.5rem 1rem;
+      }
+    }
+
+    /* ── Slide Icon Area ────────────────────────────────────────────────── */
+    .slide-icon-area {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .slide-icon-area img {
+      height: 6rem;
+      width: auto;
+    }
+
+    /* Slide 1 uses two provider icons — keep smaller */
+    .slide-icon-area.dual-icon img {
+      height: 3rem;
+    }
+
+    /* Connector between provider icons */
+    .icon-connector {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #000;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* ── Slide Headings ─────────────────────────────────────────────────── */
+    .slide-headline {
+      color: #E8292F;
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1.25;
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .slide-subhead {
+      color: #212529;
+      font-size: 1rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 1.25rem;
+      line-height: 1.4;
+    }
+
+    /* ── Slide Divider ──────────────────────────────────────────────────── */
+    .slide-rule {
+      border: none;
+      border-top: 1px solid #e6e5e3;
+      margin: 0 0 1.25rem;
+    }
+
+    /* ── Slide Body ─────────────────────────────────────────────────────── */
+    .slide-body {
+      font-size: 0.9375rem;
+      line-height: 1.6;
+      color: #403f34;
+      max-width: 40rem;
+      margin: 0 auto;
+    }
+
+    .slide-body p {
+      margin-bottom: 0.875rem;
+    }
+
+    .slide-body p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Parenthetical style for slide 3 supporting note */
+    .slide-body .parenthetical {
+      font-style: italic;
+      color: #757574;
+      font-size: 0.875rem;
+    }
+
+    /* Feature tag chip (e.g. "New") */
+    .feature-tag {
+      display: inline-block;
+      background-color: #E8292F;
+      color: #fff;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.15rem 0.5rem;
+      border-radius: 2rem;
+      vertical-align: middle;
+      margin-left: 0.4rem;
+      position: relative;
+      top: -0.1rem;
+    }
+
+    /* ── Carousel Nav (Back link) ───────────────────────────────────────── */
+    .carousel-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.5rem;
+      padding: 0.125rem 0 0.375rem;
+    }
+
+    .carousel-back-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      color: #a0a0a0;
+      font-size: 0.75rem;
+      font-weight: 400;
+      text-decoration: none;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .carousel-back-btn:hover {
+      color: #403f34;
+      text-decoration: underline;
+    }
+
+    .carousel-back-btn--hidden {
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    /* ── Footer ─────────────────────────────────────────────────────────── */
+    .splash-footer {
+      padding: 0.625rem 1.25rem 1rem;
+      border-top: 1px solid #e6e5e3;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .splash-footer .input-container {
+      flex: 1 1 auto;
+      display: flex;
+      align-items: center;
+      font-size: 0.875rem;
+      color: #403f34;
+      white-space: nowrap;
+    }
+
+    .cb-inter {
+      margin-right: 0.4rem;
+      flex-shrink: 0;
+    }
+
+    .splash-footer .es-button-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    /* Ensure button widths stay consistent as label changes */
+    #carousel-btn-primary {
+      min-width: 9.5rem;
+      transition: min-width 0.15s ease;
+    }
+
+    @media (max-width: 48rem) {
+      .splash-footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .splash-footer .es-button-container {
+        width: 100%;
+        justify-content: flex-end;
+      }
+      .btn {
+        font-size: 0.875rem;
+      }
+    }
+
+    @media (max-width: 36rem) {
+      .splash-footer .es-button-container {
+        flex-direction: column-reverse;
+        width: 100%;
+      }
+      .splash-footer .es-button-container .btn {
+        width: 100%;
+      }
+    }
+
+    /* ── Bootstrap overrides (keep consistent with IDA globals) ────────── */
+    .btn-primary {
+      background-color: #faaf42;
+      border-color: #faaf42;
+      color: #000;
+      font-size: 0.875rem;
+      font-weight: 700;
+      padding: 0.375rem 1.125rem;
+    }
+    .btn-primary:hover,
+    .btn-primary:active,
+    .btn-primary:active:focus {
+      background-color: #e09d30;
+      border-color: #e09d30;
+      color: #000;
+    }
+
+    .btn-primary:focus {
+      background-color: #faaf42;
+      border-color: #faaf42;
+      color: #000;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(250, 175, 66, 0.4);
+    }
+
+    /* Override Bootstrap's high-specificity active state on the primary button */
+    #carousel-btn-primary:not(:disabled):not(.disabled):active,
+    #carousel-btn-primary:not(:disabled):not(.disabled).active {
+      background-color: #e09d30 !important;
+      border-color: #e09d30 !important;
+      color: #000 !important;
+      box-shadow: 0 0 0 3px rgba(250, 175, 66, 0.4) !important;
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      border-color: #6c757d;
+      color: #403f34;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 0.375rem 1rem;
+    }
+    .btn-secondary:hover {
+      background-color: #f2f2f2;
+      color: #212529;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     SPLASH MODAL — AutoScan Feature Introduction (Carousel Version)
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div class="splash-modal-container" role="dialog" aria-modal="true" aria-labelledby="splashDialogTitle">
+
+  <!-- Hidden dialog title (gives the modal an accessible name without
+       making any visible heading do double duty as both the dialog label
+       and slide content — which can cause word-splitting in some SRs) -->
+  <h2 id="splashDialogTitle" class="sr-only">Introducing Scan and Score AutoScan</h2>
+
+  <!-- Screen reader announcements for slide changes (visually hidden) -->
+  <div
+    id="carouselLiveRegion"
+    class="sr-only"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true">
+  </div>
+
+  <!-- ── CONTENT AREA ──────────────────────────────────────────────────── -->
+  <div class="splash-container" tabindex="0">
+
+    <!-- Step indicator -->
+    <div class="slide-progress-bar" role="tablist" aria-label="Feature highlights">
+      <button class="slide-dot active" data-slide="0" role="tab" aria-selected="true"  aria-controls="slide-0" aria-label="Slide 1 of 3: AutoScan"></button>
+      <button class="slide-dot"        data-slide="1" role="tab" aria-selected="false" aria-controls="slide-1" aria-label="Slide 2 of 3: Safe Senders"></button>
+      <button class="slide-dot"        data-slide="2" role="tab" aria-selected="false" aria-controls="slide-2" aria-label="Slide 3 of 3: Manual Scanning"></button>
+    </div>
+
+    <!-- Carousel track -->
+    <div class="carousel-track-wrapper">
+      <div class="carousel-track" id="carouselTrack">
+
+        <!-- ── SLIDE 1: AutoScan ─────────────────────────────────────────── -->
+        <div class="carousel-slide text-center" role="tabpanel" aria-labelledby="slide-headline-1" id="slide-0">
+
+          <div class="slide-icon-area dual-icon" aria-hidden="true">
+            <img src="https://raw.githubusercontent.com/sigmaloyalty/images/4713651df7519348315d62cbc746a745a7778426/Gmail_icon.svg"   alt="Gmail">
+            <span class="icon-connector">+</span>
+            <img src="https://raw.githubusercontent.com/sigmaloyalty/images/4713651df7519348315d62cbc746a745a7778426/Outlook_Icon.svg" alt="Outlook">
+          </div>
+
+          <h1 class="slide-headline" id="slide-headline-1">All your email, one solution</h1>
+          <h3 class="slide-subhead">
+            Connect your inbox and let Scan &amp; Score's AI monitor your email 24/7
+          </h3>
+
+          <hr class="slide-rule">
+
+          <div class="slide-body text-left">
+            <p>
+              Scan &amp; Score is your AI-powered defence against email fraud. With AutoScan,
+              every message that hits your Gmail or Outlook primary inbox is automatically
+              analyzed for potential threats around the clock.
+            </p>
+            <p>
+              If something looks suspicious, you'll get an instant alert with a clear risk
+              score and steps to protect yourself.
+            </p>
+          </div>
+
+        </div>
+        <!-- /SLIDE 1 -->
+
+        <!-- ── SLIDE 2: Safe Senders ─────────────────────────────────────── -->
+        <div class="carousel-slide text-center" role="tabpanel" aria-labelledby="slide-headline-2" id="slide-1" aria-hidden="true">
+
+          <div class="slide-icon-area" aria-hidden="true">
+            <img src="https://www.idassist.com/assets/images/scam-whitelist-icon.svg" alt="Safe Sender icon">
+          </div>
+
+          <h1 class="slide-headline" id="slide-headline-2">Keep your alerts focused <span class="feature-tag">New</span></h1>
+          <h3 class="slide-subhead">
+            Tell us who you trust — we'll do the rest
+          </h3>
+
+          <hr class="slide-rule">
+
+          <div class="slide-body text-left">
+            <p>
+              Already using AutoScan? Now you can mark messages from senders you
+              trust as a <strong>Safe Sender</strong> right from the scan result —
+              keeping your alerts focused on what really matters.
+            </p>
+          </div>
+
+        </div>
+        <!-- /SLIDE 2 -->
+
+        <!-- ── SLIDE 3: Manual Scanning ──────────────────────────────────── -->
+        <div class="carousel-slide text-center" role="tabpanel" aria-labelledby="slide-headline-3" id="slide-2" aria-hidden="true">
+
+          <div class="slide-icon-area" aria-hidden="true">
+            <img src="https://raw.githubusercontent.com/sigmaloyalty/images/d7a7474146e033e0863a889431dca9c5d5593829/scan_score/Scan_Score_icon.svg" alt="Scan and Score icon">
+          </div>
+
+          <h1 class="slide-headline" id="slide-headline-3">Always in your control</h1>
+          <h3 class="slide-subhead">
+            AutoScan or on-demand — you choose
+          </h3>
+
+          <hr class="slide-rule">
+
+          <div class="slide-body text-left">
+            <p>
+              AutoScan handles your inbox automatically, but you're always in the
+              driver's seat.
+            </p>
+            <p>
+              You can also manually scan texts, images, and links any time you want.
+            </p>
+          </div>
+
+        </div>
+        <!-- /SLIDE 3 -->
+
+      </div><!-- /carousel-track -->
+    </div><!-- /carousel-track-wrapper -->
+
+    <!-- Back navigation (hidden on slide 1) -->
+    <div class="carousel-nav">
+      <button class="carousel-back-btn carousel-back-btn--hidden" id="carouselBackBtn">
+        <span aria-hidden="true">←</span> Back
+      </button>
+    </div>
+
+  </div><!-- /splash-container -->
+
+  <!-- ── FOOTER ────────────────────────────────────────────────────────── -->
+  <div class="splash-footer">
+    <div class="input-container">
+      <input
+        type="checkbox"
+        id="carousel-checkbox"
+        name="intestitial-checkbox-dont-show-again"
+        title="Do not show again"
+        value="intestitial-check"
+        class="cb-inter"
+      >
+      <label for="carousel-checkbox" style="margin:0; cursor:pointer;">
+        Don't show me this page again.
+      </label>
+    </div>
+
+    <div class="es-button-container">
+      <button
+        id="carousel-btn-remind"
+        type="button"
+        class="btn btn-secondary"
+      >
+        Remind Me Later
+      </button>
+      <button
+        id="carousel-btn-primary"
+        type="button"
+        class="btn btn-primary"
+        data-current-slide="0"
+      >
+        Next
+      </button>
+    </div>
+  </div><!-- /splash-footer -->
+
+</div><!-- /splash-modal-container -->
+
+
+<!-- ── CAROUSEL JAVASCRIPT ───────────────────────────────────────────────
+     Self-contained. No dependencies beyond the DOM.
+     In Angular, move this logic into the component .ts file.
+     ─────────────────────────────────────────────────────────────────────── -->
+<script>
+  (function () {
+    const TOTAL_SLIDES = 3;
+    const LAST_SLIDE   = TOTAL_SLIDES - 1;
+
+    // Titles used for screen reader announcements
+    const SLIDE_TITLES = [
+      'AutoScan',
+      'Safe Senders',
+      'Manual Scanning'
+    ];
+
+    // Headlines and subheads — included in SR announcements so users hear
+    // the actual slide content, not just the position indicator
+    const SLIDE_HEADLINES = [
+      'All your email, one solution',
+      'Keep your alerts focused. New feature.',
+      'Always in your control'
+    ];
+
+    const SLIDE_SUBHEADS = [
+      "Connect your inbox and let Scan and Score's AI monitor your email 24/7.",
+      "Tell us who you trust — we'll do the rest.",
+      'AutoScan or on-demand — you choose.'
+    ];
+
+    // DOM refs
+    const track      = document.getElementById('carouselTrack');
+    const dots       = document.querySelectorAll('.slide-dot');
+    const backBtn    = document.getElementById('carouselBackBtn');
+    const primaryBtn = document.getElementById('carousel-btn-primary');
+    const liveRegion = document.getElementById('carouselLiveRegion');
+
+    // Button labels per state
+    const LABEL_NEXT    = 'Next';
+    const LABEL_CONNECT = 'Connect My Inbox';
+
+    let current = 0;
+    let isInitialRender = true;
+
+    /* ── Core: go to a specific slide ─────────────────────────────────── */
+    function goTo(index) {
+      if (index < 0 || index > LAST_SLIDE) return;
+
+      // Update track position
+      track.style.transform = `translateX(-${index * 100}%)`;
+
+      // Update dots
+      dots.forEach(function (dot, i) {
+        const isActive = i === index;
+        dot.classList.toggle('active', isActive);
+        dot.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+
+      // Update aria-hidden on slides
+      document.querySelectorAll('.carousel-slide').forEach(function (slide, i) {
+        slide.setAttribute('aria-hidden', i !== index ? 'true' : 'false');
+      });
+
+      // Show/hide back button using a class rather than the hidden attribute
+      // (avoids browser default display:none overriding our visibility:hidden)
+      backBtn.classList.toggle('carousel-back-btn--hidden', index === 0);
+
+      // Update primary button label
+      primaryBtn.textContent = index === LAST_SLIDE ? LABEL_CONNECT : LABEL_NEXT;
+      primaryBtn.dataset.currentSlide = index;
+
+      // Announce slide change to screen readers.
+      // The clear-then-set pattern (with a small delay) forces SRs like
+      // VoiceOver and NVDA to detect the textContent change reliably —
+      // simply overwriting the value can be missed when the SR is busy
+      // announcing the focused button or other DOM changes.
+      // Skip the initial render — the dialog title handles the opening
+      // announcement, and slide 1 content is read naturally on focus.
+      if (!isInitialRender) {
+        liveRegion.textContent = '';
+        setTimeout(function () {
+          liveRegion.textContent =
+            'Slide ' + (index + 1) + ' of ' + TOTAL_SLIDES + '. ' +
+            SLIDE_HEADLINES[index] + '. ' +
+            SLIDE_SUBHEADS[index];
+        }, 100);
+      }
+
+      current = index;
+    }
+
+    /* ── Primary button: advance or fire "Connect My Inbox" ───────────── */
+    primaryBtn.addEventListener('click', function () {
+      if (current < LAST_SLIDE) {
+        goTo(current + 1);
+      } else {
+        // ── Angular hook ──────────────────────────────────────────────
+        // Replace window.location with your component's router.navigate()
+        // call if integrating into Angular routing.
+        // ─────────────────────────────────────────────────────────────
+        window.location.href = 'https://www.idassist.com/en/account/scam-score#autoscan';
+      }
+    });
+
+    /* ── Back button ───────────────────────────────────────────────────── */
+    backBtn.addEventListener('click', function () {
+      goTo(current - 1);
+    });
+
+    /* ── Dot click ─────────────────────────────────────────────────────── */
+    dots.forEach(function (dot, i) {
+      dot.addEventListener('click', function () {
+        goTo(i);
+      });
+    });
+
+    /* ── Keyboard accessibility (left/right arrows) ────────────────────── */
+    document.querySelector('.splash-container').addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight') goTo(current + 1);
+      if (e.key === 'ArrowLeft')  goTo(current - 1);
+    });
+
+    /* ── Touch/swipe support ───────────────────────────────────────────── */
+    var touchStartX = 0;
+    track.addEventListener('touchstart', function (e) {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+    track.addEventListener('touchend', function (e) {
+      var delta = e.changedTouches[0].screenX - touchStartX;
+      if (Math.abs(delta) > 40) {
+        goTo(delta < 0 ? current + 1 : current - 1);
+      }
+    }, { passive: true });
+
+    /* ── Initialise ────────────────────────────────────────────────────── */
+    goTo(0);
+    isInitialRender = false;
+  })();
+</script>
+
+</body>
+</html>
