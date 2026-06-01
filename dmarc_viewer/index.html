@@ -1,1 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMARC Report Viewer</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+:root {
+  --bg-0:      #f6f8fa;
+  --bg-1:      #ffffff;
+  --bg-2:      #f6f8fa;
+  --border:    #d0d7de;
+  --border-mid:#e8ecf0;
+  --text-1:    #1f2328;
+  --text-2:    #57606a;
+  --text-3:    #8c959f;
+  --accent:    #0969da;
+  --pass:      #1a7f37;
+  --pass-bg:   #dafbe1;
+  --fail:      #cf222e;
+  --fail-bg:   #ffebe9;
+  --warn:      #9a6700;
+  --warn-bg:   #fff8c5;
+  --font-ui:   'Open Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --shadow:    0 1px 3px rgba(31,35,40,.08), 0 0 0 1px rgba(31,35,40,.06);
+}
+
+html, body {
+  font-family: var(--font-ui);
+  background: var(--bg-0);
+  color: var(--text-1);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+.app { max-width: 1360px; margin: 0 auto; padding: 32px 24px 72px; }
+
+/* ── HEADER ───────────────────────────────────────────────── */
+.header {
+  display: flex; align-items: baseline; gap: 12px; margin-bottom: 32px;
+}
+.header h1 {
+  font-size: 1.4rem; font-weight: 800;
+  letter-spacing: -0.025em; color: var(--text-1);
+}
+.header-tag {
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .1em; color: var(--accent);
+  padding: 3px 10px; border: 1px solid rgba(9,105,218,.25);
+  border-radius: 20px; background: rgba(9,105,218,.06);
+}
+
+/* ── UPLOAD ZONE ──────────────────────────────────────────── */
+#upload-zone {
+  background: var(--bg-1); border: 2px dashed var(--border);
+  border-radius: 14px; padding: 72px 32px; text-align: center;
+  cursor: pointer; transition: border-color .2s, background .2s;
+}
+#upload-zone:hover, #upload-zone.drag-over {
+  border-color: var(--accent); background: rgba(9,105,218,.04);
+}
+.upload-glyph {
+  width: 52px; height: 52px; margin: 0 auto 18px;
+  background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: 12px; display: flex; align-items: center;
+  justify-content: center; font-size: 1.5rem;
+}
+.upload-heading { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+.upload-hint { font-size: 0.82rem; color: var(--text-2); margin-bottom: 20px; }
+.fmt-tags { display: flex; gap: 6px; justify-content: center; margin-bottom: 22px; flex-wrap: wrap; }
+.fmt-tag {
+  font-family: var(--font-mono); font-size: 0.72rem;
+  padding: 2px 9px; background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: 4px; color: var(--text-2);
+}
+
+/* ── BUTTONS ──────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 8px 16px; border-radius: 7px; font-family: var(--font-ui);
+  font-size: 0.8rem; font-weight: 600; cursor: pointer;
+  transition: all .14s; border: none; white-space: nowrap;
+}
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+.btn-primary  { background: var(--accent); color: #fff; }
+.btn-primary:hover:not(:disabled) { filter: brightness(1.1); }
+.btn-ghost {
+  background: var(--bg-1); border: 1px solid var(--border);
+  color: var(--text-2);
+}
+.btn-ghost:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.btn-sm { padding: 6px 13px; font-size: 0.75rem; }
+
+/* ── DASHBOARD ────────────────────────────────────────────── */
+#dashboard { display: none; }
+
+.toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 10px; margin-bottom: 22px;
+  padding-bottom: 18px; border-bottom: 1px solid var(--border);
+}
+.file-chips { display: flex; flex-wrap: wrap; gap: 7px; flex: 1; }
+.chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 11px; background: rgba(9,105,218,.07);
+  border: 1px solid rgba(9,105,218,.2); border-radius: 20px;
+  font-size: 0.74rem; font-weight: 600; color: var(--accent);
+}
+.toolbar-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ── STATS ────────────────────────────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px; margin-bottom: 18px;
+}
+.stat-card {
+  background: var(--bg-1); border-radius: 10px; padding: 16px 18px;
+  box-shadow: var(--shadow);
+}
+.stat-label {
+  font-size: 0.67rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--text-2); margin-bottom: 8px;
+}
+.stat-value {
+  font-size: 1.75rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1;
+}
+.stat-value.neu  { color: var(--text-1); }
+.stat-value.good { color: var(--pass); }
+.stat-value.warn { color: var(--warn); }
+.stat-value.bad  { color: var(--fail); }
+.stat-sub { font-size: 0.7rem; color: var(--text-3); margin-top: 4px; }
+
+/* ── CHARTS ───────────────────────────────────────────────── */
+.charts-row-1 {
+  display: grid; grid-template-columns: 300px 1fr;
+  gap: 12px; margin-bottom: 12px;
+}
+.charts-row-2 {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px; margin-bottom: 18px;
+}
+.chart-card {
+  background: var(--bg-1); border-radius: 10px;
+  padding: 20px 22px; box-shadow: var(--shadow);
+}
+.card-title {
+  font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--text-2); margin-bottom: 16px;
+}
+
+
+/* ── TABLE CARD ───────────────────────────────────────────── */
+.table-card {
+  background: var(--bg-1); border-radius: 10px;
+  box-shadow: var(--shadow); overflow: hidden;
+}
+.table-controls {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 10px; padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.filter-pills { display: flex; gap: 5px; }
+.filter-pill {
+  padding: 5px 13px; border-radius: 6px; border: 1px solid var(--border);
+  font-family: var(--font-ui); font-size: 0.75rem; font-weight: 600;
+  cursor: pointer; background: transparent; color: var(--text-2);
+  transition: all .13s;
+}
+.filter-pill:hover { border-color: var(--text-2); color: var(--text-1); }
+.filter-pill.active     { background: var(--accent); color: #fff; border-color: var(--accent); }
+.filter-pill.active-pass{ background: var(--pass);   color: #fff; border-color: var(--pass); }
+.filter-pill.active-fail{ background: var(--fail);   color: #fff; border-color: var(--fail); }
+.search-box {
+  padding: 6px 13px; background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: 7px; font-family: var(--font-mono); font-size: 0.78rem;
+  color: var(--text-1); outline: none; min-width: 210px; transition: border-color .2s;
+}
+.search-box::placeholder { color: var(--text-3); }
+.search-box:focus { border-color: var(--accent); }
+
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+
+thead th {
+  padding: 9px 13px; text-align: left; font-size: 0.67rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .08em; color: var(--text-2);
+  cursor: pointer; user-select: none; white-space: nowrap;
+  background: var(--bg-2); border-bottom: 1px solid var(--border);
+  transition: color .13s;
+}
+thead th:hover { color: var(--text-1); }
+thead th.sorted { color: var(--accent); }
+
+tbody td {
+  padding: 9px 13px; border-bottom: 1px solid var(--border-mid);
+  vertical-align: middle; white-space: nowrap;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: rgba(9,105,218,.025); }
+
+.badge {
+  display: inline-flex; align-items: center; padding: 3px 8px;
+  border-radius: 5px; font-size: 0.67rem; font-weight: 800;
+  letter-spacing: .05em; text-transform: uppercase;
+}
+.b-pass { background: var(--pass-bg); color: var(--pass); }
+.b-fail { background: var(--fail-bg); color: var(--fail); }
+.b-none { background: var(--bg-2);   color: var(--text-2); border: 1px solid var(--border); }
+
+.ip-cell { font-family: var(--font-mono); font-size: 0.79rem; color: var(--accent); }
+.msg-count { font-weight: 700; }
+.domain-cell { font-size: 0.82rem; color: var(--text-2); }
+
+.table-footer {
+  padding: 10px 18px; font-size: 0.72rem; color: var(--text-3);
+  border-top: 1px solid var(--border); text-align: right;
+}
+.empty-state { text-align: center; padding: 52px 24px; color: var(--text-3); }
+.empty-state-icon { font-size: 1.8rem; margin-bottom: 10px; }
+
+/* ── RESPONSIVE ───────────────────────────────────────────── */
+@media (max-width: 1100px) { .charts-row-2 { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 900px)  {
+  .stats-grid     { grid-template-columns: repeat(3, 1fr); }
+  .charts-row-1   { grid-template-columns: 1fr; }
+  .charts-row-2   { grid-template-columns: 1fr; }
+}
+@media (max-width: 580px)  { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <h1>DMARC Report Viewer</h1>
+    <span class="header-tag">Aggregate Analyser</span>
+  </div>
+
+  <div id="upload-zone">
+    <div class="upload-glyph">🗂️</div>
+    <div class="upload-heading">Drop aggregate report files here</div>
+    <div class="upload-hint">Load multiple reports at once — records are deduplicated automatically</div>
+    <div class="fmt-tags">
+      <span class="fmt-tag">.zip</span>
+      <span class="fmt-tag">.xml.gz</span>
+      <span class="fmt-tag">.xml</span>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('file-input').click()">Browse Files</button>
+  </div>
+
+  <div id="dashboard">
+
+    <div class="toolbar">
+      <div class="file-chips" id="file-chips"></div>
+      <div class="toolbar-actions">
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('file-input').click()">+ Add Files</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportCsv()">↓ Export CSV</button>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Messages</div>
+        <div class="stat-value neu" id="s-total">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">DMARC Pass Rate</div>
+        <div class="stat-value" id="s-dmarc">—</div>
+        <div class="stat-sub" id="s-dmarc-sub"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">DKIM Pass Rate</div>
+        <div class="stat-value" id="s-dkim">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">SPF Pass Rate</div>
+        <div class="stat-value" id="s-spf">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Unique IPs</div>
+        <div class="stat-value neu" id="s-ips">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Reports</div>
+        <div class="stat-value neu" id="s-reports">—</div>
+        <div class="stat-sub" id="s-daterange"></div>
+      </div>
+    </div>
+
+    <!-- Row 1: Compliance + Auth -->
+    <div class="charts-row-1">
+      <div class="chart-card">
+        <div class="card-title">DMARC Compliance</div>
+        <canvas id="chart-dmarc" height="220"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="card-title">Authentication Results by Volume</div>
+        <canvas id="chart-auth" height="220"></canvas>
+      </div>
+    </div>
+
+    <!-- Row 2: Reporter + Trend + Geo -->
+    <div class="charts-row-2">
+      <div class="chart-card">
+        <div class="card-title">By Reporting Source</div>
+        <div id="chart-reporter-wrap">
+          <canvas id="chart-reporter"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="card-title">Compliance Trend</div>
+        <div style="position:relative;height:260px">
+          <canvas id="chart-trend"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-card">
+      <div class="table-controls">
+        <div class="filter-pills">
+          <button class="filter-pill active" onclick="setFilter('all',this)">All</button>
+          <button class="filter-pill" onclick="setFilter('fail',this)">Failures</button>
+          <button class="filter-pill" onclick="setFilter('pass',this)">Passes</button>
+        </div>
+        <input class="search-box" type="text" placeholder="Filter by IP, domain, org…" oninput="setSearch(this.value)">
+      </div>
+      <div class="table-wrap">
+        <table id="main-table">
+          <thead>
+            <tr>
+              <th onclick="sortBy('org_name')"    id="th-org_name">Reporter</th>
+              <th onclick="sortBy('date_range')"  id="th-date_range">Period</th>
+              <th onclick="sortBy('source_ip')"   id="th-source_ip">Source IP</th>
+              <th onclick="sortBy('count')"       id="th-count" style="text-align:right">Msgs</th>
+              <th onclick="sortBy('dmarc_pass')"  id="th-dmarc_pass">DMARC</th>
+              <th onclick="sortBy('dkim_result')" id="th-dkim_result">DKIM</th>
+              <th onclick="sortBy('spf_result')"  id="th-spf_result">SPF</th>
+              <th onclick="sortBy('disposition')" id="th-disposition">Disposition</th>
+              <th onclick="sortBy('header_from')" id="th-header_from">Header From</th>
+            </tr>
+          </thead>
+          <tbody id="tbody">
+            <tr><td colspan="9"><div class="empty-state">
+              <div class="empty-state-icon">📭</div>No records loaded yet.
+            </div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-footer" id="row-count"></div>
+    </div>
+
+  </div><!-- /dashboard -->
+</div><!-- /app -->
+
+<input type="file" id="file-input" multiple accept=".zip,.gz,.xml" style="display:none">
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CHART DEFAULTS (light mode)
+// ═══════════════════════════════════════════════════════════
+Chart.defaults.font.family   = "'Open Sans', system-ui, sans-serif";
+Chart.defaults.font.size     = 11;
+Chart.defaults.color         = '#57606a';
+Chart.defaults.borderColor   = 'rgba(208,215,222,0.6)';
+
+const C_PASS   = '#1a7f37';
+const C_FAIL   = '#cf222e';
+const C_ACCENT = '#0969da';
+const C_WARN   = '#9a6700';
+const C_GRID   = 'rgba(208,215,222,0.5)';
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+let allRecords      = [];
+let filteredRecords = [];
+let activeFilter    = 'all';
+let searchQuery     = '';
+let sortKey         = 'count';
+let sortAsc         = false;
+let loadedReportIds = new Set();
+let loadedFileNames = [];
+let chartDmarc = null, chartAuth = null, chartReporter = null, chartTrend = null;
+
+// ═══════════════════════════════════════════════════════════
+// XML HELPERS
+// ═══════════════════════════════════════════════════════════
+function getEl(parent, tag) {
+  const els = parent.getElementsByTagName(tag);
+  return els.length > 0 ? els[0] : null;
+}
+function getText(parent, tag) {
+  const el = getEl(parent, tag);
+  return el ? el.textContent.trim() : '';
+}
+
+// ═══════════════════════════════════════════════════════════
+// DMARC PARSER
+// ═══════════════════════════════════════════════════════════
+function parseDmarcXml(xmlStr, filename) {
+  const doc = new DOMParser().parseFromString(xmlStr, 'text/xml');
+  if (doc.querySelector('parsererror')) throw new Error('Invalid XML');
+
+  const meta   = getEl(doc, 'report_metadata');
+  const polPub = getEl(doc, 'policy_published');
+  const dateEl = getEl(doc, 'date_range');
+
+  const orgName  = meta    ? getText(meta,   'org_name')  : 'Unknown';
+  const reportId = meta    ? getText(meta,   'report_id') : 'rpt_' + Math.random().toString(36).slice(2);
+  const domain   = polPub  ? getText(polPub, 'domain')    : '';
+  const policy   = polPub  ? getText(polPub, 'p')         : '';
+
+  const epochBegin = dateEl ? parseInt(getText(dateEl, 'begin')) * 1000 : 0;
+  const epochEnd   = dateEl ? parseInt(getText(dateEl, 'end'))   * 1000 : 0;
+  const fmt = ts => ts && !isNaN(ts)
+    ? new Date(ts).toLocaleDateString('en-CA', { month:'short', day:'numeric', year:'numeric' })
+    : '?';
+  const dateRangeStr = `${fmt(epochBegin)} – ${fmt(epochEnd)}`;
+
+  const records = [];
+  for (const rec of doc.getElementsByTagName('record')) {
+    const row    = getEl(rec, 'row');
+    const idents = getEl(rec, 'identifiers');
+    const auth   = getEl(rec, 'auth_results');
+    const pe     = row ? getEl(row, 'policy_evaluated') : null;
+
+    const sourceIp    = row  ? getText(row,    'source_ip')  : '';
+    const count       = row  ? (parseInt(getText(row, 'count')) || 1) : 1;
+    const disposition = pe   ? getText(pe,     'disposition') : 'none';
+    const dmarcDkim   = pe   ? getText(pe,     'dkim')        : '';
+    const dmarcSpf    = pe   ? getText(pe,     'spf')         : '';
+    const headerFrom  = idents ? getText(idents,'header_from') : '';
+
+    let authDkimDomain = '', authDkimSel = '', authSpfDomain = '';
+    if (auth) {
+      const d = getEl(auth, 'dkim');
+      if (d) { authDkimDomain = getText(d,'domain'); authDkimSel = getText(d,'selector'); }
+      const s = getEl(auth, 'spf');
+      if (s) authSpfDomain = getText(s, 'domain');
+    }
+
+    records.push({
+      org_name: orgName, report_id: reportId, domain, policy,
+      date_range: dateRangeStr, date_begin: epochBegin, date_end: epochEnd,
+      source_ip: sourceIp, count, disposition,
+      dmarc_pass: (dmarcDkim === 'pass' || dmarcSpf === 'pass'),
+      dkim_result: dmarcDkim, spf_result: dmarcSpf,
+      header_from: headerFrom,
+      auth_dkim_domain: authDkimDomain, auth_dkim_selector: authDkimSel,
+      auth_spf_domain: authSpfDomain,
+      filename
+    });
+  }
+  return { reportId, records };
+}
+
+// ═══════════════════════════════════════════════════════════
+// FILE PROCESSING
+// ═══════════════════════════════════════════════════════════
+async function processFile(file) {
+  const n = file.name.toLowerCase(), out = [];
+  try {
+    if (n.endsWith('.zip')) {
+      const zip = await JSZip.loadAsync(file);
+      for (const [path, entry] of Object.entries(zip.files)) {
+        if (entry.dir) continue;
+        const lp = path.toLowerCase();
+        let xml = null;
+        if (lp.endsWith('.xml'))                     xml = await entry.async('string');
+        else if (lp.endsWith('.gz'))  { const b = await entry.async('uint8array'); xml = pako.inflate(b,{to:'string'}); }
+        if (xml) {
+          const { reportId, records } = parseDmarcXml(xml, file.name);
+          if (!loadedReportIds.has(reportId)) { loadedReportIds.add(reportId); out.push(...records); }
+        }
+      }
+    } else if (n.endsWith('.gz')) {
+      const buf = await file.arrayBuffer();
+      const xml = pako.inflate(new Uint8Array(buf), { to:'string' });
+      const { reportId, records } = parseDmarcXml(xml, file.name);
+      if (!loadedReportIds.has(reportId)) { loadedReportIds.add(reportId); out.push(...records); }
+    } else if (n.endsWith('.xml')) {
+      const xml  = await file.text();
+      const { reportId, records } = parseDmarcXml(xml, file.name);
+      if (!loadedReportIds.has(reportId)) { loadedReportIds.add(reportId); out.push(...records); }
+    }
+  } catch(e) { console.warn('Skipped', file.name, e.message); }
+  return out;
+}
+
+// ═══════════════════════════════════════════════════════════
+// DROP / INPUT
+// ═══════════════════════════════════════════════════════════
+document.getElementById('file-input').addEventListener('change', async e => {
+  await loadFiles(Array.from(e.target.files)); e.target.value = '';
+});
+const zone = document.getElementById('upload-zone');
+zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+zone.addEventListener('drop', async e => {
+  e.preventDefault(); zone.classList.remove('drag-over');
+  await loadFiles(Array.from(e.dataTransfer.files));
+});
+async function loadFiles(files) {
+  for (const f of files) {
+    const recs = await processFile(f);
+    if (recs.length) { allRecords.push(...recs); loadedFileNames.push(f.name); }
+  }
+  if (allRecords.length) {
+    document.getElementById('upload-zone').style.display = 'none';
+    document.getElementById('dashboard').style.display   = 'block';
+    refresh();
+  }
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// REFRESH
+// ═══════════════════════════════════════════════════════════
+function refresh() {
+  applyFilters();
+  updateStats();
+  updateCoreCharts();
+  updateExtraCharts();
+  updateChips();
+}
+
+// ═══════════════════════════════════════════════════════════
+// FILTER + SORT
+// ═══════════════════════════════════════════════════════════
+function applyFilters() {
+  filteredRecords = allRecords.filter(r => {
+    const fOk = activeFilter === 'all'
+      || (activeFilter === 'pass' &&  r.dmarc_pass)
+      || (activeFilter === 'fail' && !r.dmarc_pass);
+    const q = searchQuery.toLowerCase();
+    const sOk = !q
+      || r.source_ip.includes(q)
+      || r.org_name.toLowerCase().includes(q)
+      || r.header_from.toLowerCase().includes(q)
+      || r.domain.toLowerCase().includes(q)
+      || r.auth_dkim_domain.toLowerCase().includes(q);
+    return fOk && sOk;
+  });
+
+  const key = sortKey;
+  filteredRecords.sort((a, b) => {
+    let va = a[key], vb = b[key];
+    if (typeof va === 'boolean') { va = va?1:0; vb = vb?1:0; }
+    if (typeof va === 'string')  { va = va.toLowerCase(); vb = vb.toLowerCase(); }
+    if (va < vb) return sortAsc ? -1 :  1;
+    if (va > vb) return sortAsc ?  1 : -1;
+    return 0;
+  });
+  renderTable();
+}
+
+// ═══════════════════════════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════════════════════════
+const sumC = (arr, fn) => arr.reduce((s,r) => s + (fn ? fn(r) : r), 0);
+
+function updateStats() {
+  const total    = sumC(allRecords, r => r.count);
+  const dpassed  = sumC(allRecords.filter(r =>  r.dmarc_pass), r => r.count);
+  const dkimPass = sumC(allRecords.filter(r =>  r.dkim_result === 'pass'), r => r.count);
+  const spfPass  = sumC(allRecords.filter(r =>  r.spf_result  === 'pass'), r => r.count);
+  const pct = n => total > 0 ? n / total * 100 : 0;
+
+  setVal('s-total', total.toLocaleString(), 'neu');
+  setRate('s-dmarc', pct(dpassed));
+  document.getElementById('s-dmarc-sub').textContent =
+    `${dpassed.toLocaleString()} of ${total.toLocaleString()} msgs`;
+  setRate('s-dkim',    pct(dkimPass));
+  setRate('s-spf',     pct(spfPass));
+  setVal('s-ips',     new Set(allRecords.map(r => r.source_ip)).size, 'neu');
+  setVal('s-reports', loadedReportIds.size, 'neu');
+
+  const starts = allRecords.map(r => r.date_begin).filter(Boolean);
+  const ends   = allRecords.map(r => r.date_end).filter(Boolean);
+  if (starts.length) {
+    const fs = ts => new Date(ts).toLocaleDateString('en-CA',{month:'short',day:'numeric'});
+    document.getElementById('s-daterange').textContent =
+      `${fs(Math.min(...starts))} – ${fs(Math.max(...ends))}`;
+  }
+}
+function setVal(id, v, cls) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = v;
+  if (cls) el.className = 'stat-value ' + cls;
+}
+function setRate(id, pct) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent  = pct.toFixed(1) + '%';
+  el.className    = 'stat-value ' + (pct >= 95 ? 'good' : pct >= 80 ? 'warn' : 'bad');
+}
+
+// ═══════════════════════════════════════════════════════════
+// CHARTS – ROW 1 (always shown)
+// ═══════════════════════════════════════════════════════════
+function updateCoreCharts() {
+  const total  = sumC(allRecords, r => r.count);
+  const passed = sumC(allRecords.filter(r => r.dmarc_pass), r => r.count);
+  const failed = total - passed;
+  const dk_p   = sumC(allRecords.filter(r => r.dkim_result === 'pass'), r => r.count);
+  const dk_f   = sumC(allRecords.filter(r => r.dkim_result && r.dkim_result !== 'pass'), r => r.count);
+  const sp_p   = sumC(allRecords.filter(r => r.spf_result  === 'pass'), r => r.count);
+  const sp_f   = sumC(allRecords.filter(r => r.spf_result  && r.spf_result  !== 'pass'), r => r.count);
+
+  destroyChart('chartDmarc');
+  chartDmarc = new Chart(document.getElementById('chart-dmarc'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Pass', 'Fail'],
+      datasets: [{ data: [passed, failed],
+        backgroundColor: [C_PASS, C_FAIL],
+        borderColor: '#fff', borderWidth: 3, hoverOffset: 5 }]
+    },
+    options: {
+      cutout: '62%',
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12 } },
+        tooltip: { callbacks: { label: ctx => {
+          const p = total > 0 ? (ctx.raw / total * 100).toFixed(1) : 0;
+          return ` ${ctx.label}: ${ctx.raw.toLocaleString()} (${p}%)`;
+        }}}
+      }
+    }
+  });
+
+  destroyChart('chartAuth');
+  chartAuth = new Chart(document.getElementById('chart-auth'), {
+    type: 'bar',
+    data: {
+      labels: ['DKIM', 'SPF'],
+      datasets: [
+        { label:'Pass', data:[dk_p, sp_p], backgroundColor: C_PASS, borderRadius: 5 },
+        { label:'Fail', data:[dk_f, sp_f], backgroundColor: C_FAIL, borderRadius: 5 }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position:'bottom', labels:{ boxWidth:12 } } },
+      scales: {
+        x: { grid:{ color: C_GRID } },
+        y: { beginAtZero: true, grid:{ color: C_GRID } }
+      }
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// CHARTS – ROW 2 (Reporter + Trend)
+// ═══════════════════════════════════════════════════════════
+function updateExtraCharts() {
+  buildReporterChart();
+  buildTrendChart();
+}
+
+function buildReporterChart() {
+  // Group by reporter
+  const repMap = new Map();
+  for (const r of allRecords) {
+    if (!repMap.has(r.org_name)) repMap.set(r.org_name, {pass:0, fail:0});
+    const e = repMap.get(r.org_name);
+    if (r.dmarc_pass) e.pass += r.count; else e.fail += r.count;
+  }
+  const sorted = [...repMap.entries()]
+    .sort((a,b) => (b[1].pass+b[1].fail) - (a[1].pass+a[1].fail));
+
+  const labels  = sorted.map(([k]) => k);
+  const passes  = sorted.map(([,v]) => v.pass);
+  const fails   = sorted.map(([,v]) => v.fail);
+  const height  = Math.max(200, labels.length * 32 + 48);
+
+  const wrap = document.getElementById('chart-reporter-wrap');
+  wrap.innerHTML = `<canvas id="chart-reporter"></canvas>`;
+  wrap.style.height = height + 'px';
+
+  const canvas = document.getElementById('chart-reporter');
+  canvas.style.height = height + 'px';
+
+  destroyChart('chartReporter');
+  chartReporter = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label:'Pass', data: passes, backgroundColor: C_PASS,  borderRadius: 4 },
+        { label:'Fail', data: fails,  backgroundColor: C_FAIL,  borderRadius: 4 }
+      ]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position:'bottom', labels:{ boxWidth:12 } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw.toLocaleString()}` }}
+      },
+      scales: {
+        x: { stacked: false, beginAtZero: true, grid:{ color: C_GRID } },
+        y: { stacked: false, grid:{ display: false } }
+      }
+    }
+  });
+}
+
+function buildTrendChart() {
+  // Group by calendar day (YYYY-MM-DD using date_begin)
+  const dayMap = new Map();
+  for (const r of allRecords) {
+    if (!r.date_begin) continue;
+    const day = new Date(r.date_begin).toISOString().slice(0, 10);
+    if (!dayMap.has(day)) dayMap.set(day, { pass:0, fail:0 });
+    const e = dayMap.get(day);
+    if (r.dmarc_pass) e.pass += r.count; else e.fail += r.count;
+  }
+  const sorted = [...dayMap.entries()].sort((a,b) => a[0].localeCompare(b[0]));
+
+  const labels    = sorted.map(([k]) =>
+    new Date(k).toLocaleDateString('en-CA',{month:'short', day:'numeric'})
+  );
+  const passRates = sorted.map(([,v]) => {
+    const t = v.pass + v.fail;
+    return t > 0 ? parseFloat((v.pass / t * 100).toFixed(1)) : null;
+  });
+  const volumes   = sorted.map(([,v]) => v.pass + v.fail);
+
+  destroyChart('chartTrend');
+  chartTrend = new Chart(document.getElementById('chart-trend'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Pass Rate %',
+          data: passRates,
+          borderColor: C_PASS,
+          backgroundColor: 'rgba(26,127,55,.08)',
+          borderWidth: 2,
+          pointBackgroundColor: C_PASS,
+          pointRadius: sorted.length > 30 ? 2 : 4,
+          tension: 0.3,
+          fill: true,
+          yAxisID: 'y'
+        },
+        {
+          label: 'Message Volume',
+          data: volumes,
+          borderColor: C_ACCENT,
+          backgroundColor: 'transparent',
+          borderWidth: 1.5,
+          borderDash: [4, 3],
+          pointRadius: 0,
+          tension: 0.3,
+          yAxisID: 'y2'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position:'bottom', labels:{ boxWidth:12 } },
+        tooltip: { callbacks: {
+          label: ctx => ctx.datasetIndex === 0
+            ? ` Pass rate: ${ctx.raw}%`
+            : ` Volume: ${(ctx.raw||0).toLocaleString()}`
+        }}
+      },
+      scales: {
+        x:  { grid:{ color: C_GRID }, ticks:{ maxTicksLimit: 10 } },
+        y:  { beginAtZero: false, max:100, grid:{ color: C_GRID },
+              ticks:{ callback: v => v + '%' }, title:{ display:true, text:'Pass Rate' } },
+        y2: { beginAtZero: true, position:'right', grid:{ display:false },
+              title:{ display:true, text:'Volume' } }
+      }
+    }
+  });
+}
+
+
+function destroyChart(name) {
+  if (window[name]) { window[name].destroy(); window[name] = null; }
+}
+
+// ═══════════════════════════════════════════════════════════
+// TABLE
+// ═══════════════════════════════════════════════════════════
+function renderTable() {
+  const tbody = document.getElementById('tbody');
+  if (!filteredRecords.length) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state">
+      <div class="empty-state-icon">🔍</div>No records match your filters.</div></td></tr>`;
+    document.getElementById('row-count').textContent = '';
+    return;
+  }
+
+  tbody.innerHTML = filteredRecords.map(r => {
+    const dmarc = mkBadge(r.dmarc_pass ? 'pass' : 'fail', true,
+      `DKIM aligned: ${r.dkim_result||'—'} | SPF aligned: ${r.spf_result||'—'}`);
+
+    return `<tr>
+      <td>${esc(r.org_name)}</td>
+      <td style="font-size:.74rem;color:var(--text-3)">${esc(r.date_range)}</td>
+      <td><span class="ip-cell">${esc(r.source_ip)}</span></td>
+      <td style="text-align:right" class="msg-count">${r.count.toLocaleString()}</td>
+      <td>${dmarc}</td>
+      <td>${mkBadge(r.dkim_result)}</td>
+      <td>${mkBadge(r.spf_result)}</td>
+      <td><span class="badge b-none">${esc(r.disposition||'none')}</span></td>
+      <td class="domain-cell">${esc(r.header_from)}</td>
+    </tr>`;
+  }).join('');
+
+  document.querySelectorAll('thead th[id^="th-"]').forEach(th => th.classList.remove('sorted'));
+  const sTh = document.getElementById('th-' + sortKey);
+  if (sTh) sTh.classList.add('sorted');
+
+  document.getElementById('row-count').textContent =
+    `${filteredRecords.length.toLocaleString()} of ${allRecords.length.toLocaleString()} records`;
+}
+
+function mkBadge(val, isDmarc, title) {
+  const t = title ? ` title="${esc(title)}"` : '';
+  if (!val)           return `<span class="badge b-none"${t}>—</span>`;
+  if (val === 'pass') return `<span class="badge b-pass"${t}>${esc(val)}</span>`;
+  if (val === 'fail') return `<span class="badge b-fail"${t}>${esc(val)}</span>`;
+  return `<span class="badge b-none"${t}>${esc(val)}</span>`;
+}
+function esc(s) {
+  return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ═══════════════════════════════════════════════════════════
+// TABLE INTERACTIONS
+// ═══════════════════════════════════════════════════════════
+function sortBy(key) {
+  sortAsc = (sortKey === key) ? !sortAsc : (key !== 'count');
+  sortKey = key;
+  applyFilters();
+}
+function setFilter(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-pill').forEach(b =>
+    b.classList.remove('active','active-pass','active-fail'));
+  btn.classList.add(f === 'pass' ? 'active-pass' : f === 'fail' ? 'active-fail' : 'active');
+  applyFilters();
+}
+function setSearch(q) { searchQuery = q; applyFilters(); }
+
+// ═══════════════════════════════════════════════════════════
+// FILE CHIPS
+// ═══════════════════════════════════════════════════════════
+function updateChips() {
+  document.getElementById('file-chips').innerHTML =
+    loadedFileNames.map(n => `<span class="chip">📄 ${esc(n)}</span>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// CSV EXPORT
+// ═══════════════════════════════════════════════════════════
+function exportCsv() {
+  const cols = ['Reporter','Period','Domain','Policy','Source IP','Messages',
+    'DMARC','DKIM (aligned)','SPF (aligned)','Disposition','Header From',
+    'Auth DKIM Domain','DKIM Selector','Auth SPF Domain'];
+  const rows = allRecords.map(r => [
+    r.org_name, r.date_range, r.domain, r.policy, r.source_ip, r.count,
+    r.dmarc_pass?'pass':'fail', r.dkim_result, r.spf_result, r.disposition,
+    r.header_from, r.auth_dkim_domain, r.auth_dkim_selector, r.auth_spf_domain
+  ]);
+  const csv = [cols,...rows]
+    .map(row => row.map(c => `"${String(c??'').replace(/"/g,'""')}"`).join(','))
+    .join('\n');
+  const url = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+  const a   = Object.assign(document.createElement('a'),{href:url,download:'dmarc-export.csv'});
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+</script>
+</body>
+</html>
