@@ -1,1 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ID Assist — Alert Assist (popup launcher)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --red:#E8292F; --gold:#FAAF42; --amber:#F57C00; --teal:#287292;
+    --dark:#212529; --body:#4B3F34; --slate:#495057; --green:#2E7D32;
+    --line:#E0E0E0; --bg:#F4F5F7; --card:#FFFFFF; --accent:#287292;
+    --font-body:"Source Sans 3","Source Sans Pro",Segoe UI,Roboto,sans-serif;
+    --font-display:"Trebuchet MS","Source Sans 3",Segoe UI,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:var(--font-body);color:var(--body);background:var(--bg);line-height:1.55;-webkit-font-smoothing:antialiased}
 
+  .demobar{position:fixed;top:0;left:0;right:0;z-index:200;background:#1d2b33;color:#fff;
+    font-size:13px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;padding:8px 16px}
+  .demobar strong{font-weight:700;color:var(--gold)}
+  .demobar .hint{color:#cfe0e6}
+
+  .topnav{position:fixed;top:36px;left:0;right:0;height:64px;background:#fff;border-bottom:1px solid var(--line);
+    display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:150}
+  .topnav .logo{font-family:var(--font-display);font-weight:700;font-size:21px;color:var(--teal);letter-spacing:-.3px}
+  .topnav .logo span{color:var(--red)}
+  .topnav .right{display:flex;align-items:center;gap:18px;color:var(--slate)}
+  .topnav .avatar{width:34px;height:34px;border-radius:50%;background:var(--teal);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+
+  .hero{margin-top:100px;background:linear-gradient(110deg,var(--green),var(--teal));color:#fff;padding:26px 24px}
+  .hero .crumb{font-size:13px;opacity:.85;margin-bottom:6px}
+  .hero h1{font-family:var(--font-display);font-weight:700;font-size:24px}
+
+  .wrap{max-width:880px;margin:0 auto;padding:24px 24px 140px}
+  .placeholder{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:40px 24px;text-align:center;color:var(--slate);font-size:14.5px}
+  .placeholder b{display:block;color:var(--dark);font-family:var(--font-display);font-size:16px;margin-bottom:6px}
+
+  /* Launcher popup (bottom-right) */
+  .launcher{position:fixed;bottom:20px;right:20px;z-index:300;background:var(--card);
+    border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 36px rgba(0,0,0,.16);
+    width:310px;overflow:hidden;animation:rise .45s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+  .launcher .lbar{height:5px;background:var(--accent)}
+  .launcher .lbody{padding:16px 18px;position:relative}
+  .launcher .lclose{position:absolute;top:6px;right:8px;background:0;border:0;font-size:20px;
+    color:var(--slate);cursor:pointer;line-height:1;padding:4px;border-radius:5px}
+  .launcher .lclose:hover{background:#f0f0f0}
+  .launcher h3{font-family:var(--font-display);font-size:15.5px;color:var(--dark);margin:2px 0 5px;padding-right:18px}
+  .launcher p{font-size:13px;color:var(--slate);margin-bottom:13px}
+  .launcher button.go{width:100%;background:var(--accent);color:#fff;border:0;border-radius:8px;
+    padding:11px;font:600 14px var(--font-body);cursor:pointer}
+  .launcher button.go:hover{filter:brightness(1.07)}
+
+  /* Widget overlay */
+  .aa-overlay{position:fixed;inset:0;z-index:1000;background:rgba(20,28,33,.55);
+    display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
+  .aa-overlay.open{display:flex}
+  .aa-panel{background:var(--card);border-radius:16px;width:100%;max-width:580px;
+    box-shadow:0 24px 60px rgba(0,0,0,.3);overflow:hidden;animation:rise .35s ease}
+  .aa-prog{height:5px;background:var(--line)}
+  .aa-prog i{display:block;height:100%;background:var(--accent);width:0;border-radius:0 3px 3px 0;transition:width .35s}
+  .aa-head{display:flex;align-items:center;justify-content:space-between;padding:16px 22px 0}
+  .aa-head .step{font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--slate)}
+  .aa-x{background:0;border:0;font-size:24px;color:var(--slate);cursor:pointer;line-height:1;padding:2px 6px;border-radius:5px}
+  .aa-x:hover{background:#f0f0f0}
+  .aa-b{padding:14px 26px 26px}
+  .aa-kicker{font-size:12.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+  .aa-q{font-family:var(--font-display);font-size:20px;color:var(--dark);line-height:1.35;margin-bottom:6px}
+  .aa-sub{font-size:14px;color:var(--slate);margin-bottom:18px}
+  .aa-note{font-size:13px;color:var(--slate);background:#f8f9fa;border:1px solid var(--line);
+    border-radius:9px;padding:12px 14px;margin:14px 0}
+
+  .aa-opts{display:flex;flex-direction:column;gap:9px;margin-bottom:6px}
+  .aa-opt{display:flex;align-items:center;gap:13px;padding:13px 16px;background:#f7f8f9;
+    border:2px solid transparent;border-radius:10px;cursor:pointer;font-size:15px;color:var(--dark);
+    text-align:left;width:100%;font-family:var(--font-body);transition:background .12s,border-color .12s}
+  .aa-opt:hover{background:#eef0f1}
+  .aa-opt.sel{border-color:var(--accent);background:#eef4f6}
+  .aa-opt .mk{width:20px;height:20px;border:2px solid #c9ced2;border-radius:50%;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center}
+  .aa-opt.multi .mk{border-radius:6px}
+  .aa-opt .mk i{width:10px;height:10px;border-radius:50%;background:var(--accent);transform:scale(0);transition:transform .12s}
+  .aa-opt.multi .mk i{border-radius:2px}
+  .aa-opt.sel .mk{border-color:var(--accent)}
+  .aa-opt.sel .mk i{transform:scale(1)}
+
+  .aa-nav{display:flex;justify-content:space-between;gap:10px;margin-top:20px}
+  .aa-btn{padding:11px 22px;border-radius:9px;font:600 14.5px var(--font-body);cursor:pointer;border:0;transition:filter .15s,background .15s}
+  .aa-btn.p{background:var(--accent);color:#fff}
+  .aa-btn.p:hover{filter:brightness(1.07)}
+  .aa-btn.p:disabled{opacity:.4;cursor:not-allowed;filter:none}
+  .aa-btn.s{background:#f0f0f0;color:var(--dark)}
+  .aa-btn.s:hover{background:#e4e4e4}
+
+  /* Verdict */
+  .verdict{border-radius:12px;padding:18px 20px;margin-bottom:18px;border:1px solid var(--line)}
+  .verdict .vbadge{display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;
+    padding:4px 10px;border-radius:20px;margin-bottom:10px}
+  .verdict h3{font-family:var(--font-display);font-size:19px;color:var(--dark);margin-bottom:6px}
+  .verdict p{font-size:14.5px;color:var(--body)}
+  .v1{background:#eef4f6}.v1 .vbadge{background:#d4e6ec;color:#1c5168}
+  .v2{background:#fff8ec}.v2 .vbadge{background:#fde6c0;color:#8a5a12}
+  .v3{background:#fff1e6}.v3 .vbadge{background:#fbd3b4;color:#9a4a12}
+  .v4{background:#fdeaea}.v4 .vbadge{background:#f7c9c9;color:#a02226}
+  .rationale{font-size:13.5px;color:var(--slate);background:#f8f9fa;border:1px solid var(--line);
+    border-radius:9px;padding:13px 15px;margin-bottom:18px}
+  .rationale b{color:var(--dark)}
+  .checklist{margin-bottom:18px}
+  .checklist h4{font-family:var(--font-display);font-size:15px;color:var(--dark);margin-bottom:10px}
+  .ci{display:flex;gap:11px;align-items:flex-start;padding:11px 13px;border:1px solid var(--line);
+    border-radius:9px;margin-bottom:8px;cursor:pointer;font-size:14px}
+  .ci:hover{background:#f8f9fa}
+  .ci.done{background:#f0f7f1;border-color:#bcdcc0}
+  .ci .cb{width:20px;height:20px;border:2px solid #c9ced2;border-radius:5px;flex-shrink:0;margin-top:1px;
+    display:flex;align-items:center;justify-content:center}
+  .ci.done .cb{background:var(--green);border-color:var(--green)}
+  .ci .cb svg{width:12px;height:12px;opacity:0}
+  .ci.done .cb svg{opacity:1}
+  .ci .ctxt{flex:1;min-width:0}
+  .ci .ctxt .what{color:var(--dark);line-height:1.4}
+  .ci .ctxt .why{font-size:12.5px;color:var(--slate);margin-top:4px;line-height:1.5}
+  .ci.done .ctxt .what{color:var(--slate);text-decoration:line-through}
+  .ci.done .ctxt .why{color:var(--slate);opacity:.6}
+  .cta{background:var(--accent);color:#fff;border:0;border-radius:10px;padding:14px;width:100%;
+    font:700 15px var(--font-body);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:10px}
+  .cta:hover{filter:brightness(1.07)}
+  .cta.alt{background:#fff;color:var(--accent);border:2px solid var(--accent)}
+  .cta.muted{background:#f0f0f0;color:var(--dark)}
+  .escape{font-size:13px;color:var(--slate);text-align:center;padding:10px 4px 2px;line-height:1.6}
+  .escape a{color:var(--accent);font-weight:700;text-decoration:none}
+
+  .form{border:1px solid var(--line);border-radius:11px;padding:16px 18px;margin-top:6px;background:#fafbfc}
+  .form h4{font-family:var(--font-display);font-size:15px;color:var(--dark);margin-bottom:4px}
+  .form .fnote{font-size:12.5px;color:var(--slate);margin-bottom:14px}
+  .field{margin-bottom:12px}
+  .field label{display:block;font-size:13px;font-weight:600;color:var(--dark);margin-bottom:5px}
+  .field input,.field select{width:100%;padding:10px 12px;border:1px solid #cfd4d8;border-radius:8px;
+    font:400 14px var(--font-body);color:var(--dark);background:#fff}
+  .field input:focus,.field select:focus{outline:0;border-color:var(--accent)}
+  .field input[readonly]{background:#eef0f1;color:var(--slate)}
+  .afterhours{font-size:12.5px;color:#8a5a12;background:#fff8ec;border:1px solid #fde6c0;
+    border-radius:8px;padding:11px 13px;margin-bottom:14px;line-height:1.55}
+  .done-screen{text-align:center;padding:14px 0 6px}
+  .done-screen .dot{width:54px;height:54px;border-radius:50%;background:var(--green);
+    display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+  .done-screen h3{font-family:var(--font-display);font-size:20px;color:var(--dark);margin-bottom:8px}
+  .done-screen p{font-size:14.5px;color:var(--slate);max-width:380px;margin:0 auto 6px}
+
+  @media(max-width:600px){
+    .aa-overlay{padding:0}
+    .aa-panel{max-width:100%;min-height:100%;border-radius:0}
+    .hero h1{font-size:20px}
+    .launcher{left:12px;right:12px;width:auto}
+  }
+</style>
+</head>
+<body>
+
+<div class="demobar" role="region" aria-label="Prototype controls">
+  <strong>PROTOTYPE</strong>
+  <span class="hint">Popup-launcher build &middot; the widget asks for the alert details. Click the launcher in the bottom-right to begin.</span>
+</div>
+
+<header class="topnav">
+  <div class="logo">ID<span>Assist</span></div>
+  <div class="right">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
+    <div class="avatar">GT</div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="crumb">Dashboard &rsaquo; Alerts</div>
+  <h1>Your alerts</h1>
+</section>
+
+<main class="wrap">
+  <div class="placeholder">
+    <b>Your alerts page</b>
+    The popup-launcher version of Alert Assist sits on top of whatever the alerts page already shows.
+    Use the bottom-right launcher to start an assessment.
+  </div>
+</main>
+
+<!-- Launcher popup -->
+<div class="launcher" id="launcher" role="dialog" aria-label="Alert help">
+  <div class="lbar"></div>
+  <button class="lclose" id="lclose" aria-label="Dismiss">&times;</button>
+  <div class="lbody">
+    <h3>Not sure what your alert means?</h3>
+    <p>Answer a few short questions and we&rsquo;ll help you understand it &mdash; with a specialist&rsquo;s help if you need it.</p>
+    <button class="go" data-launch>Help me with this</button>
+  </div>
+</div>
+
+<!-- Widget overlay -->
+<div class="aa-overlay" id="aaOverlay" role="dialog" aria-modal="true" aria-label="Alert assessment">
+  <div class="aa-panel">
+    <div class="aa-prog"><i id="aaProg"></i></div>
+    <div class="aa-head">
+      <span class="step" id="aaStep"></span>
+      <button class="aa-x" id="aaX" aria-label="Close assessment">&times;</button>
+    </div>
+    <div class="aa-b" id="aaBody" aria-live="polite"></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+(function(){
+
+  /* ===================================================================
+     BRAND CONFIG (per SigmaSurvey PRODUCTS pattern; Worker-served in prod)
+     Set hasScanScore:false for NBAN; true for all other brands.
+  =================================================================== */
+  var BRAND = { name:"ID Assist", accent:"#287292", phone:"1-877-900-1837", hasScanScore:true };
+  var SUBSCRIBER = { name:"Geoffrey Thomas", email:"gthomas" + "&#64;" + "outlook.com" };
+
+  /* ===================================================================
+     OPTION LISTS
+  =================================================================== */
+  var IDTYPES = [
+    ["email","Email address"],
+    ["phone","Phone number"],
+    ["card","Credit or debit card number"],
+    ["bank","Bank account number"],
+    ["sin","Social Insurance Number"],
+    ["licence","Driver\u2019s licence number"],
+    ["passport","Passport number"],
+    ["prcard","Permanent Resident Card number"],
+    ["loyalty","Loyalty card number"],
+    ["health","Health insurance number"],
+    ["unsure","I\u2019m not sure / it\u2019s not clear"]
+  ];
+  var ALONGSIDE = [
+    ["password","A password"],
+    ["dob","Your date of birth"],
+    ["govid","Another government ID (SIN, licence, passport, PR card)"],
+    ["contact","Your address or phone number"],
+    ["username","A username or security question"],
+    ["none","Nothing else \u2014 just the one thing"],
+    ["unsure","I\u2019m not sure"]
+  ];
+  var CREDITTYPES = [
+    ["inquiry","A new credit inquiry"],
+    ["trade","A new account or loan"],
+    ["address","An address change"],
+    ["name","A name change"],
+    ["collections","A new collection"],
+    ["bankruptcy","A bankruptcy"],
+    ["foreclosure","A foreclosure"],
+    ["unsure","I\u2019m not sure"]
+  ];
+
+  /* ===================================================================
+     RISK MODEL  (same weights as contextual; user answers replace the
+     parsed alert fields)
+  =================================================================== */
+  function recencyPoints(r){
+    if(r==="lt7")  return 2;
+    if(r==="lt30") return 1;
+    if(r==="lt90") return 1;
+    return 0;
+  }
+  function scoreIdentity(alert, ans){
+    var s = 0;
+    if(alert.hasPassword)                                              s += 3;
+    if(alert.hasDob)                                                   s += 2;
+    if(alert.hasGovId)                                                 s += 3;
+    if(["sin","passport","licence","prcard"].indexOf(alert.idType)>-1) s += 3;
+    if(alert.identifierCount >= 4)                                     s += 1;
+    s += recencyPoints(alert.recencyBucket);
+    if(alert.hasPassword && (ans.pwChanged==="no"||ans.pwChanged==="unsure")) s += 1;
+    if(ans.activity==="maybe") s += 2;
+    if(ans.activity==="yes")   s += 4;
+    return s;
+  }
+  function scoreCredit(alert, ans){
+    var s = 0;
+    if(ans.initiated==="no")     s += 5;
+    if(ans.initiated==="unsure") s += 3;
+    if(ans.recognise==="no")     s += 2;
+    if(ans.recognise==="unsure") s += 2;
+    if(ans.activity==="maybe")   s += 2;
+    if(ans.activity==="yes")     s += 4;
+    return s;
+  }
+  function tier(score){
+    if(score >= 9) return 4;
+    if(score >= 5) return 3;
+    if(score >= 3) return 2;
+    return 1;
+  }
+  var TIERS = {
+    1:{ cls:"v1", badge:"For your awareness",
+        head:"Nothing urgent \u2014 a few quick steps and you\u2019re done",
+        frame:"The steps below are worth taking when you have a few minutes." },
+    2:{ cls:"v2", badge:"Worth a few steps",
+        head:"A few steps and you\u2019ve got this",
+        frame:"Take the steps below now. After that, keep an eye on things over the next little while in case anything else turns up." },
+    3:{ cls:"v3", badge:"Time to take action",
+        head:"These are worth acting on promptly",
+        frame:"Based on what you\u2019ve told us, working through the steps below promptly is your best move. If you\u2019d rather walk through it with one of our specialists, you can request a callback below." },
+    4:{ cls:"v4", badge:"Let us help with this",
+        head:"We recommend speaking with a restoration specialist",
+        frame:"Based on what you\u2019ve told us, this is the kind of situation our restoration specialists handle every day. Request a callback below and we\u2019ll guide you through what comes next." }
+  };
+
+  /* ===================================================================
+     ACTION CHECKLISTS (identical to the contextual version)
+  =================================================================== */
+  function identityActions(alert){
+    var t = alert.idType, list = [];
+    var scan = BRAND.hasScanScore;
+    if(t==="email"){
+      if(alert.hasPassword){
+        list.push({
+          action: "Change the password for this email account right away.",
+          why: "A new password means the one that was leaked can\u2019t be used to get in."
+        });
+        list.push({
+          action: "Update any other account that uses the same password.",
+          why: "Same password elsewhere means the same risk elsewhere."
+        });
+      }
+      list.push({
+        action: "Turn on two-step verification for this email account.",
+        why: "Adds a second check at sign-in, so a leaked password alone won\u2019t be enough to get in."
+      });
+      if(scan){
+        list.push({
+          action: "Use Scan & Score on any suspicious messages that follow.",
+          why: "Our AI tool reviews emails, texts, and links and tells you if they look like scams \u2014 useful now that criminals have your contact info."
+        });
+        list.push({
+          action: "Turn on Scan & Score AutoScan for ongoing protection.",
+          why: "It watches your inbox continuously and flags suspicious messages before you open them."
+        });
+      } else if(!alert.hasPassword){
+        list.push({
+          action: "Be cautious of any unexpected messages addressed to this account.",
+          why: "Phishing attempts often follow exposed contact info \u2014 slow down before clicking links or sharing details."
+        });
+      }
+    }
+    else if(t==="phone"){
+      list.push({
+        action: "Tell your mobile provider this number was exposed and ask about extra account protection.",
+        why: "They can add safeguards against SIM-swap attempts, where someone tries to take over your number."
+      });
+      list.push({
+        action: "Be alert to suspicious texts or calls that follow.",
+        why: "Scam calls and texts often follow exposed phone numbers \u2014 pause and verify before responding."
+      });
+      if(scan){
+        list.push({
+          action: "Use Scan & Score on any suspicious emails or links that follow.",
+          why: "Criminals often pivot from phone to email \u2014 our AI tool can check messages and tell you if they look like scams."
+        });
+      }
+      list.push({
+        action: "Use strong, unique passwords on accounts tied to this number.",
+        why: "Many sign-in checks send a code to your phone \u2014 a strong password on top means a stolen number isn\u2019t enough on its own."
+      });
+    }
+    else if(t==="card"){
+      list.push({
+        action: "Notify your card issuer that the number was exposed.",
+        why: "They can flag the account for unusual activity and replace the card if needed."
+      });
+      list.push({
+        action: "Review recent statements for charges you don\u2019t recognise.",
+        why: "We\u2019re already watching for new dark-web exposures, but only you can spot a recent charge that wasn\u2019t yours."
+      });
+      list.push({
+        action: "Update your online-banking password.",
+        why: "If other login details were exposed too, a new password closes that path."
+      });
+    }
+    else if(t==="bank"){
+      list.push({
+        action: "Notify your bank that the account number was exposed.",
+        why: "They can flag the account for unusual activity and add extra protection if needed."
+      });
+      list.push({
+        action: "Review your account activity for anything unfamiliar.",
+        why: "We\u2019re watching for further exposures of this account, but only you can verify recent transactions."
+      });
+      list.push({
+        action: "Update your online-banking password.",
+        why: "A fresh password closes a path even if other login details slipped out at the same time."
+      });
+    }
+    else if(t==="sin"){
+      list.push({
+        action: "Contact Equifax and TransUnion and ask for a fraud alert on your file.",
+        why: "A fraud alert tells lenders to take extra care before opening any new credit in your name."
+      });
+      list.push({
+        action: "Tell your bank and card issuers the SIN was exposed.",
+        why: "They can watch your accounts more closely and flag anything that doesn\u2019t fit your usual activity."
+      });
+      list.push({
+        action: "Review your full credit report for anything unfamiliar.",
+        why: "We\u2019re checking both bureaus daily, so any new activity reaches you fast \u2014 a fresh look at the full report catches anything from before this alert."
+      });
+    }
+    else if(t==="licence"){
+      list.push({
+        action: "Tell your provincial licensing office your licence number was exposed.",
+        why: "They can flag the licence and reissue a new one if needed."
+      });
+      list.push({
+        action: "Ask Equifax and TransUnion to place a fraud alert on your file.",
+        why: "A fraud alert tells lenders to take extra care before opening any new credit using your details."
+      });
+      list.push({
+        action: "Review your full credit report for anything unfamiliar.",
+        why: "We\u2019re checking both bureaus daily for you \u2014 a full report review catches anything from before this alert."
+      });
+    }
+    else if(t==="passport"){
+      list.push({
+        action: "Call Passport Canada at 1-800-567-6868 for guidance.",
+        why: "They can replace the passport and flag the old one so it can\u2019t be used to enter or leave the country."
+      });
+      list.push({
+        action: "Ask Equifax and TransUnion to place a fraud alert on your file.",
+        why: "A passport opens a lot of doors, including new credit \u2014 a fraud alert tells lenders to slow down and verify."
+      });
+      list.push({
+        action: "Review your full credit report for anything unfamiliar.",
+        why: "We\u2019re checking both bureaus daily for you \u2014 a full report review catches anything from before this alert."
+      });
+    }
+    else if(t==="prcard"){
+      list.push({
+        action: "Contact IRCC (Immigration, Refugees and Citizenship Canada) at 1-888-242-2100 to report the exposure and ask about a replacement card.",
+        why: "They can flag the card so it can\u2019t be used as ID and start the replacement process."
+      });
+      list.push({
+        action: "Ask Equifax and TransUnion to place a fraud alert on your file.",
+        why: "A PR card is government-issued ID \u2014 a fraud alert tells lenders to take extra care before opening any new credit using your details."
+      });
+      list.push({
+        action: "Review your full credit report for anything unfamiliar.",
+        why: "We\u2019re checking both bureaus daily for you \u2014 a full report review catches anything from before this alert."
+      });
+    }
+    else if(t==="loyalty"){
+      list.push({
+        action: "Review your loyalty account for unfamiliar activity.",
+        why: "Points and balances are easy to drain quietly \u2014 a quick look catches it."
+      });
+      list.push({
+        action: "Change the account password if it has one.",
+        why: "A fresh password closes the path the leaked info opened."
+      });
+      list.push({
+        action: "Turn on two-step verification if the program offers it.",
+        why: "Adds a second check at sign-in, so the leaked info on its own isn\u2019t enough."
+      });
+    }
+    else if(t==="health"){
+      list.push({
+        action: "Tell your health-insurance provider the number was exposed.",
+        why: "They can watch the account for claims that aren\u2019t yours and replace the number if needed."
+      });
+      list.push({
+        action: "Review benefit statements for services you didn\u2019t receive.",
+        why: "Medical identity theft shows up as treatment you didn\u2019t get \u2014 only you can spot what wasn\u2019t real."
+      });
+      list.push({
+        action: "Watch for notices about benefits you didn\u2019t use.",
+        why: "Reaching a benefit limit you didn\u2019t use is a clear sign someone else has been claiming under your name."
+      });
+    }
+    else {
+      list.push({
+        action: "Change the password on any account tied to the information that was found.",
+        why: "A fresh password closes the path the leaked info opened."
+      });
+      list.push({
+        action: "Turn on two-step verification on important accounts.",
+        why: "Adds a second check at sign-in so a leaked password alone isn\u2019t enough."
+      });
+    }
+    if(alert.hasDob){
+      list.push({
+        action: "Be extra cautious about identity-verification calls or texts.",
+        why: "Date of birth is a common verification question \u2014 be slow to confirm it on a call or text you didn\u2019t expect."
+      });
+    }
+    if(alert.hasGovId && t!=="sin" && t!=="licence" && t!=="passport" && t!=="prcard"){
+      list.push({
+        action: "Place a fraud alert with Equifax and TransUnion if you haven\u2019t already.",
+        why: "Other government ID numbers were exposed too \u2014 a fraud alert covers the broader risk."
+      });
+    }
+    return list;
+  }
+  function creditActions(alert, ans){
+    var c = alert.creditType, list = [];
+    var who = "the company named in your alert";
+    if(c==="inquiry" || c==="trade"){
+      if(ans.initiated==="yes"){
+        list.push({
+          action: "This matches credit you applied for. No further action needed for this alert.",
+          why: "We\u2019ll keep watching both bureaus daily \u2014 you\u2019ll hear from us if anything else turns up."
+        });
+        list.push({
+          action: "A quick review of your full credit report is a good habit.",
+          why: "Catches anything from before this alert that might not have triggered its own notification."
+        });
+      } else {
+        list.push({
+          action: "Contact " + who + " using the phone number in your alert to confirm what happened.",
+          why: "They can tell you whether the request was legitimate, and flag the file if it wasn\u2019t."
+        });
+        list.push({
+          action: "Ask Equifax (1-800-465-7166) or TransUnion (1-800-663-9980) to place a fraud alert on your file.",
+          why: "A fraud alert tells lenders to take extra care before opening any new credit in your name."
+        });
+        list.push({
+          action: "Review your full credit report for anything else you don\u2019t recognise.",
+          why: "One inquiry you didn\u2019t make is worth a wider check \u2014 we\u2019re watching both bureaus daily, but a full review catches anything older."
+        });
+      }
+    } else if(c==="address"){
+      if(ans.initiated==="yes"){
+        list.push({
+          action: "This matches your move. No further action needed for this alert.",
+          why: "We\u2019ll keep watching the bureaus for any other changes you didn\u2019t make."
+        });
+      } else {
+        list.push({
+          action: "Contact Equifax at 1-800-465-7166 to find out who requested the address change.",
+          why: "They can tell you who reported the change and reverse it if it wasn\u2019t you."
+        });
+        list.push({
+          action: "Review your full credit report for anything else unfamiliar.",
+          why: "Address changes can be a step in identity theft \u2014 a full review catches anything else that\u2019s out of place."
+        });
+      }
+    } else if(c==="name"){
+      if(ans.initiated==="yes"){
+        list.push({
+          action: "This matches your name change. No further action needed for this alert.",
+          why: "We\u2019ll keep watching the bureaus for any other changes you didn\u2019t make."
+        });
+      } else {
+        list.push({
+          action: "Contact Equifax at 1-800-465-7166 to find out who requested the name change.",
+          why: "They can tell you who reported the change and reverse it if it wasn\u2019t you."
+        });
+        list.push({
+          action: "Review your full credit report for anything else unfamiliar.",
+          why: "A name change you didn\u2019t make is a strong identity-theft signal \u2014 a full review catches anything else suspicious."
+        });
+      }
+    } else if(c==="collections"){
+      list.push({
+        action: "Contact the collection agency named in your alert with any questions.",
+        why: "They can tell you what the debt is for and where it came from."
+      });
+      if(ans.initiated!=="yes"){
+        list.push({
+          action: "If this debt isn\u2019t yours, contact Equifax to dispute it.",
+          why: "Disputing it gets it removed from your credit file once it\u2019s confirmed not yours."
+        });
+      }
+    } else if(c==="bankruptcy"){
+      list.push({
+        action: "Contact the trustee of the account named in your alert.",
+        why: "They can clarify the bankruptcy and confirm whose it is."
+      });
+      if(ans.initiated!=="yes"){
+        list.push({
+          action: "If this isn\u2019t your bankruptcy, contact Equifax to dispute it immediately.",
+          why: "A bankruptcy on your file you didn\u2019t declare is a serious flag \u2014 dispute and document right away."
+        });
+      }
+    } else if(c==="foreclosure"){
+      list.push({
+        action: "Contact the court using the information in your alert.",
+        why: "They can tell you what was reported and why."
+      });
+      if(ans.initiated!=="yes"){
+        list.push({
+          action: "If this isn\u2019t yours, contact Equifax to dispute it immediately.",
+          why: "A foreclosure on your file you didn\u2019t experience is a serious flag \u2014 dispute and document right away."
+        });
+      }
+    } else {
+      list.push({
+        action: "Contact the party named in your alert to confirm what happened.",
+        why: "They can tell you what was reported and verify it was legitimate."
+      });
+      list.push({
+        action: "Review your full credit report for anything unfamiliar.",
+        why: "Anything you don\u2019t recognise is worth catching now \u2014 we\u2019re watching, but a full review covers anything older."
+      });
+    }
+    return list;
+  }
+
+  /* ===================================================================
+     FLOW
+  =================================================================== */
+  var answers = {};
+  var checked = {};
+  var stack = [];
+  var node = "intro";
+
+  function el(id){ return document.getElementById(id); }
+  function go(next){ stack.push(node); node = next; render(); }
+  function back(){ if(stack.length){ node = stack.pop(); render(); } }
+
+  function flowSteps(){
+    if(answers.category === "credit"){
+      var s = ["intro","category","creditType","initiated"];
+      if(answers.creditType === "inquiry" || answers.creditType === "trade") s.push("recognise");
+      s.push("activity","verdict","done");
+      return s;
+    }
+    /* identity, or "unsure" routed conservatively into the identity path */
+    if(answers.category === "identity" || answers.category === "unsure"){
+      var s = ["intro","category","idType","alongside","recency"];
+      if(answers.alongside && answers.alongside.indexOf("password") > -1) s.push("pwChanged");
+      s.push("activity","verdict","done");
+      return s;
+    }
+    return ["intro","category"];
+  }
+  function progressPct(){
+    var f = flowSteps(), i = f.indexOf(node);
+    if(i < 0) i = 0;
+    return Math.round((i / Math.max(1, f.length - 1)) * 100);
+  }
+  function qNumLabel(){
+    var f = flowSteps();
+    var qSteps = f.filter(function(s){ return s !== "intro" && s !== "category" && s !== "verdict" && s !== "done"; });
+    var idx = qSteps.indexOf(node);
+    if(idx < 0) return "";
+    var total = qSteps.length;
+    return total > 1 ? ("Question " + (idx + 1) + " of " + total) : "One question";
+  }
+
+  /* Synthesise the alert object the scoring / action functions expect,
+     from the subscriber's answers. (Parser-equivalent in standalone mode.) */
+  function buildAlert(){
+    var a = { id:"user-input", category:answers.category };
+    if(answers.category === "credit"){
+      a.creditType = answers.creditType;
+      return a;
+    }
+    var along = answers.alongside || [];
+    a.idType = answers.idType || "";
+    a.hasPassword = along.indexOf("password") > -1;
+    a.hasDob = along.indexOf("dob") > -1;
+    a.hasGovId = along.indexOf("govid") > -1;
+    var extras = along.filter(function(x){ return x !== "none" && x !== "unsure" && x !== "password"; });
+    a.identifierCount = 1 + extras.length + (a.hasPassword ? 1 : 0);
+    a.recencyBucket = answers.recency || "unknown";
+    return a;
+  }
+
+  function optionList(items, key, multi){
+    var cur = answers[key];
+    var html = '<div class="aa-opts" role="'+(multi?"group":"radiogroup")+'">';
+    items.forEach(function(it){
+      var val = it[0], label = it[1], sel;
+      if(multi){ sel = (cur||[]).indexOf(val) > -1; }
+      else { sel = cur === val; }
+      html += '<button class="aa-opt'+(multi?" multi":"")+(sel?" sel":"")+'" '+
+              'data-opt="'+val+'" data-key="'+key+'" data-multi="'+(multi?1:0)+'" '+
+              'role="'+(multi?"checkbox":"radio")+'" aria-checked="'+(sel?"true":"false")+'">'+
+              '<span class="mk"><i></i></span><span>'+label+'</span></button>';
+    });
+    return html + '</div>';
+  }
+  function navRow(opts){
+    opts = opts || {};
+    var b = opts.back === false ? "<span></span>" : '<button class="aa-btn s" data-act="back">Back</button>';
+    var n = opts.next === false ? "" :
+      '<button class="aa-btn p" data-act="'+(opts.act||"next")+'"'+(opts.disabled?" disabled":"")+'>'+
+      (opts.label||"Continue")+'</button>';
+    return '<div class="aa-nav">'+b+n+'</div>';
+  }
+
+  function render(){
+    var body = el("aaBody");
+    el("aaProg").style.width = progressPct() + "%";
+    var html = "", stepTxt = "";
+
+    if(node === "intro"){
+      stepTxt = "Alert assessment";
+      html = '<div class="aa-kicker">'+BRAND.name+'</div>'+
+        '<div class="aa-q">Let\u2019s understand your alert</div>'+
+        '<div class="aa-sub">A few short questions and we\u2019ll help you understand what your alert means and what to do next \u2014 with a specialist\u2019s help if you need it.</div>'+
+        '<div class="aa-note">We\u2019ll never tell you there\u2019s nothing to worry about. Whatever the result, a real person is always a click away.</div>'+
+        navRow({back:false, label:"Start", act:"next"});
+    }
+
+    else if(node === "category"){
+      stepTxt = "Step 1";
+      html = '<div class="aa-q">What kind of alert did you receive?</div>'+
+        '<div class="aa-sub">If you\u2019re not certain, choose the closest match \u2014 you can go back.</div>'+
+        optionList([
+          ["identity","An identity alert \u2014 your personal information was found online"],
+          ["credit","A credit alert \u2014 a change on your credit file"],
+          ["unsure","I\u2019m not sure"]
+        ],"category")+
+        navRow({disabled: !answers.category, act:"catNext"});
+    }
+
+    /* ---------- IDENTITY ---------- */
+    else if(node === "idType"){
+      stepTxt = qNumLabel();
+      html = '<div class="aa-kicker">Identity alert</div>'+
+        '<div class="aa-q">What type of information was found?</div>'+
+        '<div class="aa-sub">This is usually shown near the top of your alert.</div>'+
+        optionList(IDTYPES,"idType")+
+        navRow({disabled: !answers.idType});
+    }
+    else if(node === "alongside"){
+      stepTxt = qNumLabel();
+      html = '<div class="aa-kicker">Identity alert</div>'+
+        '<div class="aa-q">Was anything else found alongside it?</div>'+
+        '<div class="aa-sub">Choose everything your alert lists. This matters a lot \u2014 a password found with your information is far more serious than a username on its own.</div>'+
+        optionList(ALONGSIDE,"alongside",true)+
+        navRow({disabled: !(answers.alongside && answers.alongside.length)});
+    }
+    else if(node === "recency"){
+      stepTxt = qNumLabel();
+      html = '<div class="aa-kicker">Identity alert</div>'+
+        '<div class="aa-q">When did the breach happen?</div>'+
+        '<div class="aa-sub">Your alert may show a \u201Cfound online\u201D or breach date. A guess is fine.</div>'+
+        optionList([
+          ["lt7","Within the last week"],
+          ["lt30","Within the last month"],
+          ["lt90","Within the last three months"],
+          ["old","Longer ago, or I\u2019m not sure"]
+        ],"recency")+
+        navRow({disabled: !answers.recency});
+    }
+    else if(node === "pwChanged"){
+      stepTxt = qNumLabel();
+      html = '<div class="aa-kicker">About this alert</div>'+
+        '<div class="aa-q">Have you changed this password since the breach?</div>'+
+        '<div class="aa-sub">If you\u2019ve already changed it, the risk drops considerably.</div>'+
+        optionList([
+          ["yes","Yes, I\u2019ve changed it"],
+          ["no","No, not yet"],
+          ["unsure","I\u2019m not sure"]
+        ],"pwChanged")+
+        navRow({disabled: !answers.pwChanged});
+    }
+
+    /* ---------- CREDIT ---------- */
+    else if(node === "creditType"){
+      stepTxt = qNumLabel();
+      html = '<div class="aa-kicker">Credit alert</div>'+
+        '<div class="aa-q">What kind of change was reported?</div>'+
+        '<div class="aa-sub">This is shown near the top of your alert.</div>'+
+        optionList(CREDITTYPES,"creditType")+
+        navRow({disabled: !answers.creditType});
+    }
+    else if(node === "initiated"){
+      stepTxt = qNumLabel();
+      var q = "Did you cause this change yourself?", sub = "";
+      if(answers.creditType==="inquiry" || answers.creditType==="trade"){
+        q = "Did you recently apply for credit?";
+        sub = "A new card, loan, mortgage, or co-signing all count.";
+      } else if(answers.creditType==="address"){ q = "Have you recently moved?"; }
+      else if(answers.creditType==="name"){      q = "Have you legally changed your name?"; }
+      else if(answers.creditType==="collections"){q = "Do you have a past-due debt that may have gone to collections?"; }
+      else if(answers.creditType==="bankruptcy"){q = "Have you recently declared bankruptcy?"; }
+      else if(answers.creditType==="foreclosure"){q = "Have you recently entered foreclosure on a property?"; }
+      html = '<div class="aa-kicker">Credit alert</div>'+
+        '<div class="aa-q">'+q+'</div>'+
+        (sub ? '<div class="aa-sub">'+sub+'</div>' : "")+
+        optionList([
+          ["yes","Yes"],["no","No"],["unsure","I\u2019m not sure"]
+        ],"initiated")+
+        navRow({disabled: !answers.initiated});
+    }
+    else if(node === "recognise"){
+      stepTxt = qNumLabel();
+      html = '<div class="aa-kicker">Credit alert</div>'+
+        '<div class="aa-q">Do you recognise the company or party named in the alert?</div>'+
+        '<div class="aa-sub">For example, do you bank with them, hold an account, or have a relationship with them?</div>'+
+        optionList([
+          ["yes","Yes, I recognise them"],
+          ["no","No, I don\u2019t"],
+          ["unsure","I\u2019m not sure"]
+        ],"recognise")+
+        navRow({disabled: !answers.recognise});
+    }
+
+    /* ---------- ACTIVITY (both branches) ---------- */
+    else if(node === "activity"){
+      stepTxt = "Last question";
+      html = '<div class="aa-kicker">Last question</div>'+
+        '<div class="aa-q">Have you noticed anything unusual?</div>'+
+        '<div class="aa-sub">For example: accounts or charges you don\u2019t recognise, mail that stopped arriving, being denied credit, collection calls for debts that aren\u2019t yours, unexpected government-account activity, or contacts hearing from \u201Cyou.\u201D</div>'+
+        optionList([
+          ["yes","Yes \u2014 I\u2019ve seen something like that"],
+          ["maybe","Maybe \u2014 something seemed off"],
+          ["no","No \u2014 nothing that I\u2019ve noticed"]
+        ],"activity")+
+        navRow({disabled: !answers.activity, label:"See my result"});
+    }
+
+    /* ---------- VERDICT ---------- */
+    else if(node === "verdict"){
+      stepTxt = "Your result";
+      var alert = buildAlert();
+      var score = alert.category === "credit" ? scoreCredit(alert, answers) : scoreIdentity(alert, answers);
+      var T = tier(score);
+      var flooredNote = "";
+      if(answers.activity === "yes" && T < 3){
+        T = 3;
+        flooredNote = "Because you\u2019ve reported seeing unusual activity, we treat this as Take action regardless of other factors. ";
+      } else if(answers.activity === "maybe" && T < 2){
+        T = 2;
+        flooredNote = "Because something seemed off to you, we\u2019re treating this as worth monitoring closely. ";
+      }
+      var info = TIERS[T];
+      var acts = alert.category === "credit" ? creditActions(alert, answers) : identityActions(alert);
+
+      html = '<div class="verdict '+info.cls+'">'+
+        '<span class="vbadge">'+info.badge+'</span>'+
+        '<h3>'+info.head+'</h3><p>'+info.frame+'</p></div>'+
+        '<div class="rationale"><b>Why:</b> '+ flooredNote + rationale(alert, answers) +'</div>'+
+        '<div class="checklist"><h4>Recommended steps</h4>'+
+        acts.map(function(a,i){
+          var dn = checked["c"+i] ? " done" : "";
+          return '<div class="ci'+dn+'" data-chk="c'+i+'">'+
+            '<span class="cb"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" '+
+            'stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>'+
+            '<div class="ctxt"><div class="what">'+a.action+'</div>'+
+            (a.why ? '<div class="why">'+a.why+'</div>' : '')+
+            '</div></div>';
+        }).join("")+'</div>';
+
+      if(T >= 3){
+        html += '<button class="cta" data-act="callback">'+
+          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '+
+          'stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 '+
+          '01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.81.36 '+
+          '1.6.7 2.34a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.74-1.74a2 2 0 012.11-.45c.74.34 1.53.57 '+
+          '2.34.7A2 2 0 0122 16.92z"/></svg>'+
+          'Request a callback from a specialist</button>'+
+          '<button class="cta alt" data-act="email">Email me a copy</button>';
+      } else {
+        html += '<button class="cta alt" data-act="email">Email me a copy</button>'+
+          '<button class="cta muted" data-act="callback">I\u2019d still like to talk to someone</button>';
+      }
+      html += '<div id="aaInline"></div>'+
+        '<div class="escape">Not sure this matches your situation? '+
+        '<a href="tel:'+BRAND.phone.replace(/-/g,"")+'">Call '+BRAND.phone+'</a> '+
+        '(Mon\u2013Fri, 9\u202FAM\u20139\u202FPM ET).</div>'+
+        '<div class="aa-nav"><button class="aa-btn s" data-act="back">Back</button>'+
+        '<button class="aa-btn p" data-act="finishOk">Done</button></div>';
+    }
+
+    else if(node === "done"){
+      stepTxt = "Done";
+      html = '<div class="done-screen"><div class="dot">'+
+        '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" '+
+        'stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>'+
+        '<h3>You\u2019re all set</h3>'+
+        '<p>'+(answers._emailed ? "We\u2019ve sent a copy to your email. " : "")+
+        (answers._calledback ? "We\u2019ve received your callback request \u2014 a specialist will be in touch."
+          : "You can come back to this any time from your alerts page.")+
+        '</p><div class="aa-nav"><span></span>'+
+        '<button class="aa-btn p" data-act="closeFinal">Close</button></div>';
+    }
+
+    body.innerHTML = html;
+    el("aaStep").textContent = stepTxt;
+  }
+
+  function rationale(alert, ans){
+    var bits = [];
+    if(alert.category === "credit"){
+      if(ans.initiated === "no")          bits.push("you didn\u2019t cause this change yourself");
+      else if(ans.initiated === "unsure") bits.push("it\u2019s unclear whether you caused this change");
+      if(ans.recognise === "no")          bits.push("you don\u2019t recognise the party named");
+      if(ans.activity === "yes")          bits.push("you\u2019ve noticed unusual activity");
+      else if(ans.activity === "maybe")   bits.push("something seemed off to you");
+      if(!bits.length) return "this change appears to match something you did, which is usually routine \u2014 but it\u2019s worth a quick confirmation.";
+      return bits.join(", ") + ".";
+    }
+    if(alert.hasPassword)   bits.push("a password was found with your information");
+    if(alert.hasDob)        bits.push("your date of birth was also exposed");
+    if(["sin","passport","licence","prcard"].indexOf(alert.idType) > -1) bits.push("a high-value government ID was involved");
+    if(alert.recencyBucket === "lt7") bits.push("the breach is very recent");
+    else if(alert.recencyBucket === "lt30") bits.push("the breach is fairly recent");
+    if(alert.hasPassword && (ans.pwChanged==="no" || ans.pwChanged==="unsure")) bits.push("the password may not have been changed yet");
+    if(ans.activity === "yes")        bits.push("you\u2019ve noticed unusual activity");
+    else if(ans.activity === "maybe") bits.push("something seemed off to you");
+    if(!bits.length) return "no strong risk signals stood out, but exposed information can still be misused later, so a few steps are worth taking.";
+    return bits.join(", ") + ".";
+  }
+
+  /* ---------- inline callback / email forms ---------- */
+  function showCallback(){
+    el("aaInline").innerHTML =
+      '<div class="form"><h4>Request a callback</h4>'+
+      '<div class="fnote">A specialist will call you back about this alert.</div>'+
+      '<div class="afterhours">Requests made after hours get the first call the next business day at '+
+      '9:00\u202FAM ET. If you need help right away, please call '+BRAND.phone+'.</div>'+
+      '<div class="field"><label>Name</label><input value="'+SUBSCRIBER.name+'" readonly></div>'+
+      '<div class="field"><label>Email</label><input value="'+SUBSCRIBER.email+'" readonly></div>'+
+      '<div class="field"><label>Best phone number</label><input placeholder="(555) 555-5555"></div>'+
+      '<div class="field"><label>Preferred time</label><select>'+
+      '<option>Morning (9\u2013noon ET)</option><option>Afternoon (noon\u20135 ET)</option>'+
+      '<option>Evening (5\u20139 ET)</option><option>No preference</option></select></div>'+
+      '<button class="cta" data-act="submitCallback">Submit request</button></div>';
+    el("aaInline").scrollIntoView({behavior:"smooth",block:"nearest"});
+  }
+  function showEmail(){
+    el("aaInline").innerHTML =
+      '<div class="form"><h4>Email me a copy</h4>'+
+      '<div class="fnote">We\u2019ll include your result, the recommended steps, and a helpful guide.</div>'+
+      '<div class="field"><label>Send to</label><input value="'+SUBSCRIBER.email+'"></div>'+
+      '<button class="cta alt" data-act="submitEmail">Send it</button></div>';
+    el("aaInline").scrollIntoView({behavior:"smooth",block:"nearest"});
+  }
+
+  /* ---------- events ---------- */
+  el("aaBody").addEventListener("click", function(e){
+    var opt = e.target.closest("[data-opt]");
+    if(opt){
+      var key = opt.dataset.key, val = opt.dataset.opt, multi = opt.dataset.multi === "1";
+      if(multi){
+        var arr = answers[key] ? answers[key].slice() : [];
+        var i = arr.indexOf(val);
+        if(val === "none" || val === "unsure"){ arr = (i > -1) ? [] : [val]; }
+        else { arr = arr.filter(function(x){ return x !== "none" && x !== "unsure"; });
+               if(i > -1) arr.splice(arr.indexOf(val), 1); else arr.push(val); }
+        answers[key] = arr;
+      } else {
+        answers[key] = val;
+        /* If a downstream choice would be invalidated, reset it */
+        if(key === "alongside"){ /* alongside affects flow shape only */ }
+        if(key === "creditType"){ answers.recognise = null; }
+      }
+      render();
+      return;
+    }
+    var chk = e.target.closest("[data-chk]");
+    if(chk){ var c = chk.dataset.chk; checked[c] = !checked[c]; render(); return; }
+
+    var act = e.target.closest("[data-act]");
+    if(!act) return;
+    var a = act.dataset.act;
+    if(a === "back"){ back(); return; }
+    if(a === "next"){
+      var f = flowSteps(), i = f.indexOf(node);
+      if(i > -1 && i < f.length - 1){ go(f[i + 1]); }
+      return;
+    }
+    if(a === "catNext"){
+      if(answers.category === "credit") go("creditType");
+      else go("idType");
+      return;
+    }
+    if(a === "callback"){ showCallback(); return; }
+    if(a === "email"){    showEmail(); return; }
+    if(a === "submitCallback"){ answers._calledback = true; go("done"); return; }
+    if(a === "submitEmail"){    answers._emailed    = true; go("done"); return; }
+    if(a === "finishOk" || a === "closeFinal"){ closeWidget(); return; }
+  });
+
+  /* ===================================================================
+     LAUNCH + CLOSE
+  =================================================================== */
+  var overlay = el("aaOverlay");
+  function openWidget(){
+    answers = {}; checked = {}; stack = []; node = "intro";
+    render();
+    overlay.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+  function closeWidget(){
+    overlay.classList.remove("open");
+    document.body.style.overflow = "";
+  }
+  el("aaX").addEventListener("click", closeWidget);
+  overlay.addEventListener("click", function(e){ if(e.target === overlay) closeWidget(); });
+  document.addEventListener("keydown", function(e){ if(e.key === "Escape" && overlay.classList.contains("open")) closeWidget(); });
+
+  document.querySelectorAll("[data-launch]").forEach(function(b){
+    b.addEventListener("click", openWidget);
+  });
+  el("lclose").addEventListener("click", function(){ el("launcher").style.display = "none"; });
+
+})();
+</script>
+</body>
+</html>
