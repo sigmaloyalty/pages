@@ -98,6 +98,40 @@
     }
     .field input.error { border-color: #D94F4F; }
 
+    /* Split email field: input + fixed domain suffix */
+    .email-wrap {
+      display: flex;
+      align-items: center;
+      border: 1.5px solid #DDE2E7;
+      border-radius: 6px;
+      background: #FAFBFC;
+      transition: border-color 0.15s, background 0.15s;
+      overflow: hidden;
+    }
+    .email-wrap:focus-within {
+      border-color: #53A3DA;
+      background: #ffffff;
+    }
+    .email-wrap input {
+      flex: 1;
+      min-width: 0;
+      border: none !important;
+      outline: none !important;
+      background: transparent !important;
+      padding: 9px 4px 9px 12px;
+      font-family: inherit;
+      font-size: 13.5px;
+      color: #1B2934;
+    }
+    .email-domain {
+      padding: 9px 10px 9px 2px;
+      font-size: 13.5px;
+      color: #6B7885;
+      white-space: nowrap;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
     .divider { border: none; border-top: 1px solid #EEF0F2; margin: 18px 0; }
 
     .toggle-row {
@@ -197,7 +231,7 @@
 
 <!-- Header -->
 <div class="header">
-  <img src="https://raw.githubusercontent.com/sigmaloyalty/images/refs/heads/main/signatures/sigma_blue_box.png"
+  <img src="https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/sigma_blue_box.png"
        alt="Sigma Loyalty Group">
   <div class="header-text">
     <h1>Email Signature Generator</h1>
@@ -230,8 +264,11 @@
       </div>
       <div class="field">
         <label for="f-email">Work Email</label>
-        <input type="email" id="f-email" placeholder="e.g. amoreau@sigmaloyaltygroup.com"
-               oninput="refresh()">
+        <div class="email-wrap">
+          <input type="text" id="f-email" placeholder="e.g. amoreau"
+                 oninput="refresh()">
+          <span class="email-domain">@sigmaloyaltygroup.com</span>
+        </div>
       </div>
 
       <hr class="divider">
@@ -301,7 +338,7 @@ function buildSig(name, title, phone, email, withAddr) {
   const addrRow = withAddr ? `
         <tr>
           <td valign="middle" style="vertical-align:middle;padding-top:7px;padding-right:6px;">
-            <img src="https://raw.githubusercontent.com/sigmaloyalty/images/refs/heads/main/signatures/location_icon.png"
+            <img src="https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/location_icon.png"
                  width="18" height="18" alt=""
                  style="display:block;width:18px;height:18px;border:0;" />
           </td>
@@ -333,7 +370,7 @@ function buildSig(name, title, phone, email, withAddr) {
         style="width:${logoCellW}px;vertical-align:middle;padding-right:20px;">
       <a href="https://www.sigmaloyaltygroup.com" target="_blank"
          style="display:block;text-decoration:none;border:0;outline:none;">
-        <img src="https://raw.githubusercontent.com/sigmaloyalty/images/refs/heads/main/signatures/sigma_blue_box.png"
+        <img src="https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/sigma_blue_box.png"
              width="${logoSize}" height="${logoSize}" alt="Sigma Loyalty Group"
              style="display:block;width:${logoSize}px;height:${logoSize}px;border:0;outline:none;" />
       </a>
@@ -362,7 +399,7 @@ function buildSig(name, title, phone, email, withAddr) {
              style="border-collapse:collapse;">
         <tr>
           <td valign="middle" style="vertical-align:middle;padding-right:6px;">
-            <img src="https://raw.githubusercontent.com/sigmaloyalty/images/refs/heads/main/signatures/mobile_icon.png"
+            <img src="https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/mobile_icon.png"
                  width="18" height="18" alt=""
                  style="display:block;width:18px;height:18px;border:0;" />
           </td>
@@ -373,7 +410,7 @@ function buildSig(name, title, phone, email, withAddr) {
             ${phoneCell}
           </td>
           <td valign="middle" style="vertical-align:middle;padding-right:6px;">
-            <img src="https://raw.githubusercontent.com/sigmaloyalty/images/refs/heads/main/signatures/email_icon.png"
+            <img src="https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/email_icon.png"
                  width="18" height="18" alt=""
                  style="display:block;width:18px;height:18px;border:0;" />
           </td>
@@ -409,11 +446,12 @@ function buildSig(name, title, phone, email, withAddr) {
 
 /* ── Refresh preview + button state ──────────────────────────── */
 function refresh() {
-  const name    = document.getElementById('f-name').value.trim();
-  const title   = document.getElementById('f-title').value.trim();
-  const phone   = document.getElementById('f-phone').value.trim();
-  const email   = document.getElementById('f-email').value.trim();
-  const withAddr = document.getElementById('f-addr').checked;
+  const name       = document.getElementById('f-name').value.trim();
+  const title      = document.getElementById('f-title').value.trim();
+  const phone      = document.getElementById('f-phone').value.trim();
+  const emailLocal = document.getElementById('f-email').value.trim().replace(/@.*/, '');
+  const email      = emailLocal ? emailLocal + '@sigmaloyaltygroup.com' : '';
+  const withAddr   = document.getElementById('f-addr').checked;
 
   document.getElementById('sig-render').innerHTML =
     buildSig(name, title, phone, email, withAddr);
