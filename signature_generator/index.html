@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sigma Loyalty Group — Email Signature Generator</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Avenir Next', 'Century Gothic', Calibri, Arial, sans-serif;
+      background: #EDEEF0;
+      color: #1B2934;
+      min-height: 100vh;
+    }
+
+    /* ── Header ───────────────────────────────────────────────── */
+    .header {
+      background: #1B2934;
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .header img { height: 38px; display: block; }
+    .header-text { border-left: 1px solid rgba(255,255,255,0.2); padding-left: 14px; }
+    .header-text h1 {
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+    .header-text p {
+      color: #53A3DA;
+      font-size: 11px;
+      margin-top: 1px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    /* ── Layout ───────────────────────────────────────────────── */
+    .main {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 28px 24px;
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    /* ── Cards ────────────────────────────────────────────────── */
+    .card {
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .card-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #53A3DA;
+      margin-bottom: 18px;
+    }
+
+    /* ── Form ─────────────────────────────────────────────────── */
+    .field { margin-bottom: 14px; }
+    .field:last-of-type { margin-bottom: 0; }
+    .field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #6B7885;
+      margin-bottom: 5px;
+    }
+    .field input[type="text"],
+    .field input[type="tel"],
+    .field input[type="email"] {
+      display: block;
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid #DDE2E7;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 13.5px;
+      color: #1B2934;
+      background: #FAFBFC;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .field input:focus {
+      outline: none;
+      border-color: #53A3DA;
+      background: #ffffff;
+    }
+    .field input.error { border-color: #D94F4F; }
+
+    .divider { border: none; border-top: 1px solid #EEF0F2; margin: 18px 0; }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+    .toggle-row input[type="checkbox"] {
+      width: 16px; height: 16px;
+      accent-color: #53A3DA;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .toggle-row span {
+      font-size: 12.5px;
+      color: #1B2934;
+      line-height: 1.4;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* ── Copy button ──────────────────────────────────────────── */
+    .copy-btn {
+      display: block;
+      width: 100%;
+      margin-top: 18px;
+      padding: 12px 20px;
+      background: #53A3DA;
+      color: #ffffff;
+      border: none;
+      border-radius: 7px;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .copy-btn:hover { background: #3D91CC; }
+    .copy-btn:active { transform: scale(0.98); }
+    .copy-btn:disabled {
+      background: #B0C8DC;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .copy-btn.success { background: #2A7A4B; }
+
+    /* ── Instructions ─────────────────────────────────────────── */
+    .instructions { margin-top: 20px; }
+    .instructions ol {
+      padding-left: 18px;
+    }
+    .instructions li {
+      font-size: 12.5px;
+      color: #3D4E5A;
+      line-height: 1.55;
+      padding: 3px 0;
+    }
+    .instructions li strong { color: #1B2934; }
+    .instructions li em { font-style: normal; color: #53A3DA; }
+    .callout {
+      margin-top: 14px;
+      padding: 11px 14px;
+      background: #EEF6FC;
+      border-left: 3px solid #53A3DA;
+      border-radius: 0 6px 6px 0;
+      font-size: 12px;
+      color: #3D6F8A;
+      line-height: 1.5;
+    }
+    .callout strong { color: #1B2934; }
+
+    /* ── Preview panel ────────────────────────────────────────── */
+    .preview-panel {}
+    .preview-scroll {
+      overflow-x: auto;
+      padding: 24px;
+      background: #F7F8FA;
+      border-radius: 7px;
+      border: 1px solid #E4E8EB;
+      min-height: 160px;
+    }
+    #sig-render { display: inline-block; }
+
+    /* ── Responsive ───────────────────────────────────────────── */
+    @media (max-width: 780px) {
+      .main { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 480px) {
+      .header { padding: 14px 18px; }
+      .main { padding: 16px 14px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <img src="https://raw.githubusercontent.com/sigmaloyalty/images/refs/heads/main/signatures/sigma_blue_box.png"
+       alt="Sigma Loyalty Group">
+  <div class="header-text">
+    <h1>Email Signature Generator</h1>
+    <p>Internal Tool &mdash; Sigma Loyalty Group</p>
+  </div>
+</div>
+
+<!-- Main layout -->
+<div class="main">
+
+  <!-- Left column: form + instructions -->
+  <div>
+    <div class="card">
+      <div class="card-label">Your Details</div>
+
+      <div class="field">
+        <label for="f-name">Full Name <span style="color:#D94F4F">*</span></label>
+        <input type="text" id="f-name" placeholder="e.g. Alex Moreau"
+               oninput="refresh()" onblur="validate(this)">
+      </div>
+      <div class="field">
+        <label for="f-title">Job Title <span style="color:#D94F4F">*</span></label>
+        <input type="text" id="f-title" placeholder="e.g. MANAGER, CLIENT ENGAGEMENT"
+               oninput="this.value=this.value.toUpperCase();refresh()" onblur="validate(this)">
+      </div>
+      <div class="field">
+        <label for="f-phone">Phone Number</label>
+        <input type="tel" id="f-phone" placeholder="e.g. 416.555.1212"
+               oninput="this.value=formatPhone(this.value);refresh()">
+      </div>
+      <div class="field">
+        <label for="f-email">Work Email</label>
+        <input type="email" id="f-email" placeholder="e.g. amoreau@sigmaloyaltygroup.com"
+               oninput="refresh()">
+      </div>
+
+      <hr class="divider">
+
+      <label class="toggle-row">
+        <input type="checkbox" id="f-addr" onchange="refresh()" checked>
+        <span>Include office address<br>
+          <span style="color:#6B7885;font-size:11.5px;">4881 Yonge Street &bull; Suite 701 &bull; Toronto &bull; ON &bull; M2N 5X3</span>
+        </span>
+      </label>
+
+      <button class="copy-btn" id="copy-btn" onclick="copySignature()" disabled>
+        Copy Signature to Clipboard
+      </button>
+
+      <div class="instructions">
+        <ol>
+          <li>Fill in your details above, then click <strong>Copy Signature to Clipboard</strong>.</li>
+          <li>Open <strong>Outlook</strong> (desktop or web) and go to<br>
+              <em>Settings &rarr; Signatures &rarr; New Signature</em>.</li>
+          <li>Give your signature a name (e.g. <em>SLG Standard</em>).</li>
+          <li>Click into the <strong>signature body</strong> and press <strong>Enter twice</strong>
+              to add two blank lines — this gives you space above the signature
+              when composing emails.</li>
+          <li>Paste with <strong>Ctrl + V</strong>. Your formatted signature will appear.</li>
+          <li>Check the <strong>Set default for new messages</strong> checkbox so your signature is applied automatically to all new emails.</li>
+          <li>Click <strong>Save</strong>.</li>
+        </ol>
+        <div class="callout">
+          <strong>Use Chrome or Edge</strong> for this tool — other browsers
+          may not preserve the signature formatting when copying.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right column: live preview -->
+  <div class="preview-panel">
+    <div class="card">
+      <div class="card-label">Live Preview</div>
+      <div class="preview-scroll">
+        <div id="sig-render"></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+/* ── HTML escape ──────────────────────────────────────────────── */
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── Phone formatter — forces XXX.XXX.XXXX as user types ─────── */
+function formatPhone(raw) {
+  const d = raw.replace(/\D/g, '').slice(0, 10);
+  if (d.length <= 3) return d;
+  if (d.length <= 6) return d.slice(0,3) + '.' + d.slice(3);
+  return d.slice(0,3) + '.' + d.slice(3,6) + '.' + d.slice(6);
+}
+
+/* ── Build signature HTML string ─────────────────────────────── */
+function buildSig(name, title, phone, email, withAddr) {
+  const telDigits = phone.replace(/\D/g,'');
+
+  const addrRow = withAddr ? `
+        <tr>
+          <td valign="middle" style="vertical-align:middle;padding-top:7px;padding-right:6px;">
+            <img src="https://raw.githubusercontent.com/sigmaloyalty/images/refs/heads/main/signatures/location_icon.png"
+                 width="18" height="18" alt=""
+                 style="display:block;width:18px;height:18px;border:0;" />
+          </td>
+          <td colspan="3" valign="middle"
+              style="vertical-align:middle;padding-top:7px;white-space:nowrap;
+                     font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;
+                     font-size:9pt;font-weight:400;color:#1B2934;">
+            4881 Yonge Street &bull; Suite 701 &bull; Toronto &bull; ON &bull; M2N 5X3
+          </td>
+        </tr>` : '';
+
+  const phoneCell = phone
+    ? `<a href="tel:${telDigits}" style="color:#1B2934;text-decoration:none;font-size:9pt;">${esc(phone)}</a>`
+    : `<span style="color:#AAAAAA;font-size:9pt;">Phone Number</span>`;
+
+  const emailCell = email
+    ? `<a href="mailto:${esc(email)}" style="color:#1B2934;text-decoration:none;font-size:9pt;">${esc(email)}</a>`
+    : `<span style="color:#AAAAAA;font-size:9pt;">email@sigmaloyaltygroup.com</span>`;
+
+  return `<table width="600" cellpadding="0" cellspacing="0" border="0" role="presentation"
+       style="border-collapse:collapse;width:600px;max-width:600px;background-color:#ffffff;
+              font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;">
+  <tr>
+    <td width="130" valign="middle"
+        style="width:130px;vertical-align:middle;padding-right:20px;">
+      <a href="https://www.sigmaloyaltygroup.com" target="_blank"
+         style="display:block;text-decoration:none;border:0;outline:none;">
+        <img src="https://raw.githubusercontent.com/sigmaloyalty/images/refs/heads/main/signatures/sigma_blue_box.png"
+             width="110" height="110" alt="Sigma Loyalty Group"
+             style="display:block;width:110px;height:110px;border:0;outline:none;" />
+      </a>
+    </td>
+    <td valign="top" style="vertical-align:top;padding-top:6px;">
+      <p style="margin:0 0 3px 0;padding:0;
+                font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;
+                font-size:15pt;font-weight:400;color:${name ? '#1B2934' : '#AAAAAA'};
+                line-height:1.1;mso-line-height-rule:exactly;">
+        ${esc(name) || 'Your Name'}
+      </p>
+      <p style="margin:0 0 9px 0;padding:0;
+                font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;
+                font-size:8pt;font-weight:400;color:${title ? '#1B2934' : '#AAAAAA'};
+                line-height:1.2;letter-spacing:0.2px;mso-line-height-rule:exactly;">
+        ${esc(title) || 'YOUR TITLE'}
+      </p>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"
+             style="border-collapse:collapse;margin-bottom:9px;">
+        <tr>
+          <td style="border-top:1px solid #53A3DA;font-size:0;line-height:0;
+                     height:0;mso-line-height-rule:exactly;"></td>
+        </tr>
+      </table>
+      <table cellpadding="0" cellspacing="0" border="0" role="presentation"
+             style="border-collapse:collapse;">
+        <tr>
+          <td valign="middle" style="vertical-align:middle;padding-right:6px;">
+            <img src="https://raw.githubusercontent.com/sigmaloyalty/images/refs/heads/main/signatures/mobile_icon.png"
+                 width="18" height="18" alt=""
+                 style="display:block;width:18px;height:18px;border:0;" />
+          </td>
+          <td valign="middle"
+              style="vertical-align:middle;padding-right:24px;white-space:nowrap;
+                     font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;
+                     font-size:9pt;font-weight:400;color:#1B2934;">
+            ${phoneCell}
+          </td>
+          <td valign="middle" style="vertical-align:middle;padding-right:6px;">
+            <img src="https://raw.githubusercontent.com/sigmaloyalty/images/refs/heads/main/signatures/email_icon.png"
+                 width="18" height="18" alt=""
+                 style="display:block;width:18px;height:18px;border:0;" />
+          </td>
+          <td valign="middle"
+              style="vertical-align:middle;white-space:nowrap;
+                     font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;
+                     font-size:9pt;font-weight:400;color:#1B2934;">
+            ${emailCell}
+          </td>
+        </tr>
+        ${addrRow}
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" style="padding-top:14px;">
+      <p style="margin:0 0 6px 0;padding:0;
+                font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;
+                font-size:6px;font-weight:400;color:#7F7F7F;line-height:1.5;
+                mso-line-height-rule:exactly;">
+        This email message may contain confidential and/or privileged information and is for the sole use of the intended recipient. Any unauthorized review, use, disclosure or distribution is strictly prohibited. If you have received this communication in error, please notify the sender immediately by return email and delete the original message. Thank you for your cooperation.
+      </p>
+      <p style="margin:0;padding:0;
+                font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;
+                font-size:6px;font-weight:400;color:#7F7F7F;line-height:1.5;
+                mso-line-height-rule:exactly;">
+        Ce message courriel peut contenir des informations confidentielles et / ou privil&#233;gi&#233;es et est &#224; l&#8217;usage unique du destinataire. N&#8217;importe quelle r&#233;vision faite sans autorisation, l&#8217;utilisation, la divulgation ou la distribution est strictement interdite. Si vous avez re&#231;u ce message par erreur, s&#8217;il vous pla&#238;t aviser imm&#233;diatement l&#8217;exp&#233;diteur par courriel de retour et effacez le message d&#8217;origine. Nous vous remercions de votre collaboration.
+      </p>
+    </td>
+  </tr>
+</table>`;
+}
+
+/* ── Refresh preview + button state ──────────────────────────── */
+function refresh() {
+  const name    = document.getElementById('f-name').value.trim();
+  const title   = document.getElementById('f-title').value.trim();
+  const phone   = document.getElementById('f-phone').value.trim();
+  const email   = document.getElementById('f-email').value.trim();
+  const withAddr = document.getElementById('f-addr').checked;
+
+  document.getElementById('sig-render').innerHTML =
+    buildSig(name, title, phone, email, withAddr);
+
+  const btn = document.getElementById('copy-btn');
+  btn.disabled = !(name && title);
+}
+
+/* ── Inline validation ────────────────────────────────────────── */
+function validate(input) {
+  if (!input.value.trim()) {
+    input.classList.add('error');
+  } else {
+    input.classList.remove('error');
+  }
+}
+
+/* ── Copy rendered signature to clipboard ────────────────────── */
+function copySignature() {
+  const name  = document.getElementById('f-name').value.trim();
+  const title = document.getElementById('f-title').value.trim();
+  if (!name || !title) return;
+
+  /* Render into an off-screen div so page styles don't bleed in */
+  const tmp = document.createElement('div');
+  tmp.style.cssText =
+    'position:fixed;left:-9999px;top:0;background:#ffffff;';
+  tmp.innerHTML = document.getElementById('sig-render').innerHTML;
+  document.body.appendChild(tmp);
+
+  try {
+    const sel = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(tmp);
+    sel.removeAllRanges();
+    sel.addRange(range);
+    const ok = document.execCommand('copy');
+    sel.removeAllRanges();
+
+    if (ok) {
+      const btn = document.getElementById('copy-btn');
+      const orig = btn.textContent;
+      btn.textContent = '✓  Copied to Clipboard';
+      btn.classList.add('success');
+      btn.disabled = true;
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.classList.remove('success');
+        btn.disabled = false;
+      }, 2800);
+    } else {
+      throw new Error('execCommand returned false');
+    }
+  } catch(e) {
+    alert(
+      'Automatic copy failed.\n\n' +
+      'Please scroll to the preview, click anywhere inside it, ' +
+      'press Ctrl+A to select all, then Ctrl+C to copy.'
+    );
+  } finally {
+    document.body.removeChild(tmp);
+  }
+}
+
+/* ── Init ─────────────────────────────────────────────────────── */
+refresh();
+</script>
+
+</body>
+</html>
