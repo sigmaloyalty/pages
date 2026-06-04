@@ -333,13 +333,25 @@ function formatPhone(raw) {
 
 /* ── Build signature HTML string ─────────────────────────────── */
 function buildSig(name, title, phone, email, withAddr) {
-  const telDigits = phone.replace(/\D/g,'');
+  const telDigits = phone.replace(/\D/g,'').slice(0,10);
+
+  const phoneCell = phone
+    ? `<a href="tel:${telDigits}" style="color:#1B2934;text-decoration:none;font-size:9pt;">${esc(phone)}</a>`
+    : `<span style="color:#AAAAAA;font-size:9pt;">Phone Number</span>`;
+
+  const emailCell = email
+    ? `<a href="mailto:${esc(email)}" style="color:#1B2934;text-decoration:none;font-size:9pt;">${esc(email)}</a>`
+    : `<span style="color:#AAAAAA;font-size:9pt;">email@sigmaloyaltygroup.com</span>`;
+
+  /* Logo shrinks when address is hidden so it matches the shorter content block.
+     Content column always = 600 - logoSize - 20 (spacer) */
+  const logoSize = withAddr ? 110 : 82;
+  const contentW = 600 - logoSize - 20;
 
   const addrRow = withAddr ? `
         <tr>
           <td valign="middle" style="vertical-align:middle;padding-top:7px;padding-right:6px;">
-            <img src="https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/location_icon.png"
-                 width="18" height="18" alt=""
+            <img src="https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/location_icon.png" width="18" height="18" alt=""
                  style="display:block;width:18px;height:18px;border:0;" />
           </td>
           <td colspan="3" valign="middle"
@@ -350,32 +362,26 @@ function buildSig(name, title, phone, email, withAddr) {
           </td>
         </tr>` : '';
 
-  const phoneCell = phone
-    ? `<a href="tel:${telDigits}" style="color:#1B2934;text-decoration:none;font-size:9pt;">${esc(phone)}</a>`
-    : `<span style="color:#AAAAAA;font-size:9pt;">Phone Number</span>`;
-
-  const emailCell = email
-    ? `<a href="mailto:${esc(email)}" style="color:#1B2934;text-decoration:none;font-size:9pt;">${esc(email)}</a>`
-    : `<span style="color:#AAAAAA;font-size:9pt;">email@sigmaloyaltygroup.com</span>`;
-
-  /* Logo shrinks when address is hidden so it matches the shorter content block */
-  const logoSize  = withAddr ? 110 : 82;
-  const logoCellW = logoSize + 20;
-
-  return `<table width="600" cellpadding="0" cellspacing="0" border="0" role="presentation"
-       style="border-collapse:collapse;width:600px;max-width:600px;background-color:#ffffff;
+  return `<table border="0" cellpadding="0" cellspacing="0" width="600"
+       style="border-collapse:collapse;width:600px;max-width:600px;
               font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;">
   <tr>
-    <td width="${logoCellW}" valign="middle"
-        style="width:${logoCellW}px;vertical-align:middle;padding-right:20px;">
+    <td width="${logoSize}" valign="top"
+        style="width:${logoSize}px;vertical-align:top;padding:0;font-size:0;line-height:0;
+               mso-padding-alt:0pt 0pt 0pt 0pt;">
       <a href="https://www.sigmaloyaltygroup.com" target="_blank"
-         style="display:block;text-decoration:none;border:0;outline:none;">
+         style="display:block;text-decoration:none;border:0;outline:none;
+                color:#1B2934;font-size:0;line-height:0;">
         <img src="https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/sigma_blue_box.png"
-             width="${logoSize}" height="${logoSize}" alt="Sigma Loyalty Group"
+             width="${logoSize}" height="${logoSize}" border="0"
+             alt="Sigma Loyalty Group"
              style="display:block;width:${logoSize}px;height:${logoSize}px;border:0;outline:none;" />
       </a>
     </td>
-    <td valign="top" style="vertical-align:top;padding-top:6px;">
+    <td width="20" style="width:20px;padding:0;mso-padding-alt:0pt 0pt 0pt 0pt;"></td>
+    <td width="${contentW}" valign="top"
+        style="width:${contentW}px;vertical-align:top;padding-top:6px;
+               mso-padding-alt:5pt 0pt 0pt 0pt;">
       <p style="margin:0 0 3px 0;padding:0;
                 font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;
                 font-size:15pt;font-weight:400;color:${name ? '#1B2934' : '#AAAAAA'};
@@ -389,29 +395,32 @@ function buildSig(name, title, phone, email, withAddr) {
         ${esc(title) || 'YOUR TITLE'}
       </p>
       <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"
-             style="border-collapse:collapse;margin-bottom:9px;">
+             style="border-collapse:collapse;margin:0 0 9px 0;
+                    mso-table-lspace:0pt;mso-table-rspace:0pt;">
         <tr>
-          <td style="border-top:1px solid #53A3DA;font-size:0;line-height:0;
-                     height:0;mso-line-height-rule:exactly;"></td>
+          <td style="padding:0;line-height:0;font-size:0;">
+            <img src="https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/divider.png"
+                 width="${contentW}" height="1" border="0" alt=""
+                 style="display:block;width:${contentW}px;height:1px;border:0;outline:none;" />
+          </td>
         </tr>
       </table>
       <table cellpadding="0" cellspacing="0" border="0" role="presentation"
-             style="border-collapse:collapse;">
+             style="border-collapse:collapse;
+                    mso-table-lspace:0pt;mso-table-rspace:0pt;">
         <tr>
           <td valign="middle" style="vertical-align:middle;padding-right:6px;">
-            <img src="https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/mobile_icon.png"
-                 width="18" height="18" alt=""
+            <img src="https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/mobile_icon.png" width="18" height="18" alt=""
                  style="display:block;width:18px;height:18px;border:0;" />
           </td>
-          <td valign="middle" width="88"
+          <td width="88" valign="middle"
               style="width:88px;vertical-align:middle;padding-right:12px;white-space:nowrap;
                      font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;
                      font-size:9pt;font-weight:400;color:#1B2934;">
             ${phoneCell}
           </td>
           <td valign="middle" style="vertical-align:middle;padding-right:6px;">
-            <img src="https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/email_icon.png"
-                 width="18" height="18" alt=""
+            <img src="https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/email_icon.png" width="18" height="18" alt=""
                  style="display:block;width:18px;height:18px;border:0;" />
           </td>
           <td valign="middle"
@@ -426,7 +435,7 @@ function buildSig(name, title, phone, email, withAddr) {
     </td>
   </tr>
   <tr>
-    <td colspan="2" style="padding-top:14px;">
+    <td colspan="3" style="padding-top:14px;">
       <p style="margin:0 0 6px 0;padding:0;
                 font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;
                 font-size:6px;font-weight:400;color:#7F7F7F;line-height:1.5;
@@ -494,7 +503,7 @@ function copySignature() {
     if (ok) {
       const btn = document.getElementById('copy-btn');
       const orig = btn.textContent;
-      btn.textContent = '✓  Copied to Clipboard';
+      btn.textContent = '&#10003;  Copied to Clipboard';
       btn.classList.add('success');
       btn.disabled = true;
       setTimeout(() => {
