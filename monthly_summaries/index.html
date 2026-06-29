@@ -936,7 +936,7 @@ function downloadPDF() {
     btn.disabled    = true;
     btn.textContent = 'Generating\u2026';
     const pw = 600;
-    const ph = doc.body.scrollHeight + 400;
+    const ph = doc.body.scrollHeight + 100;
     html2pdf().set({
       margin:      [8, 0, 8, 0],
       filename:    buildFilename(),
