@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Securizone Email Preview Tool</title>
+<style>
+
+/* ── RESET ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── SHELL ──────────────────────────────────────────────── */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #edf0f4;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: #2d3748;
+}
+
+/* ── HEADER ─────────────────────────────────────────────── */
+.tool-header {
+  background: #1a202c;
+  color: white;
+  padding: 11px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  border-bottom: 3px solid #207292;
+  gap: 16px;
+}
+.header-title { font-size: 15px; font-weight: 600; letter-spacing: 0.2px; }
+.header-sub   { font-size: 11px; color: #90a0b0; margin-top: 2px; }
+
+/* ── VIEW TOGGLE ────────────────────────────────────────── */
+.view-toggle {
+  display: flex;
+  background: #2d3748;
+  border-radius: 6px;
+  padding: 3px;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.view-toggle button {
+  padding: 5px 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  background: transparent;
+  color: #90a0b0;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.view-toggle button.active { background: #207292; color: white; }
+
+/* ── BODY ───────────────────────────────────────────────── */
+.tool-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── SIDEBAR ────────────────────────────────────────────── */
+.sidebar {
+  width: 248px;
+  flex-shrink: 0;
+  background: white;
+  border-right: 1px solid #e2e8f0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.ctrl-section {
+  padding: 14px 16px 14px;
+  border-bottom: 1px solid #edf0f4;
+}
+.ctrl-section-title {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #a0aec0;
+  margin-bottom: 10px;
+}
+
+/* Select */
+.ctrl-group { margin-bottom: 10px; }
+.ctrl-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 5px;
+}
+select {
+  width: 100%;
+  padding: 7px 28px 7px 9px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #2d3748;
+  background: #f8fafc;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23a0aec0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+}
+
+/* Toggle rows */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 0;
+  gap: 8px;
+}
+.toggle-row.dimmed { opacity: 0.38; pointer-events: none; }
+.toggle-info { flex: 1; min-width: 0; }
+.toggle-label { font-size: 13px; font-weight: 500; color: #2d3748; }
+.toggle-sub   { font-size: 11px; color: #a0aec0; margin-top: 1px; }
+
+/* Toggle switch */
+.sw { position: relative; display: inline-block; width: 34px; height: 19px; flex-shrink: 0; }
+.sw input { opacity: 0; width: 0; height: 0; position: absolute; }
+.sw-track {
+  position: absolute;
+  inset: 0;
+  background: #cbd5e0;
+  border-radius: 19px;
+  cursor: pointer;
+  transition: background .18s;
+}
+.sw-track::before {
+  content: '';
+  position: absolute;
+  width: 13px; height: 13px;
+  left: 3px; bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: transform .18s;
+  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+.sw input:checked + .sw-track { background: #207292; }
+.sw input:checked + .sw-track::before { transform: translateX(15px); }
+
+/* Status box */
+.status-box {
+  margin: 12px 16px 0;
+  background: #ebf8ff;
+  border: 1px solid #bee3f8;
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+.status-box-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: #207292;
+  margin-bottom: 5px;
+}
+.status-line {
+  font-size: 12px;
+  color: #2d3748;
+  line-height: 1.6;
+}
+.status-pill {
+  display: inline-block;
+  background: #207292;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 3px;
+  padding: 1px 5px;
+  margin: 1px 2px;
+  vertical-align: middle;
+}
+.status-pill.off { background: #a0aec0; }
+.status-pill.alert { background: #dd6b20; }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 12px 16px;
+  font-size: 11px;
+  color: #a0aec0;
+  border-top: 1px solid #edf0f4;
+  line-height: 1.5;
+}
+
+/* ── PREVIEW AREA ────────────────────────────────────────── */
+.preview-area {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 20px 40px;
+  min-width: 0;
+}
+.preview-label {
+  font-size: 11px;
+  color: #90a0b0;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+.preview-shell {
+  transition: width .2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 640px;
+}
+.preview-shell.mobile { width: 390px; }
+
+#email-frame {
+  width: 100%;
+  border: none;
+  border-radius: 4px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.13);
+  min-height: 600px;
+  display: block;
+  background: white;
+}
+.preview-shell.mobile #email-frame { border-radius: 10px; }
+/* ── PDF BUTTON ──────────────────────────────────────────── */
+.pdf-btn {
+  padding: 5px 14px;
+  border: 1px solid #4a6580;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  background: transparent;
+  color: #90b8d0;
+  transition: all .15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.pdf-btn:hover:not(:disabled) {
+  background: #207292;
+  border-color: #207292;
+  color: white;
+}
+.pdf-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+<!-- ── HEADER ──────────────────────────────────────────── -->
+<header class="tool-header">
+  <div>
+    <div class="header-title">Securizone Monthly Summary &#8211; Email Preview Tool</div>
+    <div class="header-sub">Select options to preview email variants in real time</div>
+  </div>
+  <button id="btn-pdf" class="pdf-btn" onclick="downloadPDF()">&#8595; Download PDF</button>
+</header>
+
+<div class="tool-body">
+
+  <!-- ── SIDEBAR ──────────────────────────────────────── -->
+  <aside class="sidebar">
+
+    <!-- Content month -->
+    <div class="ctrl-section">
+      <div class="ctrl-section-title">Content</div>
+      <div class="ctrl-group">
+        <label class="ctrl-label" for="sel-month">Month</label>
+        <select id="sel-month" onchange="updatePreview()">
+          <option value="1">Month 1 &#8211; Monitoring Active</option>
+          <option value="2">Month 2 &#8211; Works as Hard as You Do</option>
+          <option value="3">Month 3 &#8211; Early Detection</option>
+          <option value="4">Month 4 &#8211; The Team</option>
+          <option value="5">Month 5 &#8211; Credit / Dark Web Focus</option>
+          <option value="6">Month 6+ &#8211; Standard Recap</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Alert status -->
+    <div class="ctrl-section">
+      <div class="ctrl-section-title">Alert Status</div>
+
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">Dark Web Alerts</div>
+          <div class="toggle-sub">Alerts detected this month</div>
+        </div>
+        <label class="sw">
+          <input type="checkbox" id="chk-dw" onchange="updatePreview()">
+          <span class="sw-track"></span>
+        </label>
+      </div>
+
+      <div class="toggle-row" id="row-ca">
+        <div class="toggle-info">
+          <div class="toggle-label">Credit Alerts</div>
+          <div class="toggle-sub">Credit file changes detected</div>
+        </div>
+        <label class="sw">
+          <input type="checkbox" id="chk-ca" onchange="updatePreview()">
+          <span class="sw-track"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Subscriber settings -->
+    <div class="ctrl-section">
+      <div class="ctrl-section-title">Subscriber Settings</div>
+
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">Credit Monitoring</div>
+          <div class="toggle-sub">Subscriber has credit monitoring</div>
+        </div>
+        <label class="sw">
+          <input type="checkbox" id="chk-cm" onchange="updatePreview()" checked>
+          <span class="sw-track"></span>
+        </label>
+      </div>
+
+      <div class="toggle-row" id="row-qr">
+        <div class="toggle-info">
+          <div class="toggle-label">Quarterly Report</div>
+          <div class="toggle-sub">Credit report available this month</div>
+        </div>
+        <label class="sw">
+          <input type="checkbox" id="chk-qr" onchange="updatePreview()">
+          <span class="sw-track"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Status summary -->
+    <div class="status-box">
+      <div class="status-box-label">Currently viewing</div>
+      <div class="status-line" id="status-line">&#8212;</div>
+    </div>
+
+    <div class="sidebar-footer">
+      Alert counts shown are representative samples. Brevo replaces these with live data in deployed emails.
+    </div>
+
+  </aside>
+
+  <!-- ── PREVIEW ──────────────────────────────────────── -->
+  <main class="preview-area">
+    <div class="preview-label">Desktop &#8211; 600px</div>
+    <div class="preview-shell" id="preview-shell">
+      <iframe id="email-frame" title="Email preview"></iframe>
+    </div>
+  </main>
+
+</div><!-- /.tool-body -->
+
+<script>
+'use strict';
+
+/* ════════════════════════════════════════════════════════════
+   COPY DATA
+   ════════════════════════════════════════════════════════════ */
+
+const COPY = {
+
+  banner: {
+    clear: {
+      heading: 'Your Monthly Monitoring Scans Came Back Clear!',
+      body:    'Your Securizone monitoring ran throughout the month and found no exposures in the sources we scan. There&#8217;s nothing you need to act on right now &#8211; the summary below shows the full monitoring activity completed on your behalf.'
+    },
+    alerts: {
+      heading: 'Your Alerts For This Month, At A Glance',
+      body:    'Your Securizone monitoring found activity on your personal information this month. Each alert was sent to you as it was detected &#8211; this is your monthly recap, not a new notification. Log in to your account to review the details or take any recommended next steps.'
+    }
+  },
+
+  months: {
+    '1': {
+      heading: 'Your Monitoring is Active',
+      paras: [
+        'Securizone has been scanning for your personal information around the clock &#8211; checked against dark web databases, data breach records, and threat sources that most people never see. If anything tied to your identity surfaces where it shouldn&#8217;t, we&#8217;ll let you know.',
+        'Every day, your registered information was checked against the sources where stolen data tends to appear &#8211; and whatever your summary shows this month, it reflects that continuous work happening on your behalf.',
+        'To get the most from your monitoring, log in and make sure all your personal information is registered in your profile. The more you add, the broader the net we cast on your behalf.'
+      ]
+    },
+    '2': {
+      heading: 'Your Monitoring Works as Hard as You Do',
+      paras: [
+        'Securizone identity monitoring works by watching specific pieces of your personal information &#8211; email addresses, banking details, government-issued numbers, and more &#8211; and checking them continuously against sources where stolen data tends to appear.',
+        'Each type of information represents a different pathway a fraudster might try to use your identity for their gain. Registering as much as possible gives the monitoring system the best chance of catching an exposure early, in the window between when information surfaces and when anyone might act on it.',
+        'If anything is detected, you&#8217;ll receive an alert right away. And if you need to take action, our Identity Theft Experts are ready to help you through each step to get your life back on track.'
+      ]
+    },
+    '3': {
+      heading: 'Why Early Detection is the Advantage',
+      paras: [
+        'Most identity-related problems don&#8217;t begin with a dramatic breach. They start with something small &#8211; a credit card number appearing in a data dump, an email address on a list of compromised accounts, a phone number linked to a phishing operation.',
+        'These exposures often sit quietly for months before fraudsters act on them. That gap &#8211; between when information is exposed and when it&#8217;s used &#8211; is exactly where Securizone monitoring is valuable. An early alert gives you time to secure an account, change compromised credentials, or place a fraud alert on your credit before anything happens.',
+        'That&#8217;s what your summary tracks each month: not just whether something occurred, but whether anything is showing up that you should know about &#8211; and making sure you heard about it first.'
+      ]
+    },
+    '4': {
+      heading: 'The Team Behind Your Monitoring',
+      paras: [
+        'Monitoring is one part of your identity protection. Knowing what to do if an alert leads somewhere is just as important.',
+        'If your information is ever misused, our Identity Theft Experts can step in on your behalf. We can contact Equifax and TransUnion to place a fraud alert on your credit reports and walk you through the restoration process from beginning to end &#8211; the right contacts, the documentation to prepare, and the steps in the right order.',
+        'Restoration can feel overwhelming when you&#8217;re in the middle of it. We&#8217;re here to make sure you don&#8217;t have to figure it out alone.'
+      ]
+    },
+    '5_credit': {
+      heading: 'Credit Monitoring Catches it First',
+      paras: [
+        'When someone applies for credit in your name &#8211; whether that&#8217;s you or a fraudster &#8211; a lender pulls your credit file. That pull registers as a credit inquiry, and it appears before any account is opened, before any balance accumulates, and before anything changes in your credit score.',
+        'That&#8217;s what makes credit monitoring valuable. An inquiry alert is earlier than almost any other signal that something may have happened in your name. When one is detected, you&#8217;ll receive an alert right away so you can act on it promptly &#8211; confirming it was you, or taking steps if it wasn&#8217;t. And if you need help with those steps, our Identity Theft Experts are ready to guide you through the process.'
+      ]
+    },
+    '5_nocredit': {
+      heading: 'What Your Dark Web Monitoring is Watching',
+      paras: [
+        'When personal information is stolen &#8211; through a data breach, a phishing attack, or a compromised account &#8211; it rarely disappears. It gets collected and traded through networks that operate outside regular search engines and browsers, where stolen credentials, banking details, and government-issued numbers are bought and sold.',
+        'Securizone&#8217;s monitoring scans these sources continuously, checking the specific pieces of information you&#8217;ve registered against what&#8217;s appearing in breach data and other underground sources. The goal is to surface an exposure while there&#8217;s still time to act &#8211; before anyone else does.',
+        'The Coverage Summary below shows you exactly what types of information are currently being monitored on your behalf, and how many pieces of each. If there&#8217;s a category that&#8217;s important to you and you haven&#8217;t added anything to it yet, logging in to update your profile means that information is monitored going forward.',
+        'If anything comes up, you&#8217;ll hear about it right away.'
+      ]
+    },
+    '6': {
+      heading: null,
+      paras: []
+    }
+  },
+
+  darkWeb: {
+    clear: {
+      count:   '0',
+      heading: 'Your dark web monitoring found nothing to report',
+      body:    'Your registered information was scanned continuously throughout the month against dark web databases, breach records, and other sources where compromised data appears. No exposures were detected. Your monitoring remains active and continues to run on your behalf.'
+    },
+    alerts: {
+      count:   '3',
+      heading: 'Your dark web monitoring detected activity this month',
+      body:    'Your registered information was found in one or more sources our monitoring tracks. Alerts were sent to you as each detection occurred &#8211; this is your monthly recap. Log in to your account to review the details and any recommended next steps.'
+    }
+  },
+
+  credit: {
+    clear: {
+      count:   '0',
+      heading: 'No changes to your credit file',
+      body:    'Your credit file was checked for new inquiries and account changes throughout the month. Nothing was detected. If any credit activity occurs in your name, you&#8217;ll receive an alert right away.'
+    },
+    alerts: {
+      count:   '2',
+      heading: 'Changes to your credit file were detected',
+      body:    'One or more changes were found on your credit file this month. Alerts were sent to you as each was identified. Log in to your account to review the details and any recommended next steps.'
+    }
+  },
+
+  creditScore: {
+    monthly: {
+      heading: 'Your latest credit score is ready',
+      body:    'A new credit score is available in your account every month. Log in to view your current score and see how it compares to previous months. Unexpected changes to your score are worth a closer look &#8211; and if anything requires attention, Securizone&#8217;s monitoring is watching for it.'
+    },
+    quarterly: {
+      heading: 'Your latest credit score and credit report are ready',
+      body:    'Your monthly credit score has been updated, and a new credit report is now available for your review. Your credit report gives you a detailed view of all accounts, balances, and inquiries on your file, making it a useful complement to your monthly score. Log in to review both.'
+    }
+  }
+
+};
+
+
+/* ════════════════════════════════════════════════════════════
+   EMAIL TEMPLATE BUILDERS
+   ════════════════════════════════════════════════════════════ */
+
+const P  = 'style="Margin:0;mso-line-height-rule:exactly;font-family:\'source sans pro\',\'helvetica neue\',helvetica,arial,sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"';
+const H1 = 'style="Margin:0;font-family:\'source sans pro\',\'helvetica neue\',helvetica,arial,sans-serif;mso-line-height-rule:exactly;letter-spacing:0;font-size:24px;font-style:normal;font-weight:bold;line-height:29px;color:#333333"';
+
+function p(text)    { return `<p ${P}>${text}</p>`; }
+function br()       { return `<p ${P}><br></p>`; }
+function h1(text)   { return `<h1 ${H1}>${text}</h1>`; }
+function strong(t)  { return `<strong style="font-weight:bolder !important">${t}</strong>`; }
+
+/* ── Intro block ─────────────────────────────────────────── */
+function buildIntro(month, hasCreditMonitoring, hasAnyAlert) {
+  const banner = hasAnyAlert ? COPY.banner.alerts : COPY.banner.clear;
+  const key    = month === '5' ? (hasCreditMonitoring ? '5_credit' : '5_nocredit') : month;
+  const mc     = COPY.months[key];
+
+  let html = p('Hi {{contact.FIRSTNAME}},') + br();
+  html += h1(banner.heading) + br();
+  html += p(banner.body) + br();
+  if (mc.heading) { html += h1(mc.heading) + br(); }
+  mc.paras.forEach(txt => { html += p(txt) + br(); });
+  return html;
+}
+
+/* ── Dark web row ────────────────────────────────────────── */
+function buildDarkWebRow(hasDarkWebAlerts, isMobile) {
+  const dw = hasDarkWebAlerts ? COPY.darkWeb.alerts : COPY.darkWeb.clear;
+
+  if (isMobile) {
+    return `
+<tr>
+  <td bgcolor="#EFF2F4" style="padding:12px 20px 0;Margin:0;background-color:#eff2f4">
+    <table cellpadding="0" cellspacing="0" width="100%" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+      <tbody><tr>
+        <td align="center" bgcolor="#ffffff" style="padding:20px;Margin:0;text-align:center">
+          <p style="Margin:0;font-family:'source sans pro',sans-serif;line-height:54px;font-weight:normal;color:#333333;font-size:36px">${dw.count}</p>
+          <p style="Margin:0;font-family:'source sans pro',sans-serif;line-height:27px;font-weight:normal;color:#333333;font-size:18px">${strong('New Dark Web Alerts')}</p>
+          <p style="Margin:0;font-family:'source sans pro',sans-serif;line-height:24px;font-weight:normal;color:#333333;font-size:16px">(last 30 days)</p>
+        </td>
+      </tr></tbody>
+    </table>
+    <p style="Margin:0;font-family:'source sans pro',sans-serif;line-height:24px;font-weight:normal;color:#333333;font-size:16px"><br></p>
+    ${p(strong(dw.heading))} ${br()} ${p(dw.body)}
+    ${br()}
+  </td>
+</tr>`;
+  }
+
+  return `
+<tr>
+  <td bgcolor="#EFF2F4" align="left" style="padding:0 25px;Margin:0;background-color:#eff2f4">
+    <!--[if mso]><table style="width:550px" cellpadding="0" cellspacing="0"><tr><td style="width:200px" valign="top"><![endif]-->
+    <table class="ec-l" cellpadding="0" cellspacing="0" align="left" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:left" role="none">
+      <tbody><tr><td align="center" style="padding:0;Margin:0;width:200px">
+        <table cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:200px">
+          <tbody><tr><td class="cnt" align="center" bgcolor="#ffffff" height="200" style="padding:20px 0;Margin:0">
+            <p style="Margin:0;font-family:'source sans pro',sans-serif;line-height:54px;font-weight:normal;color:#333333;font-size:36px">${dw.count}</p>
+            <p style="Margin:0;font-family:'source sans pro',sans-serif;line-height:27px;font-weight:normal;color:#333333;font-size:18px">${strong('New Dark Web Alerts')}</p>
+            <p style="Margin:0;font-family:'source sans pro',sans-serif;line-height:24px;font-weight:normal;color:#333333;font-size:16px">(last 30 days)</p>
+          </td></tr></tbody>
+        </table>
+      </td></tr></tbody>
+    </table>
+    <!--[if mso]></td><td style="width:20px"></td><td style="width:330px" valign="top"><![endif]-->
+    <table class="ec-r" cellpadding="0" cellspacing="0" align="right" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:right" role="none">
+      <tbody><tr><td align="center" style="padding:0;Margin:0;width:330px">
+        <table cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:330px">
+          <tbody><tr><td bgcolor="#eff2f4" align="left" style="padding:0;Margin:0">
+            ${p(strong(dw.heading))} ${br()} ${p(dw.body)}
+          </td></tr></tbody>
+        </table>
+      </td></tr></tbody>
+    </table>
+    <!--[if mso]></td></tr></table><![endif]-->
+  </td>
+</tr>
+<tr><td align="left" bgcolor="#eff2f4" style="padding:0 20px;Margin:0;background-color:#eff2f4">${br()}</td></tr>`;
+}
+
+/* ── Credit row (conditional) ────────────────────────────── */
+function buildCreditRow(hasCreditAlerts, isMobile) {
+  const cr = hasCreditAlerts ? COPY.credit.alerts : COPY.credit.clear;
+
+  if (isMobile) {
+    return `
+<tr>
+  <td bgcolor="#EFF2F4" style="padding:0 20px 0;Margin:0;background-color:#eff2f4">
+    <table cellpadding="0" cellspacing="0" width="100%" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+      <tbody><tr>
+        <td align="center" bgcolor="#ffffff" style="padding:20px;Margin:0;text-align:center">
+          <p style="Margin:0;font-family:'source sans pro',sans-serif;line-height:54px;font-weight:normal;color:#333333;font-size:36px">${cr.count}</p>
+          <p style="Margin:0;font-family:'source sans pro',sans-serif;line-height:27px;font-weight:normal;color:#333333;font-size:18px">${strong('New Credit Alerts')}</p>
+          <p style="Margin:0;font-family:'source sans pro',sans-serif;line-height:24px;font-weight:normal;color:#333333;font-size:16px">(last 30 days)</p>
+        </td>
+      </tr></tbody>
+    </table>
+    <p style="Margin:0;font-family:'source sans pro',sans-serif;line-height:24px;font-weight:normal;color:#333333;font-size:16px"><br></p>
+    ${p(strong(cr.heading))} ${br()} ${p(cr.body)}
+    ${br()}
+  </td>
+</tr>`;
+  }
+
+  return `
+<tr>
+  <td align="left" bgcolor="#EFF2F4" style="padding:0 25px;Margin:0;background-color:#eff2f4">
+    <!--[if mso]><table style="width:550px" cellpadding="0" cellspacing="0"><tr><td style="width:200px" valign="top"><![endif]-->
+    <table class="ec-l" cellspacing="0" align="left" cellpadding="0" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:left" role="none">
+      <tbody><tr><td align="center" style="padding:0;Margin:0;width:200px">
+        <table cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:200px">
+          <tbody><tr><td class="cnt" align="center" bgcolor="#ffffff" height="200" style="padding:20px 0;Margin:0">
+            <p style="Margin:0;font-family:'source sans pro',sans-serif;line-height:54px;font-weight:normal;color:#333333;font-size:36px">${cr.count}</p>
+            <p style="Margin:0;font-family:'source sans pro',sans-serif;line-height:27px;font-weight:normal;color:#333333;font-size:18px">${strong('New Credit Alerts')}</p>
+            <p style="Margin:0;font-family:'source sans pro',sans-serif;line-height:24px;font-weight:normal;color:#333333;font-size:16px">(last 30 days)</p>
+          </td></tr></tbody>
+        </table>
+      </td></tr></tbody>
+    </table>
+    <!--[if mso]></td><td style="width:20px"></td><td style="width:330px" valign="top"><![endif]-->
+    <table class="ec-r" cellpadding="0" cellspacing="0" align="right" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:right" role="none">
+      <tbody><tr><td align="center" style="padding:0;Margin:0;width:330px">
+        <table cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:330px">
+          <tbody><tr><td bgcolor="#eff2f4" align="left" style="padding:0 0 20px;Margin:0">
+            ${p(strong(cr.heading))} ${br()} ${p(cr.body)}
+          </td></tr></tbody>
+        </table>
+      </td></tr></tbody>
+    </table>
+    <!--[if mso]></td></tr></table><![endif]-->
+  </td>
+</tr>`;
+}
+
+/* ── Credit score/report block (conditional) ─────────────── */
+function buildCreditScoreBlock(hasQuarterlyReport) {
+  const cs = hasQuarterlyReport ? COPY.creditScore.quarterly : COPY.creditScore.monthly;
+  return `
+<tr>
+  <td align="left" bgcolor="#EFF2F4" style="Margin:0;padding:30px 20px;background-color:#eff2f4">
+    <table cellpadding="0" cellspacing="0" width="100%" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+      <tbody><tr><td align="center" valign="top" style="padding:0;Margin:0;width:560px">
+        <table cellspacing="0" width="100%" cellpadding="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+          <tbody><tr><td align="left" style="padding:0;Margin:0">
+            <h1 style="Margin:0;font-family:'source sans pro',sans-serif;letter-spacing:0;font-size:20px;font-weight:bold;line-height:24px;color:#333333">${cs.heading}</h1>
+            ${br()}
+            ${p(cs.body)}
+          </td></tr></tbody>
+        </table>
+      </td></tr></tbody>
+    </table>
+  </td>
+</tr>`;
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   FULL EMAIL ASSEMBLER
+   ════════════════════════════════════════════════════════════ */
+
+function buildEmail(opts) {
+  const { month, hasDarkWebAlerts, hasCreditAlerts, hasCreditMonitoring, hasQuarterlyReport, isMobile } = opts;
+  const hasAnyAlert = hasDarkWebAlerts || (hasCreditAlerts && hasCreditMonitoring);
+
+  const intro          = buildIntro(month, hasCreditMonitoring, hasAnyAlert);
+  const darkWebRow     = buildDarkWebRow(hasDarkWebAlerts, isMobile);
+  const creditRow      = hasCreditMonitoring ? buildCreditRow(hasCreditAlerts, isMobile) : '';
+  const creditScoreBlk = hasCreditMonitoring ? buildCreditScoreBlock(hasQuarterlyReport) : '';
+
+  // Injected directly (no media query) when mobile view is active, so it
+  // overrides inline table widths unconditionally without relying on the
+  // iframe viewport correctly triggering a max-width breakpoint.
+  const mobileCSS = isMobile
+    ? '<style type="text/css">'
+      + 'body{overflow-x:hidden!important}'
+      + '.et{width:100%!important;max-width:600px!important}'
+      + '.ec-l,.ec-r{float:none!important;width:100%!important;display:block!important;clear:both!important}'
+      + '.ec-l table,.ec-r table{width:100%!important}'
+      + '.ec-l td,.ec-r td{width:100%!important;padding-right:0!important}'
+      + '.cnt{height:auto!important;padding:20px 0!important;width:100%!important;text-align:center!important;display:block!important}'
+      + '.ec-l{margin-bottom:16px!important}'
+      + 'h1{font-size:20px!important;line-height:28px!important}'
+      + 'p,a{line-height:150%!important}'
+      + '.adapt-img{width:100%!important;height:auto!important}'
+      + '</style>'
+    : '';
+
+  return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="UTF-8">
+<meta content="width=device-width, initial-scale=1" name="viewport">
+<meta name="x-apple-disable-message-reformatting">
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,700,700i" rel="stylesheet">
+<style type="text/css">
+u+.body img~div div{display:none}
+#outlook a{padding:0}
+</style>
+${mobileCSS}
+</head>
+<body class="body" style="width:100%;height:100%;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;padding:0;Margin:0">
+<div style="background-color:#F6F6F6">
+<table width="100%" cellspacing="0" cellpadding="0" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;padding:0;Margin:0;width:100%;height:100%;background-repeat:repeat;background-position:center top">
+<tbody><tr><td valign="top" style="padding:0;Margin:0">
+
+<!-- ─ LOGO ──────────────────────────────────────────────── -->
+<table align="center" cellpadding="0" cellspacing="0" width="100%" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:100%;table-layout:fixed !important">
+<tbody><tr><td align="center" style="padding:0;Margin:0">
+  <table align="center" cellpadding="0" cellspacing="0" bgcolor="#ffffff" class="et" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#FFFFFF;width:600px">
+  <tbody><tr><td align="left" style="padding:20px 20px 0;Margin:0">
+    <table width="100%" cellpadding="0" cellspacing="0" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+    <tbody><tr><td align="center" valign="top" style="padding:0;Margin:0">
+      <a target="_blank" href="https://nban.idassist.com" style="mso-line-height-rule:exactly;text-decoration:none;color:#207292;font-size:16px">
+        <img src="https://fmltes.stripocdn.email/content/guids/CABINET_683cc971e61085c3a6333230921397cda21dea5c0c72ffab28c2e26cc6ea2a76/images/securizonelogogenericen_2000px_orx.png" alt="Securizone" width="535" class="adapt-img" style="display:block;font-size:16px;border:0;outline:none;text-decoration:none;margin:0" height="77">
+      </a>
+    </td></tr></tbody>
+    </table>
+  </td></tr></tbody>
+  </table>
+</td></tr></tbody>
+</table>
+
+<!-- ─ INTRO BODY ─────────────────────────────────────────── -->
+<table cellpadding="0" align="center" cellspacing="0" width="100%" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:100%;table-layout:fixed !important">
+<tbody><tr><td align="center" style="padding:0;Margin:0">
+  <table cellspacing="0" cellpadding="0" bgcolor="#ffffff" align="center" class="et" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#FFFFFF;width:600px">
+  <tbody><tr><td align="left" style="padding:20px 20px 0;Margin:0">
+    <table cellpadding="0" width="100%" cellspacing="0" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+    <tbody><tr><td valign="top" align="center" style="padding:0;Margin:0">
+      <table width="100%" cellspacing="0" cellpadding="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+      <tbody><tr><td align="left" style="padding:40px 0 30px;Margin:0">
+        ${intro}
+      </td></tr></tbody>
+      </table>
+    </td></tr></tbody>
+    </table>
+  </td></tr></tbody>
+  </table>
+</td></tr></tbody>
+</table>
+
+<!-- ─ WAVE + PIA ZONE ────────────────────────────────────── -->
+<table cellpadding="0" align="center" cellspacing="0" width="100%" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:100%;table-layout:fixed !important">
+<tbody><tr><td align="center" bgcolor="transparent" style="padding:0;Margin:0">
+  <table cellpadding="0" cellspacing="0" bgcolor="#ffffff" align="center" class="et" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#FFFFFF;width:600px">
+  <tbody>
+
+  <!-- Wave -->
+  <tr><td align="left" style="padding:0;Margin:0">
+    <img src="https://fmltes.stripocdn.email/content/guids/CABINET_871ad28a7d58f104dc404fb46a8382d12eeea43befbca1e036e662f6aee3e16a/images/canwave_generated_wave_cropped_grey.png" alt="" width="600" class="adapt-img" height="79" style="display:block;font-size:16px;border:0;outline:none;text-decoration:none;margin:0">
+  </td></tr>
+
+  <!-- PIA heading -->
+  <tr><td align="left" bgcolor="#eff2f4" style="padding:20px 20px 0;Margin:0;background-color:#eff2f4">
+    <h1 style="Margin:0;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;mso-line-height-rule:exactly;letter-spacing:0;font-size:24px;font-style:normal;font-weight:bold;line-height:29px;color:#333333;text-align:center">Securizone Protection in Action</h1>
+  </td></tr>
+  <tr><td align="left" bgcolor="#eff2f4" style="padding:0 20px 20px;Margin:0;background-color:#eff2f4">
+    <p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px;text-align:center">Your monthly recap to help spot threats, stay informed, and secure your identity.</p>
+  </td></tr>
+
+  <!-- Dark web row -->
+  ${darkWebRow}
+
+  <!-- Credit row (conditional) -->
+  ${creditRow}
+
+  <!-- Credit score block (conditional) -->
+  ${creditScoreBlk}
+
+  <!-- Contact footer -->
+  <tr><td align="left" style="Margin:0;padding:40px 20px 30px">
+    <p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px">If you have any questions about Securizone, you can visit us online any time at <a target="_blank" style="mso-line-height-rule:exactly;text-decoration:none;color:#207292;font-size:16px" href="https://nban.idassist.com">nban.idassist.com</a>, <a href="mailto:customerservice@idassist.com" target="_blank" style="mso-line-height-rule:exactly;text-decoration:none;color:#207292;font-size:16px">email us</a>, or call <a target="_blank" href="tel:18885350510" style="mso-line-height-rule:exactly;text-decoration:none;color:#207292;font-size:16px">1&#8209;888&#8209;535&#8209;0510</a> Monday through Friday, from 9&nbsp;a.m.&nbsp;to&nbsp;9&nbsp;p.m.&nbsp;ET.</p>
+    <p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"><br></p>
+    <p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"><strong style="font-weight:bolder !important">Thank you for using Securizone</strong></p>
+  </td></tr>
+
+  <!-- App store -->
+  <tr><td bgcolor="#EFF2F4" align="left" style="padding:20px 20px 0;Margin:0;background-color:#eff2f4">
+    <h3 style="Margin:0;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;mso-line-height-rule:exactly;letter-spacing:0;font-size:20px;font-style:normal;font-weight:bold;line-height:24px;color:#333333;text-align:center">Access Securizone on the go!</h3>
+    <p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"><br></p>
+    <p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px;text-align:center">Get the ID Assist mobile app on the App Store or Google Play for easy, on-the-go access to all your Securizone services anytime, anywhere.</p>
+  </td></tr>
+  <tr><td align="center" bgcolor="#EFF2F4" style="Margin:0;padding:20px;background-color:#eff2f4">
+    <a target="_blank" href="https://apps.apple.com/ca/app/id-assist-mobile/id540563542" style="mso-line-height-rule:exactly;text-decoration:none;color:#207292">
+      <img height="49" src="https://fmltes.stripocdn.email/content/guids/CABINET_15a25a8d176f8afe172c1cbc4e6ef71b943c02b9d83c9d125d80289d42ff9b2a/images/appstoreen_knf.png" alt="Download on the App Store" style="display:inline-block;font-size:16px;border:0;outline:none;text-decoration:none" width="145">
+    </a>
+    &nbsp;&nbsp;&nbsp;
+    <a target="_blank" href="https://play.google.com/store/apps/details?id=com.finastra.myidentityassist&hl=en" style="mso-line-height-rule:exactly;text-decoration:none;color:#207292">
+      <img height="49" src="https://fmltes.stripocdn.email/content/guids/CABINET_15a25a8d176f8afe172c1cbc4e6ef71b943c02b9d83c9d125d80289d42ff9b2a/images/playstoreen_vrP.png" alt="Get it on Google Play" style="display:inline-block;font-size:16px;border:0;outline:none;text-decoration:none" width="145">
+    </a>
+  </td></tr>
+
+  </tbody></table>
+</td></tr></tbody>
+</table>
+
+<!-- ─ NEED ASSISTANCE ────────────────────────────────────── -->
+<table cellpadding="0" cellspacing="0" align="center" width="100%" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:100%;table-layout:fixed !important;background-color:transparent;background-repeat:repeat;background-position:center top">
+<tbody><tr>
+  <td background="https://fmltes.stripocdn.email/content/guids/CABINET_8c58f51d58caeb09194ccf5cc1dcdc6450742d8ad6cab23e7ae1e695abffb494/images/service_email_background.png" align="center" style="padding:0;Margin:0;background-repeat:no-repeat;background-position:center;background-image:url(https://fmltes.stripocdn.email/content/guids/CABINET_8c58f51d58caeb09194ccf5cc1dcdc6450742d8ad6cab23e7ae1e695abffb494/images/service_email_background.png)">
+    <table bgcolor="#00000000" align="center" cellpadding="0" cellspacing="0" class="et" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:transparent;width:600px" role="none">
+    <tbody>
+      <tr><td align="left" style="Margin:0;padding:20px 20px 0">
+        <table cellpadding="0" cellspacing="0" width="100%" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+        <tbody><tr><td align="center" valign="top" style="padding:0;Margin:0">
+          <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+          <tbody>
+            <tr><td align="center" style="padding:0;Margin:0;font-size:0px">
+              <img src="https://fmltes.stripocdn.email/content/guids/CABINET_8c58f51d58caeb09194ccf5cc1dcdc6450742d8ad6cab23e7ae1e695abffb494/images/idassist_logo_thumb.png" alt="" width="44" style="display:block;font-size:16px;border:0;outline:none;text-decoration:none;margin:0 auto" height="44">
+            </td></tr>
+            <tr><td align="center" style="padding:20px 0 0;Margin:0">
+              <h3 style="Margin:0;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;mso-line-height-rule:exactly;letter-spacing:0;font-size:18px;font-style:normal;font-weight:bold;line-height:22px;color:#ffffff;text-align:center">Need Assistance?</h3>
+            </td></tr>
+          </tbody></table>
+        </td></tr></tbody>
+        </table>
+      </td></tr>
+      <tr><td align="center" style="padding:20px 20px 30px;Margin:0">
+        <table cellpadding="0" cellspacing="0" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse">
+        <tbody><tr>
+          <td align="right" style="padding:0 24px;Margin:0"><p style="Margin:0;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;line-height:23px;font-weight:normal;color:#adadad;font-size:15px"><a target="_blank" href="https://nban.idassist.com/en/help" style="mso-line-height-rule:exactly;text-decoration:underline;color:#adadad;font-size:15px">View Our FAQs</a></p></td>
+          <td align="center" style="padding:0 24px;Margin:0"><p style="Margin:0;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;line-height:23px;font-weight:normal;color:#adadad;font-size:15px"><a href="mailto:customerservice@idassist.com" target="_blank" style="mso-line-height-rule:exactly;text-decoration:underline;color:#adadad;font-size:15px">Send An Email</a></p></td>
+          <td align="left" style="padding:0 24px;Margin:0"><p style="Margin:0;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;line-height:23px;font-weight:normal;color:#adadad;font-size:15px"><a target="_blank" href="tel:18885350510" style="mso-line-height-rule:exactly;text-decoration:underline;color:#adadad;font-size:15px">Give Us A Call</a></p></td>
+        </tr></tbody>
+        </table>
+      </td></tr>
+      <tr><td align="left" style="Margin:0;padding:0 20px 20px"><p style="Margin:0;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;line-height:21px;font-weight:normal;color:#333333;font-size:14px"><br></p></td></tr>
+    </tbody></table>
+  </td>
+</tr></tbody>
+</table>
+
+<!-- ─ LEGAL FOOTER ───────────────────────────────────────── -->
+<table cellpadding="0" cellspacing="0" align="center" width="100%" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:100%;table-layout:fixed !important;background-color:transparent">
+<tbody><tr><td align="center" style="padding:0;Margin:0">
+  <table bgcolor="#605a5a" align="center" cellpadding="0" cellspacing="0" class="et" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#FFFFFF;width:600px">
+  <tbody>
+    <tr><td align="left" bgcolor="#404145" style="Margin:0;padding:30px 30px 20px">
+      <p style="Margin:0;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;line-height:18px;font-weight:normal;color:#adadad;font-size:12px">This is an automated notification email; please do not reply to it. If you require assistance, please call us at 1&#8209;888&#8209;535&#8209;0510.</p>
+      <p style="Margin:0;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;line-height:18px;font-weight:normal;color:#adadad;font-size:12px"><br></p>
+      <p style="Margin:0;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;line-height:18px;font-weight:normal;color:#adadad;font-size:12px">Disclosure: You are receiving this communication because you have purchased a subscription to Securizone, a product of National Bank Assistance Network in partnership with ID Assist services from Sigma Loyalty Group Inc.</p>
+      <p style="Margin:0;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;line-height:18px;font-weight:normal;color:#adadad;font-size:12px"><br></p>
+      <p style="Margin:0;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;line-height:18px;font-weight:normal;color:#adadad;font-size:12px">&#169; 2026 Sigma Loyalty Group Inc., all rights reserved. ID&nbsp;Assist, Sigma Loyalty Group Inc. and all associated marks and logos are registered trademarks owned or used under license. ID&nbsp;Assist is provided by Sigma Loyalty Group Inc. iPhone and App Store are trademarks of Apple Inc., registered in the U.S. and other countries. Android, Google Play and Play Store are trademarks of Google Inc., registered in the U.S. and other countries.</p>
+      <p style="Margin:0;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;line-height:18px;font-weight:normal;color:#adadad;font-size:12px"><br></p>
+      <p style="Margin:0;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;line-height:18px;font-weight:normal;color:#adadad;font-size:12px">With Securizone&#174;, you have access to ID Assist&#174; from Sigma Loyalty, a partner of NBC Assistance Inc.</p>
+      <p style="Margin:0;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;line-height:18px;font-weight:normal;color:#adadad;font-size:12px"><br></p>
+      <p style="Margin:0;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;line-height:18px;font-weight:normal;color:#adadad;font-size:12px">&#174;SECURIZONE and the NATIONAL BANK ASSISTANCE NETWORK logos are registered trademarks of National&nbsp;Bank&nbsp;of&nbsp;Canada, used under license by authorized third parties.</p>
+      <p style="Margin:0;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;line-height:18px;font-weight:normal;color:#adadad;font-size:12px"><br></p>
+      <p style="Margin:0;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;line-height:18px;font-weight:normal;color:#adadad;font-size:12px">Your regular subscription fee will be automatically charged to your designated payment account after any applicable promotions have expired. Your subscription will automatically renew unless you cancel. You may cancel by telephone at any time.</p>
+    </td></tr>
+    <tr><td bgcolor="#404145" align="center" style="Margin:0;padding:16px 20px 40px;background-color:#404145">
+      <a target="_blank" href="https://nban.idassist.com/assets/docs/en/IDAssist-TermsOfUse.pdf" style="mso-line-height-rule:exactly;text-decoration:underline;color:#adadad;font-size:12px;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;margin:0 12px">Terms and Conditions</a>
+      <a href="https://nban.idassist.com/assets/docs/en/IDAssist-PrivacyPolicy.pdf" target="_blank" style="mso-line-height-rule:exactly;text-decoration:underline;color:#adadad;font-size:12px;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;margin:0 12px">Privacy Policy</a>
+      <a href="https://nban.idassist.com/assets/docs/EN/IDAssist-CancellationPolicy.pdf" target="_blank" style="mso-line-height-rule:exactly;text-decoration:underline;color:#adadad;font-size:12px;font-family:'source sans pro','helvetica neue',helvetica,arial,sans-serif;margin:0 12px">Cancellation Policy</a>
+    </td></tr>
+  </tbody></table>
+</td></tr></tbody>
+</table>
+
+</td></tr></tbody>
+</table>
+</div>
+</body>
+</html>`;
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   CONTROL LOGIC
+   ════════════════════════════════════════════════════════════ */
+
+function getOpts() {
+  const hasCM = document.getElementById('chk-cm').checked;
+  return {
+    month:               document.getElementById('sel-month').value,
+    hasDarkWebAlerts:    document.getElementById('chk-dw').checked,
+    hasCreditAlerts:     hasCM && document.getElementById('chk-ca').checked,
+    hasCreditMonitoring: hasCM,
+    hasQuarterlyReport:  hasCM && document.getElementById('chk-qr').checked,
+    isMobile:            false
+  };
+}
+
+function syncDependentControls(opts) {
+  const { hasCreditMonitoring } = opts;
+  document.getElementById('row-ca').classList.toggle('dimmed', !hasCreditMonitoring);
+  document.getElementById('row-qr').classList.toggle('dimmed', !hasCreditMonitoring);
+}
+
+function buildStatusHTML(opts) {
+  const { month, hasDarkWebAlerts, hasCreditAlerts, hasCreditMonitoring, hasQuarterlyReport } = opts;
+  const mNames = { '1':'Month 1','2':'Month 2','3':'Month 3','4':'Month 4','5':'Month 5','6':'Month 6+' };
+
+  const pill  = (label, cls='') => `<span class="status-pill ${cls}">${label}</span>`;
+  const lines = [];
+
+  lines.push(pill(mNames[month]));
+  lines.push(hasCreditMonitoring ? pill('Credit monitoring: on') : pill('Credit monitoring: off','off'));
+
+  lines.push('<br>');
+  lines.push(hasDarkWebAlerts ? pill('Dark web alerts','alert') : pill('Dark web: clear','off'));
+  if (hasCreditMonitoring) {
+    lines.push(hasCreditAlerts ? pill('Credit alerts','alert') : pill('Credit: clear','off'));
+    lines.push('<br>');
+    lines.push(hasQuarterlyReport ? pill('Score + report') : pill('Score only','off'));
+  }
+
+  return lines.join(' ');
+}
+
+function updatePreview() {
+  const opts = getOpts();
+  syncDependentControls(opts);
+
+  document.getElementById('status-line').innerHTML = buildStatusHTML(opts);
+
+  const html   = buildEmail(opts);
+  const iframe = document.getElementById('email-frame');
+  iframe.srcdoc = html;
+
+  iframe.onload = function () {
+    try {
+      const h = iframe.contentDocument.body.scrollHeight;
+      iframe.style.height = Math.max(h + 20, 600) + 'px';
+    } catch (e) {
+      iframe.style.height = '1000px';
+    }
+  };
+}
+
+/* ════════════════════════════════════════════════════════════
+   PDF DOWNLOAD
+   ════════════════════════════════════════════════════════════ */
+
+function buildFilename() {
+  const opts  = getOpts();
+  const month = 'month-' + opts.month;
+  const dw    = opts.hasDarkWebAlerts ? 'dw-alerts' : 'dw-clear';
+  const cm    = !opts.hasCreditMonitoring ? 'no-credit'
+              : opts.hasCreditAlerts       ? 'credit-alerts'
+              :                              'credit-clear';
+  const qr    = opts.hasCreditMonitoring && opts.hasQuarterlyReport ? '-qr' : '';
+  return `securizone-${month}-${dw}-${cm}${qr}.pdf`;
+}
+
+function downloadPDF() {
+  const btn    = document.getElementById('btn-pdf');
+  const iframe = document.getElementById('email-frame');
+  try {
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+    if (!doc || !doc.body) return;
+    btn.disabled    = true;
+    btn.textContent = 'Generating\u2026';
+    const pw = 600;
+    const ph = doc.body.scrollHeight + 400;
+    html2pdf().set({
+      margin:      [8, 0, 8, 0],
+      filename:    buildFilename(),
+      image:       { type: 'jpeg', quality: 0.95 },
+      html2canvas: { scale: 2, width: pw, scrollY: 0, useCORS: true },
+      jsPDF:       { unit: 'px', format: [pw, ph], hotfixes: ['px_scaling'] }
+    }).from(doc.body).save().finally(() => {
+      btn.disabled    = false;
+      btn.textContent = '\u2195 Download PDF';
+    });
+  } catch (e) {
+    btn.disabled    = false;
+    btn.textContent = '\u2195 Download PDF';
+    alert('Could not generate PDF. Check console for details.');
+  }
+}
+
+// Boot
+updatePreview();
+</script>
+
+</body>
+</html>
