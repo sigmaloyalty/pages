@@ -300,81 +300,74 @@ select {
 const DARK_WEB = {
   email: {
     detectedType: 'email address',
-    itemContext:  'Email addresses appear in data breaches and phishing lists more than almost any other piece of information.'
+    body1:        'Your Securizone identity monitoring has detected a match for your email address &#8211; a piece of information that appears in data breaches and phishing lists more than almost any other.'
   },
   creditcard: {
     detectedType: 'credit card number',
-    itemContext:  'Exposed card numbers are often tested with small unauthorized charges before larger fraud follows.'
+    body1:        'Your Securizone identity monitoring has detected a match for your credit card number &#8211; information that&#8217;s often tested with small unauthorized charges before larger fraud follows.'
   },
   bankaccount: {
     detectedType: 'bank account number',
-    itemContext:  'Bank account details can be used to attempt unauthorized transactions.'
+    body1:        'Your Securizone identity monitoring has detected a match for your bank account number &#8211; information that can be used to attempt unauthorized transactions.'
   },
   phone: {
     detectedType: 'phone number',
-    itemContext:  'An exposed phone number can lead to targeted scam calls or be used in attempts to access accounts where it&#8217;s registered.'
+    body1:        'Your Securizone identity monitoring has detected a match for your phone number &#8211; information that can lead to targeted scam calls or be used to try to access accounts where it&#8217;s registered.'
   },
   sin: {
     detectedType: 'Social Insurance Number',
-    itemContext:  'A Social Insurance Number is one of the highest-value pieces of information to a fraudster &#8211; it can be used to apply for credit, access government benefits, or file tax returns in your name.'
+    body1:        'Your Securizone identity monitoring has detected a match for your Social Insurance Number &#8211; one of the highest-value pieces of information to a fraudster, who could use it to apply for credit, access government benefits, or file tax returns in your name.'
   },
   licence: {
     detectedType: 'driver&#8217;s licence number',
-    itemContext:  'A driver&#8217;s licence number is a piece of government-issued identification that can be used to apply for credit or access services in your name.'
+    body1:        'Your Securizone identity monitoring has detected a match for your driver&#8217;s licence number &#8211; a piece of government-issued identification that can be used to apply for credit or access services in your name.'
   },
   passport: {
     detectedType: 'passport number',
-    itemContext:  'A passport number can be used as government-issued photo identification to apply for credit, open financial accounts, or access services in your name &#8211; making it one of the more versatile pieces of information a fraudster can act on.'
+    body1:        'Your Securizone identity monitoring has detected a match for your passport number &#8211; government-issued photo identification that can be used to apply for credit, open financial accounts, or access services in your name, making it one of the more versatile pieces of information a fraudster can act on.'
   },
   pr: {
     detectedType: 'permanent resident card number',
-    itemContext:  'A permanent resident card number can be used as government-issued identification to access services, apply for credit, or file documentation in your name, and may also be of value in immigration-related fraud.'
+    body1:        'Your Securizone identity monitoring has detected a match for your permanent resident card number &#8211; government-issued identification that can be used to access services, apply for credit, or file documentation in your name, and may also be of value in immigration-related fraud.'
   },
   loyalty: {
     detectedType: 'loyalty card number',
-    itemContext:  'Loyalty account numbers can be used to access and drain accumulated points and rewards.'
+    body1:        'Your Securizone identity monitoring has detected a match for your loyalty card number &#8211; information that can be used to access and drain accumulated points and rewards.'
   },
   health: {
     detectedType: 'health benefit plan number',
-    itemContext:  'Health benefit plan information can be misused to submit fraudulent claims in your name.'
+    body1:        'Your Securizone identity monitoring has detected a match for your health benefit plan number &#8211; information that can be misused to submit fraudulent claims in your name.'
   }
 };
 
 const CREDIT = {
   inquiry: {
-    preheader:         'A new credit inquiry has appeared on your file.',
-    changeDescription: 'new credit inquiry',
-    changeContext:     'A credit inquiry is recorded when someone requests access to your credit file &#8211; most often when applying for a loan or credit product. If you authorized this, there&#8217;s nothing further you need to do. If you don&#8217;t recognize it, your alert details will help you act on it promptly.'
+    preheader: 'A new credit inquiry has appeared on your file.',
+    body1:     'Your Securizone credit monitoring has detected a new credit inquiry on your credit file &#8211; recorded when someone requests access to your credit file, most often when applying for a loan or credit product. If you authorized this, there&#8217;s nothing further you need to do. If you don&#8217;t recognize it, your alert details will help you act on it promptly.'
   },
   newaccount: {
-    preheader:         'A new credit account has appeared on your file.',
-    changeDescription: 'new account',
-    changeContext:     'A new account means a credit product has been opened in your name. If you recently applied for a loan, credit card, or line of credit, this is likely the result. If you don&#8217;t recognize it, reviewing your alert right away will help you take action quickly.'
+    preheader: 'A new credit account has appeared on your file.',
+    body1:     'Your Securizone credit monitoring has detected a new account on your credit file &#8211; meaning a new credit account has been opened in your name. If you recently applied for a loan, credit card, or line of credit, this is likely the result. If you don&#8217;t recognize it, reviewing your alert right away will help you take action quickly.'
   },
   update: {
-    preheader:         'A change has been recorded on an account in your credit file.',
-    changeDescription: 'change to an existing account',
-    changeContext:     'Account updates reflect reported changes to balance, credit limit, payment status, or account standing. Most are routine &#8211; but your alert will help you confirm that what&#8217;s been recorded matches what you recognize.'
+    preheader: 'A change has been recorded on an account in your credit file.',
+    body1:     'Your Securizone credit monitoring has detected a change to an existing account on your credit file &#8211; reflecting a reported change to balance, credit limit, payment status, or account standing. Most updates are routine, but your alert will help you confirm that what&#8217;s been recorded matches what you recognize.'
   },
   address: {
-    preheader:         'A new address has appeared on your credit file.',
-    changeDescription: 'new address',
-    changeContext:     'A new address on your credit file is typically a routine update from a lender &#8211; but it&#8217;s worth confirming it reflects a change you made. Your alert will show you what was changed and whether any follow-up is needed.'
+    preheader: 'A new address has appeared on your credit file.',
+    body1:     'Your Securizone credit monitoring has detected a new address on your credit file &#8211; typically a routine update from a lender, but worth confirming it reflects a change you made.'
   },
   collections: {
-    preheader:         'A collection entry has appeared on your credit file.',
-    changeDescription: 'collections entry',
-    changeContext:     'A collections entry is recorded when a debt has been referred to a collection agency. It may reflect a payment that was missed or overlooked &#8211; but it can also appear as a result of credit opened in your name without your knowledge. Your alert will show you what was recorded so you can confirm whether it&#8217;s something you recognize or something that needs follow-up.'
+    preheader: 'A collection entry has appeared on your credit file.',
+    body1:     'Your Securizone credit monitoring has detected a collections entry on your credit file &#8211; recorded when a debt has been referred to a collection agency. It may reflect a payment that was missed or overlooked, but it can also appear as a result of credit opened in your name without your knowledge.'
   },
   bankruptcy: {
-    preheader:         'A bankruptcy record has appeared on your credit file.',
-    changeDescription: 'bankruptcy record',
-    changeContext:     'A bankruptcy record is a significant entry on a credit file. If you&#8217;ve recently filed, this reflects that process. If this is unexpected, it&#8217;s important to review the details right away &#8211; your alert will show you exactly what was recorded and what steps are recommended.'
+    preheader: 'A bankruptcy record has appeared on your credit file.',
+    body1:     'Your Securizone credit monitoring has detected a bankruptcy record on your credit file &#8211; a significant entry that, if you&#8217;ve recently filed, simply reflects that process. If this is unexpected, it&#8217;s important to review the details right away.'
   },
   other: {
-    preheader:         'A change has been detected in your credit file.',
-    changeDescription: 'change',
-    changeContext:     'Changes to your credit file can span a range of activity &#8211; from account updates to personal information changes. Your alert will show you exactly what was recorded and whether any action is recommended.'
+    preheader: 'A change has been detected in your credit file.',
+    body1:     'Your Securizone credit monitoring has detected a change on your credit file &#8211; changes like this can span a range of activity, from account updates to personal information changes.'
   }
 };
 
@@ -419,18 +412,16 @@ function ps(text)  { return `<p ${PSMALL}>${text}</p>`; }
 function buildEmail(opts) {
   const { alertType, subType } = opts;
 
-  let body1, body2, body3;
+  let body1, body2;
 
   if (alertType === 'darkweb') {
     const item = DARK_WEB[subType];
-    body1 = `Your Securizone identity monitoring has detected a match for your ${item.detectedType}.`;
-    body2 = item.itemContext;
-    body3 = 'Your account has the full details of this finding &#8211; including where it appeared and recommended next steps for this type of exposure.';
+    body1 = item.body1;
+    body2 = 'You&#8217;ll find full details of this finding in your Securizone account &#8211; including where it appeared and recommended next steps for this type of exposure.';
   } else {
     const change = CREDIT[subType];
-    body1 = `Your Securizone credit monitoring has detected a ${change.changeDescription} on your credit file.`;
-    body2 = change.changeContext;
-    body3 = 'Your account has the full details of this change &#8211; including which bureau reported it and recommended next steps if anything looks unfamiliar.';
+    body1 = change.body1;
+    body2 = 'You&#8217;ll find full details of this change in your Securizone account &#8211; including which bureau reported it and recommended next steps if anything looks unfamiliar.';
   }
 
   const ctaLine = 'Click below or log in at <a href="https://nban.idassist.com" target="_blank" style="mso-line-height-rule:exactly;text-decoration:none;color:#207292;font-size:16px">nban.idassist.com</a> to review your alert.';
@@ -481,7 +472,7 @@ u+.body img~div div{display:none}
       <tr><td align="left" style="padding:40px 0 20px;Margin:0">
         ${p('Hi {{contact.FIRSTNAME}},')}
         ${br()}
-        ${p(body1 + '<br><br>' + body2 + '<br><br>' + body3)}
+        ${p(body1 + '<br><br>' + body2)}
         ${br()}
         ${p(ctaLine)}
       </td></tr>
