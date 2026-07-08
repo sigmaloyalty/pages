@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Securizone Alert Emails &#8211; Preview Tool</title>
+<style>
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #edf0f4;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: #2d3748;
+}
+
+.tool-header {
+  background: #1a202c;
+  color: white;
+  padding: 11px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  border-bottom: 3px solid #207292;
+  gap: 16px;
+}
+.header-title { font-size: 15px; font-weight: 600; letter-spacing: 0.2px; }
+.header-sub   { font-size: 11px; color: #90a0b0; margin-top: 2px; }
+
+.tool-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.sidebar {
+  width: 248px;
+  flex-shrink: 0;
+  background: white;
+  border-right: 1px solid #e2e8f0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.ctrl-section {
+  padding: 14px 16px;
+  border-bottom: 1px solid #edf0f4;
+}
+.ctrl-section-title {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #a0aec0;
+  margin-bottom: 10px;
+}
+.ctrl-group { margin-bottom: 10px; }
+.ctrl-group:last-child { margin-bottom: 0; }
+.ctrl-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 5px;
+}
+select {
+  width: 100%;
+  padding: 7px 28px 7px 9px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #2d3748;
+  background: #f8fafc;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23a0aec0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+}
+
+#bureau-group { display: none; }
+.seg {
+  display: flex;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.seg button {
+  flex: 1;
+  padding: 7px 0;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  background: #f8fafc;
+  color: #4a5568;
+  cursor: pointer;
+}
+.seg button.active {
+  background: #207292;
+  color: white;
+}
+
+.status-box {
+  margin: 12px 16px 0;
+  background: #ebf8ff;
+  border: 1px solid #bee3f8;
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+.status-box-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: #207292;
+  margin-bottom: 5px;
+}
+.status-line {
+  font-size: 12px;
+  color: #2d3748;
+  line-height: 1.7;
+}
+.status-pill {
+  display: inline-block;
+  background: #207292;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 3px;
+  padding: 1px 5px;
+  margin: 1px 2px;
+  vertical-align: middle;
+}
+.status-pill.credit { background: #6b46c1; }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 12px 16px;
+  font-size: 11px;
+  color: #a0aec0;
+  border-top: 1px solid #edf0f4;
+  line-height: 1.5;
+}
+
+.preview-area {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 20px 40px;
+  min-width: 0;
+}
+.preview-label {
+  font-size: 11px;
+  color: #90a0b0;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  text-align: left;
+  width: 640px;
+  transition: width .15s ease;
+}
+.preview-label.mobile { width: 375px; }
+
+.meta-bar {
+  width: 640px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-bottom: 2px solid #e2e8f0;
+  border-radius: 6px 6px 0 0;
+  padding: 10px 16px;
+}
+.meta-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 3px 0;
+}
+.meta-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #a0aec0;
+  flex-shrink: 0;
+  width: 70px;
+}
+.meta-value {
+  font-size: 13px;
+  color: #2d3748;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.preview-shell {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 640px;
+  transition: width .15s ease;
+}
+.preview-shell.mobile { width: 375px; }
+
+#email-frame {
+  width: 100%;
+  border: none;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.13);
+  min-height: 600px;
+  display: block;
+  background: white;
+}
+
+.meta-bar.mobile { width: 375px; }
+
+.size-stat {
+  width: 640px;
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #7c2d12;
+  line-height: 1.6;
+  transition: width .15s ease;
+}
+.size-stat.mobile { width: 375px; }
+.size-stat b { font-weight: 700; }
+.size-stat .stat-note { display: block; color: #9a5a3a; font-size: 11px; margin-top: 2px; }
+
+.pdf-btn {
+  padding: 5px 14px;
+  border: 1px solid #4a6580;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  background: transparent;
+  color: #90b8d0;
+  transition: all .15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.pdf-btn:hover:not(:disabled) {
+  background: #207292;
+  border-color: #207292;
+  color: white;
+}
+.pdf-btn:disabled { opacity: 0.5; cursor: default; }
+
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+<header class="tool-header">
+  <div>
+    <div class="header-title">Securizone Alert Emails &#8211; Preview Tool</div>
+    <div class="header-sub">Select alert type and detail to preview in real time</div>
+  </div>
+  <button id="btn-pdf" class="pdf-btn" onclick="downloadPDF()">&#8595; Download PDF</button>
+</header>
+
+<div class="tool-body">
+
+  <aside class="sidebar">
+
+    <div class="ctrl-section">
+      <div class="ctrl-section-title">Preview As</div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">Device</label>
+        <div class="seg">
+          <button type="button" id="btn-desktop" class="active" onclick="setDevice('desktop')">Desktop</button>
+          <button type="button" id="btn-mobile" onclick="setDevice('mobile')">Mobile</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="ctrl-section">
+      <div class="ctrl-section-title">Alert Type</div>
+      <div class="ctrl-group">
+        <label class="ctrl-label" for="sel-alert-type">Category</label>
+        <select id="sel-alert-type" onchange="onAlertTypeChange()">
+          <option value="darkweb">Dark Web / Identity Alert</option>
+          <option value="credit">Credit Bureau Alert</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="ctrl-section">
+      <div class="ctrl-section-title" id="detail-title">Item Detected</div>
+      <div class="ctrl-group">
+        <label class="ctrl-label" for="sel-sub-type" id="sub-label">Information type</label>
+        <select id="sel-sub-type" onchange="updatePreview()">
+          <!-- populated by JS -->
+        </select>
+      </div>
+      <div class="ctrl-group" id="bureau-group">
+        <label class="ctrl-label">Credit bureau</label>
+        <div class="seg">
+          <button type="button" id="btn-equifax" class="active" onclick="setBureau('Equifax')">Equifax</button>
+          <button type="button" id="btn-transunion" onclick="setBureau('TransUnion')">TransUnion</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="status-box">
+      <div class="status-box-label">Currently viewing</div>
+      <div class="status-line" id="status-line">&#8212;</div>
+    </div>
+
+    <div class="sidebar-footer">
+      {{contact.FIRSTNAME}} resolves to the subscriber&#8217;s first name in deployed emails.
+    </div>
+
+  </aside>
+
+  <main class="preview-area">
+    <div class="preview-label" id="preview-label">Desktop &#8211; 600px email, 640px canvas</div>
+    <div class="meta-bar" id="meta-bar">
+      <div class="meta-row">
+        <span class="meta-label">Subject</span>
+        <span class="meta-value" id="meta-subject">&#8212;</span>
+      </div>
+      <div class="meta-row">
+        <span class="meta-label">Pre-header</span>
+        <span class="meta-value" id="meta-preheader">&#8212;</span>
+      </div>
+    </div>
+    <div class="preview-shell" id="preview-shell">
+      <iframe id="email-frame" title="Email preview"></iframe>
+    </div>
+    <div class="size-stat" id="size-stat">&#8212;</div>
+  </main>
+
+</div>
+
+<script>
+'use strict';
+
+/* ════════════════════════════════════════════════════════════
+   COPY + ASSET DATA
+   ════════════════════════════════════════════════════════════ */
+
+const DW_ORDER = ["email", "creditcard", "bankaccount", "phone", "sin", "licence", "passport", "pr", "loyalty", "health"];
+const CR_ORDER = ["inquiry", "newaccount", "update", "address", "collections", "bankruptcy", "other"];
+
+const DARK_WEB = {
+  email: {
+    label: "Email Address",
+    headerImgSrc: "https://fmltes.stripocdn.email/content/guids/CABINET_2c9f15536c96790034f1ed05ee765e8ffb107dfb9258f3989d468d00d5b62fe7/images/email_header.png",
+    headerImgH: 52,
+    headingHtml: "We found a match to your <strong style=\"font-weight:bolder !important\">Email&nbsp;Address</strong><br>on the dark web <br>",
+    preheader: "We found a match to your Email Address",
+    bodyHtml: "Email addresses are the most common personal ID found on the dark web and the most frequent data to trigger an identity monitoring alert. &nbsp;Emails are often discovered within lists of breached data that hackers have stolen from information sources around the world. <br> <br>On its own, a stolen email address may be low risk. But you may also experience an increase in phishing and spam emails attempting to persuade you to share more personal information. <br>"
+  },
+  creditcard: {
+    label: "Credit or Debit Card Number",
+    headerImgSrc: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/credit_card_header.png",
+    headerImgH: 50,
+    headingHtml: "We found a match to your <strong style=\"font-weight:bolder !important\">Credit or Debit Card&nbsp;Number</strong><br>on the dark web <br>",
+    preheader: "We found a match to your Payment Card Number",
+    bodyHtml: "Credit card and debit card numbers are often found on the dark web when they have been part of a previous data breach. They can be discovered within lists of breached data that hackers have stolen from information sources around the world. <br> <br>For stolen credit card and debit card numbers to be valuable, they must be open and available to charge purchases or withdraw funds. Thieves may test the account by attempting small unauthorized transactions. Stay aware of your account activity to help prevent larger fraudulent charges. <br>"
+  },
+  bankaccount: {
+    label: "Bank Account Number",
+    headerImgSrc: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/bank_account_header.png",
+    headerImgH: 50,
+    headingHtml: "We found a match to your <strong style=\"font-weight:bolder !important\">Bank Account&nbsp;Number</strong><br>on the dark web <br>",
+    preheader: "We found a match to your Bank Account Number",
+    bodyHtml: "Bank account numbers may be found on the dark web when they have been part of a previous data breach. They can be discovered within lists of breached data that hackers have stolen from information sources around the world. <br> <br>For stolen bank account numbers to be valuable, they must be open and available to withdraw funds. Thieves may test the account by attempting small unauthorized transactions. Stay aware of your account activity to help prevent larger fraudulent withdrawals. <br>"
+  },
+  phone: {
+    label: "Phone Number",
+    headerImgSrc: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/phone_header.png",
+    headerImgH: 51,
+    headingHtml: "We found a match to your <strong style=\"font-weight:bolder !important\">Phone&nbsp;Number</strong><br>on the dark web <br>",
+    preheader: "We found a match to your Phone Number",
+    bodyHtml: "Phone numbers are often considered public information, commonly available through online directories and social profiles. They are also shared widely when making online purchases and scheduling deliveries. This widespread use means they are often discovered within lists of breached data that hackers have stolen from information sources around the world. <br> <br>On its own, a stolen phone number may be low risk. But it can lead to targeted scams and increased experiences of &#8220;vishing&#8221; (fraudulent phone calls) and &#8220;smishing&#8221; (fraudulent text messages) attempting to persuade you to share more personal information. <br>"
+  },
+  sin: {
+    label: "Social Insurance Number (SIN)",
+    headerImgSrc: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/credit_card_header.png",
+    headerImgH: 50,
+    headingHtml: "We found a match to your <strong style=\"font-weight:bolder !important\">Social Insurance&nbsp;Number</strong><br>on the dark web <br>",
+    preheader: "We found a match to your Social Insurance Number",
+    bodyHtml: "Social Insurance Numbers found on the dark web require immediate attention. As a government-issued identification, Social Insurance Numbers can be used to fraudulently apply for credit, access government benefits, or file tax returns in your name. It is one of the highest-value pieces of information fraudsters can use and important to take action to help prevent future harm. <br>"
+  },
+  licence: {
+    label: "Driver’s Licence Number",
+    headerImgSrc: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/drivers_licence_header.png",
+    headerImgH: 50,
+    headingHtml: "We found a match to your <strong style=\"font-weight:bolder !important\">Driver&#8217;s Licence&nbsp;Number</strong><br>on the dark web <br>",
+    preheader: "We found a match to your Driver&#8217;s Licence Number",
+    bodyHtml: "Driver&#8217;s licence numbers found on the dark web require attention. As a government-issued identification, a driver&#8217;s licence can be used to fraudulently apply for credit or access services in your name. It is a versatile piece of information fraudsters can use and important to take action to help prevent future harm. <br>"
+  },
+  passport: {
+    label: "Passport Number",
+    headerImgSrc: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/passport_header.png",
+    headerImgH: 49,
+    headingHtml: "We found a match to your <strong style=\"font-weight:bolder !important\">Passport&nbsp;Number</strong><br>on the dark web <br>",
+    preheader: "We found a match to your Passport Number",
+    bodyHtml: "Passport numbers found on the dark web require attention. As a government-issued identification, passports can be used to fraudulently apply for credit, open financial accounts, or access services in your name. It is one of the more versatile pieces of information fraudsters can use and important to take action to help prevent future harm. <br>"
+  },
+  pr: {
+    label: "Permanent Resident Card Number",
+    headerImgSrc: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/drivers_licence_header.png",
+    headerImgH: 50,
+    headingHtml: "We found a match to your <strong style=\"font-weight:bolder !important\">Permanent Resident Card&nbsp;Number</strong><br>on the dark web <br>",
+    preheader: "We found a match to your Permanent Resident Card Number",
+    bodyHtml: "Permanent resident card numbers found on the dark web require attention. As a government-issued identification, permanent resident numbers can be used to fraudulently access services or file documentation in your name. It may also be valuable to fraudsters attempting immigration-related fraud. It is a versatile piece of identification making it important to take action to help prevent future harm. <br>"
+  },
+  loyalty: {
+    label: "Loyalty Card Number",
+    headerImgSrc: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/credit_card_header.png",
+    headerImgH: 50,
+    headingHtml: "We found a match to your <strong style=\"font-weight:bolder !important\">Loyalty Card&nbsp;Number</strong><br>on the dark web <br>",
+    preheader: "We found a match to your Loyalty Card Number",
+    bodyHtml: "Loyalty card numbers may be found on the dark web when they have been part of a previous data breach. They can be discovered within lists of breached data that hackers have stolen from information sources around the world. <br> <br>A stolen loyalty card number should be considered like other payment cards, as fraudsters may attempt to drain accumulated points balances for cash or other rewards. Stay aware of your loyalty program activity to help prevent larger acts of fraud. <br>"
+  },
+  health: {
+    label: "Health Benefit Plan Number",
+    headerImgSrc: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/drivers_licence_header.png",
+    headerImgH: 50,
+    headingHtml: "We found a match to your <strong style=\"font-weight:bolder !important\">Health Benefit Plan&nbsp;Number</strong><br>on the dark web <br>",
+    preheader: "We found a match to your Health Benefit Plan Number",
+    bodyHtml: "Health benefit plan numbers found on the dark web require attention. In the wrong hands, health benefit plan numbers can be used to fraudulently access benefits and file false claims in your name. Stay aware of your health benefits activity to help prevent future harm. <br>"
+  }
+};
+
+const CREDIT = {
+  inquiry: {
+    label: "New Inquiry",
+    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Credit Inquiry</strong><br>on your ${v.bureau} credit bureau file <br>",
+    preheader: "A new Credit Inquiry has appeared on your credit bureau file.",
+    bodyHtml: "A new credit inquiry appears on your credit bureau file when a bank or other organization requests access to your credit profile. This most often occurs when applying for products like mortgages, loans, and credit cards or when opening a new telecommunications service account. <br> <br>If you are aware of this inquiry and authorized access to your credit file, then there is nothing more you need to do. <br> <br>If you do not recognize this inquiry, act now to review the complete alert details. Refer to the recommended next steps to help determine whether further action is required. <br>"
+  },
+  newaccount: {
+    label: "New Account",
+    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Credit Account</strong><br>on your ${v.bureau} credit bureau file <br>",
+    preheader: "A new Credit Account has appeared on your credit bureau file.",
+    bodyHtml: "A new credit account appears on your credit bureau file after opening a credit account in your name. Things like mortgages, loans, lines of credit, and credit cards will all appear as accounts on your credit profile. <br> <br>If you recently opened a new credit account and are aware of this change, then there is nothing more you need to do. <br> <br>If you do not recognize this account, act now to review the complete alert details. Refer to the recommended next steps to help determine any further action that may be required. <br>"
+  },
+  update: {
+    label: "Account Update",
+    headingTpl: "We detected an <strong style=\"font-weight:bolder !important\">Account Change</strong><br>on your ${v.bureau} credit bureau file <br>",
+    preheader: "An Account Change has appeared on your credit bureau file.",
+    bodyHtml: "Account changes reported on your credit bureau file often reflect routine updates to an outstanding credit balance, credit limit, payment status, or overall account standing. <br> <br>Review the complete details of this alert to be sure you recognize this as a legitimate change. If you have concerns, refer to the recommended next steps to help determine any further action that may be required. <br>"
+  },
+  address: {
+    label: "Address Update",
+    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Address</strong><br>on your ${v.bureau} credit bureau file <br>",
+    preheader: "A new Address has appeared on your credit bureau file.",
+    bodyHtml: "A new address appearing on your credit bureau file can often be a routine update from a lender or credit provider. <br> <br>Review the complete details of this alert to be sure the new address is familiar and you recognize this as a legitimate change. If you have concerns, refer to the recommended next steps to help determine any further action that may be required. <br>"
+  },
+  collections: {
+    label: "Collections",
+    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Collections Entry</strong><br>on your ${v.bureau} credit bureau file <br>",
+    preheader: "A new Collections Entry has appeared on your credit bureau file.",
+    bodyHtml: "A collections entry appears on your credit bureau file when a debt in your name has been referred to a collection agency. It may reflect a payment that was missed or overlooked but can also be the result of a credit account opened without your knowledge. <br> <br>Review the complete details of this alert for more information on what has been reported. If you have concerns, refer to the recommended next steps to help determine any further action that may be required. <br>"
+  },
+  bankruptcy: {
+    label: "Bankruptcy",
+    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Bankruptcy Record</strong><br>on your ${v.bureau} credit bureau file <br>",
+    preheader: "A new Bankruptcy Record has appeared on your credit bureau file.",
+    bodyHtml: "A bankruptcy record appears on your credit bureau file after filing for bankruptcy. If you recently filed, this may simply reflect that process. If this record is unexpected, it&#8217;s important to act right away. <br> <br>Review the complete details of this alert for more information on what has been reported. If you have concerns, refer to the recommended next steps to help determine any further action that may be required. <br>"
+  },
+  other: {
+    label: "Other Change",
+    headingTpl: "We detected a <strong style=\"font-weight:bolder !important\">Credit File Change</strong><br>on your ${v.bureau} credit bureau file <br>",
+    preheader: "A change has appeared on your credit bureau file.",
+    bodyHtml: "Reported credit file changes like this can span a range of activity from account updates to personal information changes. <br> <br>Review the complete details of this alert to be sure you recognize this as a legitimate change. If you have concerns, refer to the recommended next steps to help determine any further action that may be required. <br>"
+  }
+};
+
+const CREDIT_IMG = { src: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/credit_monitoring_header.png", h: 50 };
+
+const INTRO_IDENTITY = "Your Securizone service, in partnership with ID Assist, has detected a match to one of the personal IDs you registered for identity monitoring.";
+const INTRO_CREDIT   = "Your Securizone service, in partnership with ID Assist, has detected a change on your credit bureau file.";
+
+let currentBureau = 'Equifax';
+let currentDevice = 'desktop';
+
+/* ════════════════════════════════════════════════════════════
+   PRODUCTION EMAIL HTML BUILDER
+   (border="0" added to every table -- Outlook/Word-engine hairline fix;
+    line-height:0 on the banner-image cell -- belt-and-suspenders for the
+    icon/heading seam; "What to do next." heading box rebuilt as a literal
+    width:560px table, matching the bullet-body boxes exactly, so the two
+    can no longer be sized by two different computation methods)
+   ════════════════════════════════════════════════════════════ */
+
+function buildEmail(v) {
+  return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1" name="viewport">
+  <meta name="x-apple-disable-message-reformatting">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="telephone=no" name="format-detection">
+  <title>Securizone Alert Notice</title><!--[if (mso 16)]>
+      <style type="text/css">
+         a {text-decoration: none;}
+      </style>
+      <![endif]--><!--[if gte mso 9]>
+      <style>sup { font-size: 100% !important; }</style>
+      <![endif]--><!--[if gte mso 9]>
+      <noscript>
+         <xml>
+           <o:OfficeDocumentSettings>
+           <o:AllowPNG></o:AllowPNG>
+           <o:PixelsPerInch>96</o:PixelsPerInch>
+           </o:OfficeDocumentSettings>
+         </xml>
+      </noscript>
+      <![endif]--><!--[if gte mso 9]><style>sup { font-size: 100% !important; }</style><![endif]--><!--[if mso]><xml>
+    <w:WordDocument xmlns:w="urn:schemas-microsoft-com:office:word">
+      <w:DontUseAdvancedTypographyReadingMail/>
+    </w:WordDocument>
+    </xml><![endif]-->
+  <style type="text/css">.rollover:hover .rollover-first {
+  max-height:0px!important;
+  display:none!important;
+}
+.rollover:hover .rollover-second {
+  max-height:none!important;
+  display:block!important;
+}
+.rollover span {
+  font-size:0px;
+}
+u + .body img ~ div div {
+  display:none;
+}
+#outlook a {
+  padding:0;
+}
+span.MsoHyperlink,
+span.MsoHyperlinkFollowed {
+  color:inherit;
+  mso-style-priority:99;
+}
+a.ba {
+  mso-style-priority:100!important;
+  text-decoration:none!important;
+}
+a[x-apple-data-detectors],
+#MessageViewBody a {
+  color:inherit!important;
+  text-decoration:none!important;
+  font-size:inherit!important;
+  font-family:inherit!important;
+  font-weight:inherit!important;
+  line-height:inherit!important;
+}
+.o {
+  display:none;
+  float:left;
+  overflow:hidden;
+  width:0;
+  max-height:0;
+  line-height:0;
+  mso-hide:all;
+}
+.be:hover {
+  border-color:#dd9c3a #dd9c3a #dd9c3a #dd9c3a!important;
+  background-color:#2cb543!important;
+  background:#dd9c3a!important;
+}
+.be:hover a.ba,
+.be:hover button.ba,
+.be:hover label.ba {
+  background-color:#2cb543!important;
+  background:#dd9c3a!important;
+  color:#ffffff!important;
+}
+td .be:hover a.ba-7572 {
+  color:#000000!important;
+}
+@media only screen and (max-width:600px) {.bu { padding-right:5px!important } .bt { padding-left:5px!important } .bs { padding-right:20px!important } .br { padding-right:10px!important } .bq { padding-bottom:20px!important } .bp { padding-bottom:10px!important } .bo { padding-right:0px!important } .bn { padding-right:30px!important } .bm { padding-left:30px!important }  *[class="gmail-fix"] { display:none!important } p, a { line-height:150%!important } h1, h1 a { line-height:120%!important } h2, h2 a { line-height:120%!important } h3, h3 a { line-height:120%!important } h4, h4 a { line-height:120%!important } h5, h5 a { line-height:120%!important } h6, h6 a { line-height:120%!important } h1 { font-size:20px!important; text-align:left } h2 { font-size:18px!important; text-align:left } h3 { font-size:18px!important; text-align:left } h4 { font-size:24px!important; text-align:left } h5 { font-size:20px!important; text-align:left } h6 { font-size:16px!important; text-align:left }        .bj p, .bj a { font-size:16px!important } .bi p, .bi a { font-size:12px!important }  .m, .m h1, .m h2, .m h3, .m h4, .m h5, .m h6 { text-align:center!important }     .j .rollover:hover .rollover-second, .m .rollover:hover .rollover-second, .l .rollover:hover .rollover-second { display:inline!important }      a.ba, button.ba { display:inline-block!important; font-size:18px!important; padding:10px 20px 10px 20px!important; line-height:120%!important } .be { display:inline-block!important }   .w table, .x, .y { width:100%!important; border-collapse:separate!important } .t table, .u table, .v table, .t, .v, .u { width:100%!important; max-width:600px!important } .adapt-img { width:100%!important; height:auto!important }  .q, .r { display:none!important }  .o { width:auto!important; overflow:visible!important; float:none!important; max-height:inherit!important; line-height:inherit!important }  table.o { display:table!important }      .h-auto { height:auto!important } .img-1132 { height:49px!important } .h { width:33.33%!important } .g { width:0px!important }  .a .e, .a .e * { font-size:18px!important }  .a .c, .a .c * { font-size:20px!important } .a .b, .a .b * { font-size:11px!important } }
+@media screen and (max-width:384px) {.mail-message-content { width:414px!important } }</style>
+ </head>
+ <body class="body" style="width:100%;height:100%;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;padding:0;Margin:0"><span style="width:0;color:#ffffff;visibility:hidden;height:0;mso-hide:all;display:none !important;font-size:0px;line-height:0;opacity:0">${v.hiddenPreheader}&#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; &#8199;&#847; ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ &nbsp;</span>
+  <div dir="ltr" lang="en" class="es-wrapper-color" style="background-color:#F6F6F6"><!--[if gte mso 9]>
+			<v:background xmlns:v="urn:schemas-microsoft-com:vml" fill="t">
+				<v:fill type="tile" color="#f6f6f6"></v:fill>
+			</v:background>
+		<![endif]-->
+   <table border="0" width="100%" cellspacing="0" cellpadding="0" class="es-wrapper" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;padding:0;Margin:0;width:100%;height:100%;background-repeat:repeat;background-position:center top">
+    <tbody>
+     <tr>
+      <td valign="top" style="padding:0;Margin:0">
+       <table border="0" align="center" cellpadding="0" cellspacing="0" class="t" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:100%;table-layout:fixed !important">
+        <tbody>
+         <tr>
+          <td align="center" style="padding:0;Margin:0">
+           <table border="0" align="center" cellpadding="0" cellspacing="0" bgcolor="#ffffff" class="bj" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#FFFFFF;width:600px">
+            <tbody>
+             <tr>
+              <td align="left" style="padding:20px 20px 0;Margin:0">
+               <table border="0" width="100%" cellpadding="0" cellspacing="0" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                <tbody>
+                 <tr>
+                  <td align="center" valign="top" style="padding:0;Margin:0;width:560px">
+                   <table border="0" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                    <tbody>
+                     <tr>
+                      <td align="center" style="padding:0;Margin:0;font-size:0px"><a target="_blank" href="https://www.idassist.com" style="mso-line-height-rule:exactly;text-decoration:none;color:#207292;font-size:16px;font-weight:inherit"><img src="https://fmltes.stripocdn.email/content/guids/CABINET_b8d07fcdec4b8426abb0ebaa860b4cae55ac3e568970d411168cc4ebacf2fe49/images/securizonelogogenericen_2000px_orx_gtR.png" alt="" width="535" class="adapt-img" style="display:block;font-size:16px;border:0;outline:none;text-decoration:none;margin:0" height="77"></a></td>
+                     </tr>
+                    </tbody>
+                   </table></td>
+                 </tr>
+                </tbody>
+               </table></td>
+             </tr>
+            </tbody>
+           </table></td>
+         </tr>
+        </tbody>
+       </table>
+       <table border="0" cellpadding="0" align="center" cellspacing="0" class="t" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:100%;table-layout:fixed !important">
+        <tbody>
+         <tr>
+          <td align="center" style="padding:0;Margin:0">
+           <table border="0" cellspacing="0" cellpadding="0" bgcolor="#ffffff" align="center" class="bj" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#FFFFFF;width:600px">
+            <tbody>
+             <tr>
+              <td align="left" style="padding:20px 20px 0;Margin:0">
+               <table border="0" cellpadding="0" width="100%" cellspacing="0" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                <tbody>
+                 <tr>
+                  <td valign="top" align="center" style="padding:0;Margin:0;width:560px">
+                   <table border="0" width="100%" cellspacing="0" cellpadding="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                    <tbody>
+                     <tr>
+                      <td align="left" class="a" style="padding:40px 0 5px;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px">Hi {{contact.FIRSTNAME}},</p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"><br></p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px">${v.introHtml}</p></td>
+                     </tr>
+                    </tbody>
+                   </table></td>
+                 </tr>
+                </tbody>
+               </table></td>
+             </tr>
+             <tr>
+              <td align="left" style="padding:20px 20px 0;Margin:0">
+               <table border="0" width="100%" cellpadding="0" cellspacing="0" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                <tbody>
+                 <tr>
+                  <td align="left" style="padding:0;Margin:0;width:560px">
+                   <table border="0" cellspacing="0" role="presentation" width="100%" cellpadding="0" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                    <tbody>
+                     <tr>
+                      <td align="center" style="padding:0;Margin:0;font-size:0;line-height:0"><img src="${v.headerImgSrc}" alt="" width="560" class="adapt-img" height="${v.headerImgH}" style="display:block;font-size:16px;border:0;outline:none;text-decoration:none;margin:0"></td>
+                     </tr>
+                    </tbody>
+                   </table></td>
+                 </tr>
+                </tbody>
+               </table></td>
+             </tr>
+             <tr>
+              <td align="left" style="padding:0 20px;Margin:0">
+               <table border="0" cellspacing="0" width="100%" cellpadding="0" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                <tbody>
+                 <tr>
+                  <td align="left" style="padding:0;Margin:0;width:560px">
+                   <table border="0" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                    <tbody>
+                     <tr>
+                      <td align="center" bgcolor="#eff2f4" class="a" style="padding:10px 0 0;Margin:0"><p class="b" style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:17px;letter-spacing:0;font-weight:normal;color:#333333;font-size:11px">${v.alertLabel}</p></td>
+                     </tr>
+                     <tr>
+                      <td align="center" bgcolor="#eff2f4" class="bt bu" style="padding:10px 0;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px">${v.headingHtml}</p></td>
+                     </tr>
+                    </tbody>
+                   </table></td>
+                 </tr>
+                </tbody>
+               </table></td>
+             </tr>
+             <tr>
+              <td align="left" style="padding:20px 20px 0;Margin:0">
+               <table border="0" width="100%" cellpadding="0" cellspacing="0" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                <tbody>
+                 <tr>
+                  <td align="left" style="padding:0;Margin:0;width:560px">
+                   <table border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                    <tbody>
+                     <tr>
+                      <td align="left" style="padding:0;Margin:0" class="a"><p class="e" style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:27px;letter-spacing:0;font-weight:normal;color:#333333;font-size:18px"><strong style="font-weight:bolder !important">Important things to know.</strong></p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"><br></p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px">${v.importantBodyHtml}</p></td>
+                     </tr>
+                    </tbody>
+                   </table></td>
+                 </tr>
+                </tbody>
+               </table></td>
+             </tr>
+             <tr>
+              <td align="left" style="padding:20px 20px 0;Margin:0">
+               <table border="0" bgcolor="#eff2f4" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#eff2f4;width:560px" role="none">
+                <tbody>
+                 <tr>
+                  <td align="left" style="padding:10px 0 10px 30px;Margin:0;background:#eff2f4"><p class="e" style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:27px;letter-spacing:0;font-weight:normal;color:#333333;font-size:18px"><strong style="font-weight:bolder !important">What to do next.</strong></p></td>
+                 </tr>
+                </tbody>
+               </table></td>
+             </tr>
+            </tbody>
+           </table></td>
+         </tr>
+        </tbody>
+       </table>
+       <table border="0" cellpadding="0" align="center" cellspacing="0" class="t q" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:100%;table-layout:fixed !important">
+        <tbody>
+         <tr>
+          <td align="center" style="padding:0;Margin:0">
+           <table border="0" cellspacing="0" bgcolor="#ffffff" align="center" cellpadding="0" class="bj" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#FFFFFF;width:600px">
+            <tbody>
+             <tr>
+              <td style="padding:0 20px;Margin:0">
+               <table border="0" bgcolor="#eff2f4" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#eff2f4;width:560px" role="none">
+                <tbody>
+                 <tr>
+                  <td align="left" style="padding:0 20px;Margin:0;background:#eff2f4">
+                   <table border="0" cellpadding="0" cellspacing="0" class="esdev-mso-table" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:520px">
+                    <tbody>
+                     <tr>
+                      <td valign="top" class="esdev-mso-td" style="padding:0;Margin:0">
+                       <table border="0" cellpadding="0" cellspacing="0" align="left" class="x" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:left">
+                        <tbody>
+                         <tr>
+                          <td align="left" style="padding:0;Margin:0;width:35px">
+                           <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:35px">
+                            <tbody>
+                             <tr>
+                              <td align="left" style="padding:0 0 0 10px;Margin:0;font-size:0"><img width="25" src="https://fmltes.stripocdn.email/content/guids/CABINET_2c9f15536c96790034f1ed05ee765e8ffb107dfb9258f3989d468d00d5b62fe7/images/1_bullet_OQB.png" alt="" class="adapt-img" height="25" style="display:block;font-size:16px;border:0;outline:none;text-decoration:none;margin:0"></td>
+                             </tr>
+                            </tbody>
+                           </table></td>
+                         </tr>
+                        </tbody>
+                       </table></td>
+                      <td class="g bs" style="padding:0;Margin:0;width:20px"></td>
+                      <td valign="top" class="esdev-mso-td" style="padding:0;Margin:0">
+                       <table border="0" align="right" cellpadding="0" cellspacing="0" class="y" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:right">
+                        <tbody>
+                         <tr>
+                          <td align="left" style="padding:0;Margin:0;width:465px">
+                           <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:465px">
+                            <tbody>
+                             <tr>
+                              <td bgcolor="#eff2f4" align="left" style="padding:0 0 10px;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"><strong style="font-weight:bolder !important">Review alert details.</strong> Log in to your Securizone ID Assist account to read everything we know about this alert.</p></td>
+                             </tr>
+                            </tbody>
+                           </table></td>
+                         </tr>
+                        </tbody>
+                       </table></td>
+                     </tr>
+                    </tbody>
+                   </table></td>
+                 </tr>
+                </tbody>
+               </table></td>
+             </tr>
+            </tbody>
+           </table></td>
+         </tr>
+        </tbody>
+       </table><!--[if !mso]><!-- -->
+       <table border="0" cellspacing="0" cellpadding="0" align="center" class="t o" role="none" style="display:none;float:left;overflow:hidden;width:100%;max-height:0;line-height:0;mso-hide:all;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;table-layout:fixed !important">
+        <tbody>
+         <tr>
+          <td align="center" style="padding:0;Margin:0">
+           <table border="0" cellspacing="0" bgcolor="#ffffff" align="center" cellpadding="0" class="bj" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#FFFFFF;width:600px">
+            <tbody>
+             <tr>
+              <td style="padding:0 20px;Margin:0">
+               <table border="0" bgcolor="#eff2f4" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#eff2f4;width:560px" role="none">
+                <tbody>
+                 <tr>
+                  <td align="left" style="padding:0 20px;Margin:0;background:#eff2f4">
+                   <table border="0" cellpadding="0" cellspacing="0" class="esdev-mso-table" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:520px">
+                    <tbody>
+                     <tr>
+                      <td valign="top" class="esdev-mso-td" style="padding:0;Margin:0">
+                       <table border="0" cellpadding="0" cellspacing="0" align="left" class="x" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:left">
+                        <tbody>
+                         <tr>
+                          <td align="left" style="padding:0;Margin:0;width:60px">
+                           <table border="0" role="presentation" cellpadding="0" cellspacing="0" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:60px">
+                            <tbody>
+                             <tr>
+                              <td align="left" style="padding:0 0 0 10px;Margin:0;font-size:0"><img src="https://fmltes.stripocdn.email/content/guids/CABINET_2c9f15536c96790034f1ed05ee765e8ffb107dfb9258f3989d468d00d5b62fe7/images/1_bullet_OQB.png" alt="" width="50" class="adapt-img" height="49" style="display:block;font-size:16px;border:0;outline:none;text-decoration:none;margin:0"></td>
+                             </tr>
+                            </tbody>
+                           </table></td>
+                         </tr>
+                        </tbody>
+                       </table></td>
+                      <td class="g br" style="padding:0;Margin:0;width:20px"></td>
+                      <td valign="top" class="esdev-mso-td" style="padding:0;Margin:0">
+                       <table border="0" cellspacing="0" align="right" cellpadding="0" class="y" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:right">
+                        <tbody>
+                         <tr>
+                          <td align="left" style="padding:0;Margin:0;width:440px">
+                           <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:440px">
+                            <tbody>
+                             <tr>
+                              <td bgcolor="#eff2f4" align="left" style="padding:0 0 10px;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"><strong style="font-weight:bolder !important">Review alert details.</strong> Log in to your Securizone ID Assist account to read everything we know about this alert.</p></td>
+                             </tr>
+                            </tbody>
+                           </table></td>
+                         </tr>
+                        </tbody>
+                       </table></td>
+                     </tr>
+                    </tbody>
+                   </table></td>
+                 </tr>
+                </tbody>
+               </table></td>
+             </tr>
+            </tbody>
+           </table></td>
+         </tr>
+        </tbody>
+       </table><!--<![endif]-->
+       <table border="0" cellpadding="0" align="center" cellspacing="0" class="t q" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:100%;table-layout:fixed !important">
+        <tbody>
+         <tr>
+          <td align="center" style="padding:0;Margin:0">
+           <table border="0" align="center" cellpadding="0" cellspacing="0" bgcolor="#ffffff" class="bj" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#FFFFFF;width:600px">
+            <tbody>
+             <tr>
+              <td style="padding:0 20px;Margin:0">
+               <table border="0" bgcolor="#eff2f4" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#eff2f4;width:560px" role="none">
+                <tbody>
+                 <tr>
+                  <td align="left" style="padding:0 20px;Margin:0;background:#eff2f4"><!--[if mso]><table border="0" style="width:520px" cellpadding="0" cellspacing="0"><tr><td style="width:35px" valign="top"><![endif]-->
+                   <table border="0" align="left" cellpadding="0" cellspacing="0" class="x bq" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:left">
+                    <tbody>
+                     <tr>
+                      <td align="left" style="padding:0;Margin:0;width:35px">
+                       <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:35px">
+                        <tbody>
+                         <tr>
+                          <td align="left" style="padding:0 0 0 10px;Margin:0;font-size:0"><img src="https://fmltes.stripocdn.email/content/guids/CABINET_2c9f15536c96790034f1ed05ee765e8ffb107dfb9258f3989d468d00d5b62fe7/images/2_bullet.png" alt="" width="25" height="26" style="display:block;font-size:16px;border:0;outline:none;text-decoration:none;margin:0"></td>
+                         </tr>
+                        </tbody>
+                       </table></td>
+                     </tr>
+                    </tbody>
+                   </table><!--[if mso]></td><td style="width:20px"></td><td style="width:465px" valign="top"><![endif]-->
+                   <table border="0" align="right" cellpadding="0" cellspacing="0" class="y" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:right">
+                    <tbody>
+                     <tr>
+                      <td align="left" style="padding:0;Margin:0;width:465px">
+                       <table border="0" role="presentation" cellpadding="0" cellspacing="0" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:465px">
+                        <tbody>
+                         <tr>
+                          <td bgcolor="#eff2f4" align="left" style="padding:0 0 10px;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"><strong style="font-weight:bolder !important">Take action.</strong> Follow the recommended next steps and take note of other things to look out for.</p></td>
+                         </tr>
+                        </tbody>
+                       </table></td>
+                     </tr>
+                    </tbody>
+                   </table><!--[if mso]></td></tr></table><![endif]--></td>
+                 </tr>
+                </tbody>
+               </table></td>
+             </tr>
+            </tbody>
+           </table></td>
+         </tr>
+        </tbody>
+       </table><!--[if !mso]><!-- -->
+       <table border="0" cellspacing="0" cellpadding="0" align="center" class="t o" role="none" style="display:none;float:left;overflow:hidden;width:100%;max-height:0;line-height:0;mso-hide:all;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;table-layout:fixed !important">
+        <tbody>
+         <tr>
+          <td align="center" style="padding:0;Margin:0">
+           <table border="0" cellpadding="0" cellspacing="0" bgcolor="#ffffff" align="center" class="bj" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#FFFFFF;width:600px">
+            <tbody>
+             <tr>
+              <td style="padding:0 20px;Margin:0">
+               <table border="0" bgcolor="#eff2f4" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#eff2f4;width:560px" role="none">
+                <tbody>
+                 <tr>
+                  <td align="left" style="padding:0 20px;Margin:0;background:#eff2f4">
+                   <table border="0" cellpadding="0" cellspacing="0" class="esdev-mso-table" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:520px">
+                    <tbody>
+                     <tr>
+                      <td valign="top" class="esdev-mso-td" style="padding:0;Margin:0">
+                       <table border="0" cellpadding="0" cellspacing="0" align="left" class="x" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:left">
+                        <tbody>
+                         <tr>
+                          <td align="left" style="padding:0;Margin:0;width:60px">
+                           <table border="0" cellspacing="0" role="presentation" cellpadding="0" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:60px">
+                            <tbody>
+                             <tr>
+                              <td align="left" style="padding:0 0 0 10px;Margin:0;font-size:0"><img src="https://fmltes.stripocdn.email/content/guids/CABINET_2c9f15536c96790034f1ed05ee765e8ffb107dfb9258f3989d468d00d5b62fe7/images/2_bullet.png" alt="" width="50" class="adapt-img" height="51" style="display:block;font-size:16px;border:0;outline:none;text-decoration:none;margin:0"></td>
+                             </tr>
+                            </tbody>
+                           </table></td>
+                         </tr>
+                        </tbody>
+                       </table></td>
+                      <td class="g br" style="padding:0;Margin:0;width:20px"></td>
+                      <td valign="top" class="esdev-mso-td" style="padding:0;Margin:0">
+                       <table border="0" cellspacing="0" align="right" cellpadding="0" class="y" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:right">
+                        <tbody>
+                         <tr>
+                          <td align="left" style="padding:0;Margin:0;width:440px">
+                           <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:440px">
+                            <tbody>
+                             <tr>
+                              <td align="left" bgcolor="#eff2f4" style="padding:0 0 10px;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"><strong style="font-weight:bolder !important">Take action.</strong> Follow the recommended next steps and take note of other things to look out for.</p></td>
+                             </tr>
+                            </tbody>
+                           </table></td>
+                         </tr>
+                        </tbody>
+                       </table></td>
+                     </tr>
+                    </tbody>
+                   </table></td>
+                 </tr>
+                </tbody>
+               </table></td>
+             </tr>
+            </tbody>
+           </table></td>
+         </tr>
+        </tbody>
+       </table><!--<![endif]-->
+       <table border="0" align="center" cellspacing="0" cellpadding="0" class="t q" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:100%;table-layout:fixed !important">
+        <tbody>
+         <tr>
+          <td align="center" style="padding:0;Margin:0">
+           <table border="0" bgcolor="#ffffff" align="center" cellpadding="0" cellspacing="0" class="bj" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#FFFFFF;width:600px">
+            <tbody>
+             <tr>
+              <td style="padding:0 20px;Margin:0">
+               <table border="0" bgcolor="#eff2f4" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#eff2f4;width:560px" role="none">
+                <tbody>
+                 <tr>
+                  <td align="left" style="padding:0 20px;Margin:0;background:#eff2f4">
+                   <table border="0" cellpadding="0" cellspacing="0" class="esdev-mso-table" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:520px">
+                    <tbody>
+                     <tr>
+                      <td valign="top" class="esdev-mso-td" style="padding:0;Margin:0">
+                       <table border="0" cellpadding="0" cellspacing="0" align="left" class="x" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:left">
+                        <tbody>
+                         <tr>
+                          <td align="left" style="padding:0;Margin:0;width:35px">
+                           <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:35px">
+                            <tbody>
+                             <tr>
+                              <td align="left" style="padding:0 0 0 10px;Margin:0;font-size:0"><img src="https://fmltes.stripocdn.email/content/guids/CABINET_2c9f15536c96790034f1ed05ee765e8ffb107dfb9258f3989d468d00d5b62fe7/images/3_bullet.png" alt="" width="25" class="adapt-img" height="24" style="display:block;font-size:16px;border:0;outline:none;text-decoration:none;margin:0"></td>
+                             </tr>
+                            </tbody>
+                           </table></td>
+                         </tr>
+                        </tbody>
+                       </table></td>
+                      <td class="g bs" style="padding:0;Margin:0;width:20px"></td>
+                      <td valign="top" class="esdev-mso-td" style="padding:0;Margin:0">
+                       <table border="0" align="right" cellpadding="0" cellspacing="0" class="y" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:right">
+                        <tbody>
+                         <tr>
+                          <td align="left" style="padding:0;Margin:0;width:465px">
+                           <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:465px">
+                            <tbody>
+                             <tr>
+                              <td bgcolor="#eff2f4" align="left" style="padding:0 0 10px;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"><strong style="font-weight:bolder !important">Stay alert.</strong> Receive an unexpected message? See something suspicious? Before you act, pause and evaluate. When in doubt, ignore and delete.</p></td>
+                             </tr>
+                            </tbody>
+                           </table></td>
+                         </tr>
+                        </tbody>
+                       </table></td>
+                     </tr>
+                    </tbody>
+                   </table></td>
+                 </tr>
+                </tbody>
+               </table></td>
+             </tr>
+            </tbody>
+           </table></td>
+         </tr>
+        </tbody>
+       </table><!--[if !mso]><!-- -->
+       <table border="0" align="center" cellspacing="0" cellpadding="0" class="t o" role="none" style="display:none;float:left;overflow:hidden;width:100%;max-height:0;line-height:0;mso-hide:all;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;table-layout:fixed !important">
+        <tbody>
+         <tr>
+          <td align="center" style="padding:0;Margin:0">
+           <table border="0" bgcolor="#ffffff" align="center" cellpadding="0" cellspacing="0" class="bj" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#FFFFFF;width:600px">
+            <tbody>
+             <tr>
+              <td style="padding:0 20px;Margin:0">
+               <table border="0" bgcolor="#eff2f4" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#eff2f4;width:560px" role="none">
+                <tbody>
+                 <tr>
+                  <td align="left" style="padding:0 20px;Margin:0;background:#eff2f4">
+                   <table border="0" cellpadding="0" cellspacing="0" class="esdev-mso-table" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:520px">
+                    <tbody>
+                     <tr>
+                      <td valign="top" class="esdev-mso-td" style="padding:0;Margin:0">
+                       <table border="0" cellpadding="0" cellspacing="0" align="left" class="x" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:left">
+                        <tbody>
+                         <tr>
+                          <td align="left" style="padding:0;Margin:0;width:60px">
+                           <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:60px">
+                            <tbody>
+                             <tr>
+                              <td align="left" style="padding:0 0 0 10px;Margin:0;font-size:0"><img src="https://fmltes.stripocdn.email/content/guids/CABINET_2c9f15536c96790034f1ed05ee765e8ffb107dfb9258f3989d468d00d5b62fe7/images/3_bullet.png" alt="" width="50" class="adapt-img" height="48" style="display:block;font-size:16px;border:0;outline:none;text-decoration:none;margin:0"></td>
+                             </tr>
+                            </tbody>
+                           </table></td>
+                         </tr>
+                        </tbody>
+                       </table></td>
+                      <td class="g br" style="padding:0;Margin:0;width:20px"></td>
+                      <td valign="top" class="esdev-mso-td" style="padding:0;Margin:0">
+                       <table border="0" align="right" cellpadding="0" cellspacing="0" class="y" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:right">
+                        <tbody>
+                         <tr>
+                          <td align="left" style="padding:0;Margin:0;width:440px">
+                           <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:440px">
+                            <tbody>
+                             <tr>
+                              <td bgcolor="#eff2f4" align="left" class="bp" style="padding:0;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"><strong style="font-weight:bolder !important">Stay alert.</strong> Receive an unexpected message? See something suspicious? Before you act, pause and evaluate. When in doubt, ignore and delete.</p></td>
+                             </tr>
+                            </tbody>
+                           </table></td>
+                         </tr>
+                        </tbody>
+                       </table></td>
+                     </tr>
+                    </tbody>
+                   </table></td>
+                 </tr>
+                </tbody>
+               </table></td>
+             </tr>
+            </tbody>
+           </table></td>
+         </tr>
+        </tbody>
+       </table><!--<![endif]-->
+       <table border="0" cellspacing="0" cellpadding="0" align="center" class="t" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:100%;table-layout:fixed !important">
+        <tbody>
+         <tr>
+          <td align="center" style="padding:0;Margin:0">
+           <table border="0" cellpadding="0" cellspacing="0" bgcolor="#ffffff" align="center" class="bj" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#FFFFFF;width:600px">
+            <tbody>
+             <tr>
+              <td align="left" style="padding:20px 20px 0;Margin:0">
+               <table border="0" width="100%" cellpadding="0" cellspacing="0" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                <tbody>
+                 <tr>
+                  <td align="left" style="padding:0;Margin:0;width:560px">
+                   <table border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                    <tbody>
+                     <tr>
+                      <td align="left" style="padding:0;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px">Click the button or access your Securizone ID Assist account through the sign&#8209;in link on National Bank's website.</p></td>
+                     </tr>
+                    </tbody>
+                   </table></td>
+                 </tr>
+                </tbody>
+               </table></td>
+             </tr>
+             <tr>
+              <td align="left" style="padding:20px 20px 0;Margin:0">
+               <table border="0" width="100%" cellpadding="0" cellspacing="0" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                <tbody>
+                 <tr>
+                  <td align="left" style="padding:0;Margin:0;width:560px">
+                   <table border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                    <tbody>
+                     <tr>
+                      <td align="left" style="padding:0;Margin:0"><span class="be" style="border-style:solid;border-color:#2CB543;background-color:#31CB4B;background:#FAAF42;border-width:0px;display:inline-block;border-radius:5px;width:auto"><a href="https://nban.idassist.com/en/login" target="_blank" class="ba ba-7572" style="mso-style-priority:100 !important;text-decoration:none !important;mso-line-height-rule:exactly;color:#000000;font-size:18px;font-weight:bold;padding:10px 20px;display:inline-block;background-color:#31CB4B;background:#FAAF42;border-radius:5px;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;font-style:normal;line-height:22px;width:auto;text-align:center;letter-spacing:0;mso-padding-alt:0;mso-border-alt:10px solid #FAAF42;text-transform:none">Review Your Alert</a></span></td>
+                     </tr>
+                    </tbody>
+                   </table></td>
+                 </tr>
+                </tbody>
+               </table></td>
+             </tr>
+             <tr>
+              <td align="left" style="padding:20px 20px 0;Margin:0">
+               <table border="0" width="100%" cellpadding="0" cellspacing="0" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                <tbody>
+                 <tr>
+                  <td align="left" style="padding:0;Margin:0;width:560px">
+                   <table border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                    <tbody>
+                     <tr>
+                      <td align="left" style="padding:0 0 20px;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px">Thank you for choosing Securizone.</p></td>
+                     </tr>
+                    </tbody>
+                   </table></td>
+                 </tr>
+                </tbody>
+               </table></td>
+             </tr>
+             <tr>
+              <td bgcolor="#EFF2F4" align="left" style="padding:20px 20px 0;Margin:0;background-color:#eff2f4">
+               <table border="0" cellpadding="0" cellspacing="0" width="100%" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                <tbody>
+                 <tr>
+                  <td align="center" valign="top" style="padding:0;Margin:0;width:560px">
+                   <table border="0" cellspacing="0" width="100%" cellpadding="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                    <tbody>
+                     <tr>
+                      <td align="center" style="padding:0;Margin:0" class="a"><h1 class="m c" style="Margin:0;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;mso-line-height-rule:exactly;letter-spacing:0;font-size:20px;font-style:normal;font-weight:bold;line-height:24px;color:#333333">Access Securizone on the go!</h1><p class="e" style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:30px;letter-spacing:0;font-weight:normal;color:#333333;font-size:20px"><br></p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px">Get the ID Assist mobile app on the App Store or Google Play for easy, on-the-go access to all your Securizone services anytime, anywhere.</p></td>
+                     </tr>
+                    </tbody>
+                   </table></td>
+                 </tr>
+                </tbody>
+               </table></td>
+             </tr>
+             <tr>
+              <td align="left" bgcolor="#EFF2F4" class="esdev-adapt-off" style="Margin:0;padding:30px 20px;background-color:#eff2f4">
+               <table border="0" cellspacing="0" cellpadding="0" class="esdev-mso-table" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:560px">
+                <tbody>
+                 <tr>
+                  <td valign="top" class="esdev-mso-td es-m-w50" style="padding:0;Margin:0">
+                   <table border="0" cellpadding="0" cellspacing="0" align="left" class="x" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:left">
+                    <tbody>
+                     <tr>
+                      <td align="left" style="padding:0;Margin:0;width:270px">
+                       <table border="0" cellspacing="0" width="100%" cellpadding="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                        <tbody>
+                         <tr>
+                          <td align="center" style="padding:0;Margin:0;font-size:0px"><a target="_blank" href="https://apps.apple.com/ca/app/id-assist-mobile/id540563542" style="mso-line-height-rule:exactly;text-decoration:none;color:#207292;font-size:16px;font-weight:inherit"><img height="49" src="https://fmltes.stripocdn.email/content/guids/CABINET_15a25a8d176f8afe172c1cbc4e6ef71b943c02b9d83c9d125d80289d42ff9b2a/images/appstoreen_knf.png" alt="Download on the App Store" title="Download on the App Store" class="img-1132" style="display:block;font-size:16px;border:0;outline:none;text-decoration:none;margin:0" width="145"></a></td>
+                         </tr>
+                        </tbody>
+                       </table></td>
+                     </tr>
+                    </tbody>
+                   </table></td>
+                  <td class="g" style="padding:0;Margin:0;width:20px"></td>
+                  <td valign="top" class="esdev-mso-td es-m-w50" style="padding:0;Margin:0">
+                   <table border="0" cellpadding="0" cellspacing="0" align="right" class="y" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:right">
+                    <tbody>
+                     <tr>
+                      <td align="left" style="padding:0;Margin:0;width:270px">
+                       <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                        <tbody>
+                         <tr>
+                          <td align="center" style="padding:0;Margin:0;font-size:0px"><a target="_blank" href="https://play.google.com/store/apps/details?id=com.finastra.myidentityassist&hl=en" style="mso-line-height-rule:exactly;text-decoration:none;color:#207292;font-size:16px;font-weight:inherit"><img height="49" title="Get it on Google Play" src="https://fmltes.stripocdn.email/content/guids/CABINET_15a25a8d176f8afe172c1cbc4e6ef71b943c02b9d83c9d125d80289d42ff9b2a/images/playstoreen_vrP.png" alt="Get it on Google Play" style="display:block;font-size:16px;border:0;outline:none;text-decoration:none;margin:0" width="145"></a></td>
+                         </tr>
+                        </tbody>
+                       </table></td>
+                     </tr>
+                    </tbody>
+                   </table></td>
+                 </tr>
+                </tbody>
+               </table></td>
+             </tr>
+            </tbody>
+           </table></td>
+         </tr>
+        </tbody>
+       </table>
+       <table border="0" cellpadding="0" cellspacing="0" align="center" class="v" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:100%;table-layout:fixed !important;background-color:transparent;background-repeat:repeat;background-position:center top">
+        <tbody>
+         <tr>
+          <td background="https://fmltes.stripocdn.email/content/guids/CABINET_8c58f51d58caeb09194ccf5cc1dcdc6450742d8ad6cab23e7ae1e695abffb494/images/service_email_background.png" align="center" style="padding:0;Margin:0;background-repeat:no-repeat;background-position:center;background-image:url(https://fmltes.stripocdn.email/content/guids/CABINET_8c58f51d58caeb09194ccf5cc1dcdc6450742d8ad6cab23e7ae1e695abffb494/images/service_email_background.png)">
+           <table border="0" bgcolor="#00000000" align="center" cellpadding="0" cellspacing="0" class="bi" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:transparent;width:600px" role="none">
+            <tbody>
+             <tr>
+              <td align="left" style="Margin:0;padding:20px 20px 0px">
+               <table border="0" cellpadding="0" cellspacing="0" width="100%" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                <tbody>
+                 <tr>
+                  <td align="center" valign="top" style="padding:0;Margin:0;width:560px">
+                   <table border="0" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                    <tbody>
+                     <tr>
+                      <td align="center" style="padding:0;Margin:0;font-size:0px"><img src="https://fmltes.stripocdn.email/content/guids/CABINET_8c58f51d58caeb09194ccf5cc1dcdc6450742d8ad6cab23e7ae1e695abffb494/images/idassist_logo_thumb.png" alt="" width="44" style="display:block;font-size:16px;border:0;outline:none;text-decoration:none;margin:0" height="44"></td>
+                     </tr>
+                     <tr>
+                      <td align="center" style="padding:20px 0 0;Margin:0"><h3 class="m" style="Margin:0;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;mso-line-height-rule:exactly;letter-spacing:0;font-size:18px;font-style:normal;font-weight:bold;line-height:22px;color:#ffffff">Need Assistance?</h3></td>
+                     </tr>
+                    </tbody>
+                   </table></td>
+                 </tr>
+                </tbody>
+               </table></td>
+             </tr>
+             <tr>
+              <td align="left" class="esdev-adapt-off" style="padding:35px 20px 0;Margin:0">
+               <table border="0" cellpadding="0" cellspacing="0" class="esdev-mso-table" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:560px">
+                <tbody>
+                 <tr>
+                  <td valign="top" class="esdev-mso-td h" style="padding:0;Margin:0">
+                   <table border="0" cellpadding="0" cellspacing="0" align="left" class="x" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:left">
+                    <tbody>
+                     <tr>
+                      <td align="center" class="bo" style="padding:0;Margin:0;width:186px">
+                       <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                        <tbody>
+                         <tr>
+                          <td align="right" style="padding:0;Margin:0"><p class="m" style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:23px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:15px"><a target="_blank" href="https://nban.idassist.com/en/help" style="mso-line-height-rule:exactly;text-decoration:underline;color:#adadad;font-size:15px;font-weight:inherit">View Our FAQs</a></p></td>
+                         </tr>
+                        </tbody>
+                       </table></td>
+                     </tr>
+                    </tbody>
+                   </table></td>
+                  <td valign="top" class="esdev-mso-td h" style="padding:0;Margin:0">
+                   <table border="0" cellpadding="0" cellspacing="0" align="left" class="x" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:left">
+                    <tbody>
+                     <tr>
+                      <td align="center" style="padding:0;Margin:0;width:185px">
+                       <table border="0" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                        <tbody>
+                         <tr>
+                          <td align="center" style="padding:0;Margin:0"><p class="m" style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:23px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:15px"><a href="mailto:customerservice@idassist.com" target="_blank" style="mso-line-height-rule:exactly;text-decoration:underline;color:#adadad;font-size:15px;font-weight:inherit">Send An Email</a></p></td>
+                         </tr>
+                        </tbody>
+                       </table></td>
+                     </tr>
+                    </tbody>
+                   </table></td>
+                  <td valign="top" class="esdev-mso-td h" style="padding:0;Margin:0">
+                   <table border="0" cellpadding="0" cellspacing="0" align="right" class="y" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:right">
+                    <tbody>
+                     <tr>
+                      <td align="center" style="padding:0;Margin:0;width:189px">
+                       <table border="0" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                        <tbody>
+                         <tr>
+                          <td align="left" style="padding:0;Margin:0"><p class="m" style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:23px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:15px"><a target="_blank" href="tel:18885350510" style="mso-line-height-rule:exactly;text-decoration:underline;color:#adadad;font-size:15px;font-weight:inherit">Give Us A Call</a></p></td>
+                         </tr>
+                        </tbody>
+                       </table></td>
+                     </tr>
+                    </tbody>
+                   </table></td>
+                 </tr>
+                </tbody>
+               </table></td>
+             </tr>
+             <tr>
+              <td align="left" style="Margin:0;padding:20px 20px 0px">
+               <table border="0" width="100%" cellpadding="0" cellspacing="0" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                <tbody>
+                 <tr>
+                  <td align="center" valign="top" style="padding:0;Margin:0;width:560px">
+                   <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                    <tbody>
+                     <tr>
+                      <td align="left" style="padding:15px 0 0;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:21px;letter-spacing:0;font-weight:normal;color:#333333;font-size:14px"><br></p></td>
+                     </tr>
+                    </tbody>
+                   </table></td>
+                 </tr>
+                </tbody>
+               </table></td>
+             </tr>
+            </tbody>
+           </table></td>
+         </tr>
+        </tbody>
+       </table>
+       <table border="0" cellpadding="0" cellspacing="0" align="center" class="v" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:100%;table-layout:fixed !important;background-color:transparent;background-repeat:repeat;background-position:center top">
+        <tbody>
+         <tr>
+          <td align="center" style="padding:0;Margin:0">
+           <table border="0" bgcolor="#605a5a" align="center" cellpadding="0" cellspacing="0" class="bi" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#FFFFFF;width:600px">
+            <tbody>
+             <tr>
+              <td align="left" style="padding:0;Margin:0">
+               <table border="0" width="100%" cellpadding="0" cellspacing="0" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                <tbody>
+                 <tr>
+                  <td align="center" valign="top" style="padding:0;Margin:0;width:600px">
+                   <table border="0" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                    <tbody>
+                     <tr>
+                      <td align="left" bgcolor="#404145" style="Margin:0;padding:30px 30px 20px"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px">This is an automated notification email; please do not reply to it. If you require assistance, please call us at 1&#8209;888&#8209;535&#8209;0510.</p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px"><br></p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px">Disclosure: You are receiving this communication because you have purchased a subscription to Securizone, a product of National Bank Assistance Network in partnership with ID Assist services from Sigma Loyalty Group Inc.</p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px"><br></p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px">© 2026 Sigma Loyalty Group Inc., all rights reserved. ID&nbsp;Assist, Sigma Loyalty Group Inc. and all associated marks and logos are registered trademarks owned or used under license. ID&nbsp;Assist is provided by Sigma Loyalty Group Inc. iPhone and App Store are trademarks of Apple Inc., registered in the U.S. and other countries. Android, Google Play and Play Store are trademarks of Google Inc., registered in the U.S. and other countries.</p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px"><br></p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px">With Securizone<sup style="display:inline-block;font-size:75% !important;line-height:1 !important;mso-text-raise:30%;vertical-align:top">®</sup>, you have access to ID Assist<sup style="display:inline-block;font-size:75% !important;line-height:1 !important;mso-text-raise:30%;vertical-align:top">®</sup> from Sigma Loyalty, a partner of NBC Assistance Inc.</p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px"><br></p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px">®SECURIZONE and the NATIONAL BANK ASSISTANCE NETWORK logos are registered trademarks of National&nbsp;Bank&nbsp;of&nbsp;Canada, used under license by authorized third parties.</p></td>
+                     </tr>
+                    </tbody>
+                   </table></td>
+                 </tr>
+                </tbody>
+               </table></td>
+             </tr>
+             <tr>
+              <td bgcolor="#404145" align="left" class="bm bn" style="Margin:0;padding:20px 20px 40px;background-color:#404145">
+               <table border="0" cellpadding="0" cellspacing="0" class="esdev-mso-table" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:560px">
+                <tbody>
+                 <tr>
+                  <td valign="top" class="esdev-mso-td bs h" style="padding:0;Margin:0">
+                   <table border="0" align="left" cellpadding="0" cellspacing="0" class="x" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:left">
+                    <tbody>
+                     <tr>
+                      <td align="center" class="bo" style="padding:0;Margin:0;width:187px">
+                       <table border="0" cellspacing="0" width="100%" cellpadding="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                        <tbody>
+                         <tr>
+                          <td align="right" style="padding:0;Margin:0"><p class="m" style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px"><a target="_blank" href="https://nban.idassist.com/assets/docs/en/IDAssist-TermsOfUse.pdf" style="mso-line-height-rule:exactly;text-decoration:underline;color:#adadad;font-size:12px;font-weight:inherit">Terms and &nbsp;Conditions</a></p></td>
+                         </tr>
+                        </tbody>
+                       </table></td>
+                     </tr>
+                    </tbody>
+                   </table></td>
+                  <td valign="top" class="esdev-mso-td bs h" style="padding:0;Margin:0">
+                   <table border="0" cellpadding="0" cellspacing="0" align="left" class="x" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:left">
+                    <tbody>
+                     <tr>
+                      <td align="center" style="padding:0;Margin:0;width:187px">
+                       <table border="0" cellspacing="0" width="100%" cellpadding="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                        <tbody>
+                         <tr>
+                          <td align="center" style="padding:0;Margin:0"><p class="m" style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px"><a href="https://nban.idassist.com/assets/docs/en/IDAssist-PrivacyPolicy.pdf" target="_blank" style="mso-line-height-rule:exactly;text-decoration:underline;color:#adadad;font-size:12px;font-weight:inherit">Privacy Policy</a></p></td>
+                         </tr>
+                        </tbody>
+                       </table></td>
+                     </tr>
+                    </tbody>
+                   </table></td>
+                  <td valign="top" class="esdev-mso-td h" style="padding:0;Margin:0">
+                   <table border="0" align="right" cellpadding="0" cellspacing="0" class="y" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:right">
+                    <tbody>
+                     <tr>
+                      <td align="center" style="padding:0;Margin:0;width:186px">
+                       <table border="0" cellspacing="0" width="100%" cellpadding="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                        <tbody>
+                         <tr>
+                          <td align="left" style="padding:0;Margin:0"><p class="m" style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px"><a href="https://nban.idassist.com/assets/docs/EN/IDAssist-CancellationPolicy.pdf" target="_blank" style="mso-line-height-rule:exactly;text-decoration:underline;color:#adadad;font-size:12px;font-weight:inherit">Cancellation Policy</a></p></td>
+                         </tr>
+                        </tbody>
+                       </table></td>
+                     </tr>
+                    </tbody>
+                   </table></td>
+                 </tr>
+                </tbody>
+               </table></td>
+             </tr>
+            </tbody>
+           </table></td>
+         </tr>
+        </tbody>
+       </table></td>
+     </tr>
+    </tbody>
+   </table>
+  </div>
+ </body>
+</html>`;
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   CONTROL LOGIC
+   ════════════════════════════════════════════════════════════ */
+
+function populateSubType(alertType) {
+  const sel    = document.getElementById('sel-sub-type');
+  sel.innerHTML = '';
+  const keys   = alertType === 'darkweb' ? DW_ORDER : CR_ORDER;
+  const source = alertType === 'darkweb' ? DARK_WEB : CREDIT;
+  keys.forEach(k => {
+    const opt       = document.createElement('option');
+    opt.value       = k;
+    opt.textContent = source[k].label;
+    sel.appendChild(opt);
+  });
+}
+
+function setBureau(name) {
+  currentBureau = name;
+  document.getElementById('btn-equifax').classList.toggle('active', name === 'Equifax');
+  document.getElementById('btn-transunion').classList.toggle('active', name === 'TransUnion');
+  updatePreview();
+}
+
+// Reference mobile viewport: 375\u00d7667 (iPhone SE/8 -- a common, conservative
+// baseline for "how many swipes to reach the CTA" comparisons). The email's own
+// responsive CSS collapses at max-width:600px, so 375px triggers the real mobile
+// layout (stacked bullets, full-width images) rather than just a narrower desktop view.
+const MOBILE_WIDTH = 375;
+const MOBILE_VIEWPORT_H = 667;
+const DESKTOP_WIDTH = 640;
+
+function setDevice(name) {
+  currentDevice = name;
+  document.getElementById('btn-desktop').classList.toggle('active', name === 'desktop');
+  document.getElementById('btn-mobile').classList.toggle('active', name === 'mobile');
+  applyDeviceWidths();
+  updatePreview();
+}
+
+function applyDeviceWidths() {
+  const isMobile = currentDevice === 'mobile';
+  document.getElementById('preview-label').classList.toggle('mobile', isMobile);
+  document.getElementById('meta-bar').classList.toggle('mobile', isMobile);
+  document.getElementById('preview-shell').classList.toggle('mobile', isMobile);
+  document.getElementById('size-stat').classList.toggle('mobile', isMobile);
+  document.getElementById('preview-label').textContent = isMobile
+    ? 'Mobile \u2013 375px canvas (iPhone SE/8 width)'
+    : 'Desktop \u2013 600px email, 640px canvas';
+}
+
+function onAlertTypeChange() {
+  const alertType = document.getElementById('sel-alert-type').value;
+  const isDW      = alertType === 'darkweb';
+  document.getElementById('detail-title').textContent = isDW ? 'Item Detected' : 'Change Type';
+  document.getElementById('sub-label').textContent    = isDW ? 'Information type' : 'Change type';
+  document.getElementById('bureau-group').style.display = isDW ? 'none' : 'block';
+  populateSubType(alertType);
+  updatePreview();
+}
+
+function buildStatusHTML(alertType, subType) {
+  const pill = (label, cls) => `<span class="status-pill${cls ? ' ' + cls : ''}">${label}</span>`;
+  if (alertType === 'darkweb') {
+    return pill('Dark Web Alert') + '<br>' + pill(DARK_WEB[subType].label);
+  }
+  return pill('Credit Alert', 'credit') + '<br>' + pill(CREDIT[subType].label, 'credit') + '<br>' + pill(currentBureau, 'credit');
+}
+
+function updatePreview() {
+  const alertType = document.getElementById('sel-alert-type').value;
+  const subType   = document.getElementById('sel-sub-type').value;
+
+  let v;
+  if (alertType === 'darkweb') {
+    const item = DARK_WEB[subType];
+    v = {
+      hiddenPreheader:  item.preheader,
+      headerImgSrc:     item.headerImgSrc,
+      headerImgH:       item.headerImgH,
+      alertLabel:       'IDENTITY MONITORING ALERT',
+      headingHtml:      item.headingHtml,
+      introHtml:        INTRO_IDENTITY,
+      importantBodyHtml: item.bodyHtml
+    };
+    document.getElementById('meta-subject').textContent   = 'Securizone\u00AE Alert Notice';
+    document.getElementById('meta-preheader').innerHTML   = item.preheader;
+  } else {
+    const item = CREDIT[subType];
+    const headingHtml = item.headingTpl.replace('${v.bureau}', currentBureau);
+    v = {
+      hiddenPreheader:  item.preheader,
+      headerImgSrc:     CREDIT_IMG.src,
+      headerImgH:       CREDIT_IMG.h,
+      alertLabel:       'CREDIT BUREAU MONITORING ALERT',
+      headingHtml:      headingHtml,
+      introHtml:        INTRO_CREDIT,
+      importantBodyHtml: item.bodyHtml
+    };
+    document.getElementById('meta-subject').textContent   = 'Securizone\u00AE Alert Notice';
+    document.getElementById('meta-preheader').innerHTML   = item.preheader;
+  }
+
+  document.getElementById('status-line').innerHTML = buildStatusHTML(alertType, subType);
+
+  const iframe   = document.getElementById('email-frame');
+  iframe.srcdoc  = buildEmail(v);
+  iframe.onload  = function () {
+    try {
+      const h = iframe.contentDocument.body.scrollHeight;
+      iframe.style.height = Math.max(h + 20, 600) + 'px';
+      updateSizeStat(h);
+    } catch(e) {
+      iframe.style.height = '1200px';
+      document.getElementById('size-stat').textContent = 'Could not measure rendered height.';
+    }
+  };
+}
+
+function updateSizeStat(heightPx) {
+  const stat = document.getElementById('size-stat');
+  if (currentDevice === 'mobile') {
+    const screens = (heightPx / MOBILE_VIEWPORT_H).toFixed(1);
+    stat.innerHTML = `<b>${heightPx}px</b> tall on a 375\u00d7667 mobile viewport \u2014 `
+      + `about <b>${screens} screens</b> of scrolling before reaching the footer.`
+      + `<span class="stat-note">Reference viewport only (iPhone SE/8); taller phones will show slightly fewer screens.</span>`;
+  } else {
+    stat.innerHTML = `<b>${heightPx}px</b> tall at desktop width.`;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   PDF DOWNLOAD
+   ════════════════════════════════════════════════════════════ */
+
+function buildFilename() {
+  const alertType = document.getElementById('sel-alert-type').value;
+  const subType   = document.getElementById('sel-sub-type').value;
+  const bureau    = alertType === 'credit' ? '-' + currentBureau.toLowerCase() : '';
+  return `securizone-alert-${alertType}-${subType}${bureau}.pdf`;
+}
+
+function downloadPDF() {
+  const btn    = document.getElementById('btn-pdf');
+  const iframe = document.getElementById('email-frame');
+  try {
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+    if (!doc || !doc.body) return;
+    btn.disabled    = true;
+    btn.textContent = 'Generating\u2026';
+    const pw = 600;
+    const ph = doc.body.scrollHeight + 100;
+    html2pdf().set({
+      margin:      [8, 0, 8, 0],
+      filename:    buildFilename(),
+      image:       { type: 'jpeg', quality: 0.95 },
+      html2canvas: { scale: 2, width: pw, scrollY: 0, useCORS: true },
+      jsPDF:       { unit: 'px', format: [pw, ph], hotfixes: ['px_scaling'] }
+    }).from(doc.body).save().finally(() => {
+      btn.disabled    = false;
+      btn.textContent = '\u2195 Download PDF';
+    });
+  } catch(e) {
+    btn.disabled    = false;
+    btn.textContent = '\u2195 Download PDF';
+    alert('Could not generate PDF. Check console for details.');
+  }
+}
+
+// Boot
+applyDeviceWidths();
+populateSubType('darkweb');
+updatePreview();
+
+</script>
+</body>
+</html>
