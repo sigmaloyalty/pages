@@ -245,7 +245,7 @@ select {
         <label class="ctrl-label" for="sel-alert-type">Category</label>
         <select id="sel-alert-type" onchange="onAlertTypeChange()">
           <option value="darkweb">Dark Web / Identity Alert</option>
-          <option value="credit">Credit File Alert</option>
+          <option value="credit">Credit Report Alert</option>
         </select>
       </div>
     </div>
@@ -343,31 +343,31 @@ const DARK_WEB = {
 const CREDIT = {
   inquiry: {
     preheader: 'A new credit inquiry has appeared on your file.',
-    body1:     'Your Securizone credit monitoring has detected a new credit inquiry on your credit file &#8211; recorded when someone requests access to your credit file, most often when applying for a loan or credit product.<br><br>If you authorized this, there&#8217;s nothing further you need to do. If you don&#8217;t recognize it, your alert details will help you act on it promptly.'
+    body1:     'Your Securizone credit monitoring has detected a new credit inquiry on your credit report &#8211; recorded when someone requests access to your credit report, most often when applying for a loan or credit product.<br><br>If you authorized this, there&#8217;s nothing further you need to do. If you don&#8217;t recognize it, your alert details will help you act on it promptly.'
   },
   newaccount: {
     preheader: 'A new credit account has appeared on your file.',
-    body1:     'Your Securizone credit monitoring has detected a new account on your credit file &#8211; meaning a new credit account has been opened in your name.<br><br>If you recently applied for a loan, credit card, or line of credit, this is likely the result. If you don&#8217;t recognize it, reviewing your alert right away will help you take action quickly.'
+    body1:     'Your Securizone credit monitoring has detected a new account on your credit report &#8211; meaning a new credit account has been opened in your name.<br><br>If you recently applied for a loan, credit card, or line of credit, this is likely the result. If you don&#8217;t recognize it, reviewing your alert right away will help you take action quickly.'
   },
   update: {
-    preheader: 'A change has been recorded on an account in your credit file.',
-    body1:     'Your Securizone credit monitoring has detected a change to an existing account on your credit file &#8211; reflecting a reported change to balance, credit limit, payment status, or account standing.<br><br>Most updates are routine, but your alert will help you confirm that what&#8217;s been recorded matches what you recognize.'
+    preheader: 'A change has been recorded on an account in your credit report.',
+    body1:     'Your Securizone credit monitoring has detected a change to an existing account on your credit report &#8211; reflecting a reported change to balance, credit limit, payment status, or account standing.<br><br>Most updates are routine, but your alert will help you confirm that what&#8217;s been recorded matches what you recognize.'
   },
   address: {
-    preheader: 'A new address has appeared on your credit file.',
-    body1:     'Your Securizone credit monitoring has detected a new address on your credit file &#8211; typically a routine update from a lender, but worth confirming it reflects a change you made.'
+    preheader: 'A new address has appeared on your credit report.',
+    body1:     'Your Securizone credit monitoring has detected a new address on your credit report &#8211; typically a routine update from a lender, but worth confirming it reflects a change you made.'
   },
   collections: {
-    preheader: 'A collection entry has appeared on your credit file.',
-    body1:     'Your Securizone credit monitoring has detected a collections entry on your credit file &#8211; recorded when a debt has been referred to a collection agency.<br><br>It may reflect a payment that was missed or overlooked, but it can also appear as a result of credit opened in your name without your knowledge.'
+    preheader: 'A collection entry has appeared on your credit report.',
+    body1:     'Your Securizone credit monitoring has detected a collections entry on your credit report &#8211; recorded when a debt has been referred to a collection agency.<br><br>It may reflect a payment that was missed or overlooked, but it can also appear as a result of credit opened in your name without your knowledge.'
   },
   bankruptcy: {
-    preheader: 'A bankruptcy record has appeared on your credit file.',
-    body1:     'Your Securizone credit monitoring has detected a bankruptcy record on your credit file &#8211; a significant entry that, if you&#8217;ve recently filed, simply reflects that process.<br><br>If this is unexpected, it&#8217;s important to review the details right away.'
+    preheader: 'A bankruptcy record has appeared on your credit report.',
+    body1:     'Your Securizone credit monitoring has detected a bankruptcy record on your credit report &#8211; a significant entry that, if you&#8217;ve recently filed, simply reflects that process.<br><br>If this is unexpected, it&#8217;s important to review the details right away.'
   },
   other: {
-    preheader: 'A change has been detected in your credit file.',
-    body1:     'Your Securizone credit monitoring has detected a change on your credit file &#8211; changes like this can span a range of activity, from account updates to personal information changes.'
+    preheader: 'A change has been detected in your credit report.',
+    body1:     'Your Securizone credit monitoring has detected a change on your credit report &#8211; changes like this can span a range of activity, from account updates to personal information changes.'
   }
 };
 
