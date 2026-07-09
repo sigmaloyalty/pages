@@ -291,7 +291,7 @@ select {
         <label class="ctrl-label" for="sel-alert-type">Category</label>
         <select id="sel-alert-type" onchange="onAlertTypeChange()">
           <option value="darkweb">Dark Web / Identity Alert</option>
-          <option value="credit">Credit Bureau Alert</option>
+          <option value="credit">Credit Monitoring Alert</option>
         </select>
       </div>
     </div>
@@ -440,44 +440,44 @@ const DARK_WEB = {
 const CREDIT = {
   inquiry: {
     label: "New Inquiry",
-    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Credit&nbsp;Inquiry</strong><br>on your ${v.bureau} credit bureau file <br>",
-    preheader: "A new Credit Inquiry has appeared on your credit bureau file.",
+    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Credit&nbsp;Inquiry</strong><br>on your ${v.bureau} credit file <br>",
+    preheader: "A new Credit Inquiry has appeared on your credit file.",
     bodyPara1Html: "Your Securizone credit monitoring has detected a new inquiry on your credit file &#8211; recorded whenever a lender or organization requests access to your credit profile, often when applying for a loan or credit product."
   },
   newaccount: {
     label: "New Account",
-    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Credit&nbsp;Account</strong><br>on your ${v.bureau} credit bureau file <br>",
-    preheader: "A new Credit Account has appeared on your credit bureau file.",
+    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Credit&nbsp;Account</strong><br>on your ${v.bureau} credit file <br>",
+    preheader: "A new Credit Account has appeared on your credit file.",
     bodyPara1Html: "Your Securizone credit monitoring has detected a new account on your credit file &#8211; meaning a credit account, like a loan, credit card, or line of credit, has been opened in your name."
   },
   update: {
     label: "Account Update",
-    headingTpl: "We detected an <strong style=\"font-weight:bolder !important\">Account&nbsp;Change</strong><br>on your ${v.bureau} credit bureau file <br>",
-    preheader: "An Account Change has appeared on your credit bureau file.",
+    headingTpl: "We detected an <strong style=\"font-weight:bolder !important\">Account&nbsp;Change</strong><br>on your ${v.bureau} credit file <br>",
+    preheader: "An Account Change has appeared on your credit file.",
     bodyPara1Html: "Your Securizone credit monitoring has detected a change to an existing account on your credit file &#8211; typically a routine update to balance, credit limit, or payment status."
   },
   address: {
     label: "Address Update",
-    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Address</strong><br>on your ${v.bureau} credit bureau file <br>",
-    preheader: "A new Address has appeared on your credit bureau file.",
+    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Address</strong><br>on your ${v.bureau} credit file <br>",
+    preheader: "A new Address has appeared on your credit file.",
     bodyPara1Html: "Your Securizone credit monitoring has detected a new address on your credit file &#8211; usually a routine update reported by a lender or credit provider."
   },
   collections: {
     label: "Collections",
-    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Collections&nbsp;Entry</strong><br>on your ${v.bureau} credit bureau file <br>",
-    preheader: "A new Collections Entry has appeared on your credit bureau file.",
+    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Collections&nbsp;Entry</strong><br>on your ${v.bureau} credit file <br>",
+    preheader: "A new Collections Entry has appeared on your credit file.",
     bodyPara1Html: "Your Securizone credit monitoring has detected a collections entry on your credit file &#8211; recorded when a debt in your name has been referred to a collection agency."
   },
   bankruptcy: {
     label: "Bankruptcy",
-    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Bankruptcy&nbsp;Record</strong><br>on your ${v.bureau} credit bureau file <br>",
-    preheader: "A new Bankruptcy Record has appeared on your credit bureau file.",
+    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Bankruptcy&nbsp;Record</strong><br>on your ${v.bureau} credit file <br>",
+    preheader: "A new Bankruptcy Record has appeared on your credit file.",
     bodyPara1Html: "Your Securizone credit monitoring has detected a bankruptcy record on your credit file &#8211; worth reviewing closely if you haven&#8217;t recently filed."
   },
   other: {
     label: "Other Change",
-    headingTpl: "We detected a <strong style=\"font-weight:bolder !important\">Credit&nbsp;File&nbsp;Change</strong><br>on your ${v.bureau} credit bureau file <br>",
-    preheader: "A change has appeared on your credit bureau file.",
+    headingTpl: "We detected a <strong style=\"font-weight:bolder !important\">Credit&nbsp;File&nbsp;Change</strong><br>on your ${v.bureau} credit file <br>",
+    preheader: "A change has appeared on your credit file.",
     bodyPara1Html: "Your Securizone credit monitoring has detected a change on your credit file &#8211; this can span anything from account details to personal information updates."
   }
 };
