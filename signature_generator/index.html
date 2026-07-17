@@ -160,7 +160,7 @@
       gap: 10px;
       margin-top: 18px;
     }
-    .copy-btn, .download-btn {
+    .copy-btn {
       display: block;
       flex: 1;
       padding: 12px 14px;
@@ -186,22 +186,20 @@
     }
     .copy-btn.success { background: #2A7A4B; }
 
-    .download-btn {
-      background: #ffffff;
-      color: #1B2934;
-      border: 1.5px solid #DDE2E7;
-    }
-    .download-btn:hover { border-color: #53A3DA; color: #53A3DA; }
-    .download-btn:active { transform: scale(0.98); }
-    .download-btn:disabled {
-      color: #B0C8DC;
-      border-color: #EEF0F2;
-      cursor: not-allowed;
-      transform: none;
-    }
-
     /* ── Instructions ─────────────────────────────────────────── */
     .instructions { margin-top: 20px; }
+    .instructions-group { margin-top: 18px; }
+    .instructions-group:first-child { margin-top: 0; }
+    .instructions-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #53A3DA;
+      margin-bottom: 6px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #EEF0F2;
+    }
     .instructions ol {
       padding-left: 18px;
     }
@@ -213,17 +211,6 @@
     }
     .instructions li strong { color: #1B2934; }
     .instructions li em { font-style: normal; color: #53A3DA; }
-    .callout {
-      margin-top: 14px;
-      padding: 11px 14px;
-      background: #EEF6FC;
-      border-left: 3px solid #53A3DA;
-      border-radius: 0 6px 6px 0;
-      font-size: 12px;
-      color: #3D6F8A;
-      line-height: 1.5;
-    }
-    .callout strong { color: #1B2934; }
 
     /* ── Preview panel ────────────────────────────────────────── */
     .preview-panel {}
@@ -304,30 +291,39 @@
         <button class="copy-btn" id="copy-btn" onclick="copySignature()" disabled>
           Copy Signature
         </button>
-        <button class="download-btn" id="download-btn" onclick="downloadSignature()" disabled>
-          Download HTML
-        </button>
       </div>
 
       <div class="instructions">
-        <ol>
-          <li>Fill in your details above, then click <strong>Copy Signature</strong>.</li>
-          <li>Open <strong>Outlook</strong> (desktop or web) and go to<br>
-              <em>Settings &rarr; Signatures &rarr; New Signature</em>.</li>
-          <li>Give your signature a name (e.g. <em>SLG Standard</em>).</li>
-          <li>Click into the <strong>signature body</strong> and press <strong>Enter twice</strong>
-              to add two blank lines — this gives you space above the signature
-              when composing emails.</li>
-          <li>Paste with <strong>Ctrl + V</strong>. Your formatted signature will appear.</li>
-          <li>Check the <strong>Set default for new messages</strong> checkbox so your signature is applied automatically to all new emails.</li>
-          <li>Click <strong>Save</strong>.</li>
-        </ol>
-        <div class="callout">
-          <strong>Use Chrome or Edge</strong> for this tool — other browsers
-          may not preserve the signature formatting when copying. If the paste
-          ever comes through as plain text, use <strong>Download HTML</strong>
-          instead: open the downloaded file in your browser, select all
-          (Ctrl+A) inside it, and copy (Ctrl+C) from there.
+        <div class="instructions-group">
+          <div class="instructions-label">New Outlook &amp; Outlook on the Web</div>
+          <ol>
+            <li>Fill in your details above, then click <strong>Copy Signature</strong>.</li>
+            <li>Open <strong>Outlook</strong> and go to<br>
+                <em>Settings &rarr; Signatures &rarr; New Signature</em>.</li>
+            <li>Give your signature a name (e.g. <em>SLG Standard</em>).</li>
+            <li>Click into the <strong>signature body</strong> and press <strong>Enter twice</strong>
+                to add two blank lines — this gives you space above the signature
+                when composing emails.</li>
+            <li>Paste with <strong>Ctrl + V</strong>. Your formatted signature will appear.</li>
+            <li>Check the <strong>Set default for new messages</strong> checkbox so your signature is applied automatically to all new emails.</li>
+            <li>Click <strong>Save</strong>.</li>
+          </ol>
+        </div>
+
+        <div class="instructions-group">
+          <div class="instructions-label">Classic Outlook (Desktop)</div>
+          <ol>
+            <li>Fill in your details above, then click <strong>Copy Signature</strong>.</li>
+            <li>Click <strong>New Email</strong>.</li>
+            <li>In the toolbar, click <strong>Insert &rarr; Signature &rarr; Signatures&hellip;</strong></li>
+            <li>Click <strong>New</strong> to create a new signature, and give it a name (e.g. <em>SLG Standard</em>).</li>
+            <li>Click into the <strong>signature body</strong> and press <strong>Enter twice</strong>
+                to add two blank lines — this gives you space above the signature
+                when composing emails.</li>
+            <li>Paste with <strong>Ctrl + V</strong>. Your formatted signature will appear.</li>
+            <li>Under <strong>Choose default signature</strong>, select your new signature for <strong>New messages</strong>.</li>
+            <li>Click <strong>OK</strong>.</li>
+          </ol>
         </div>
       </div>
     </div>
@@ -373,12 +369,12 @@ function buildSig(name, title, phone, email, withAddr) {
 
   /* Logo shrinks when address is hidden so it matches the shorter content block.
      Content column always = 600 - logoSize - 20 (spacer) */
-  const logoSize = withAddr ? 110 : 82;
+  const logoSize = withAddr ? 120 : 82;
   const contentW = 600 - logoSize - 20;
 
   const addrRow = withAddr ? `
         <tr>
-          <td valign="middle" style="vertical-align:middle;padding-top:7px;padding-right:6px;">
+          <td width="18" valign="middle" style="width:18px;vertical-align:middle;padding-top:7px;padding-right:6px;">
             <img src="https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/location_icon.png" width="18" height="18" alt=""
                  style="display:block;width:18px;height:18px;border:0;" />
           </td>
@@ -386,7 +382,11 @@ function buildSig(name, title, phone, email, withAddr) {
               style="vertical-align:middle;padding-top:7px;white-space:nowrap;
                      font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;
                      font-size:9pt;font-weight:400;color:#1B2934;">
-            4881 Yonge Street &bull; Suite 701 &bull; Toronto &bull; ON &bull; M2N 5X3
+            <p class="MsoNormal" style="margin:0;mso-margin-top-alt:0;mso-margin-bottom-alt:0;padding:0;
+                      font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;
+                      font-size:9pt;font-weight:400;color:#1B2934;line-height:10.8pt;mso-line-height-rule:exactly;">
+              4881 Yonge Street &bull; Suite 701 &bull; Toronto &bull; ON &bull; M2N 5X3
+            </p>
           </td>
         </tr>` : '';
 
@@ -410,34 +410,28 @@ function buildSig(name, title, phone, email, withAddr) {
     <td width="${contentW}" valign="top"
         style="width:${contentW}px;vertical-align:top;padding-top:6px;
                mso-padding-alt:5pt 0pt 0pt 0pt;">
-      <p style="margin:0 0 3px 0;padding:0;
+      <p class="MsoNormal" style="margin:0 0 3px 0;mso-margin-top-alt:0;mso-margin-bottom-alt:3px;padding:0;
                 font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;
                 font-size:15pt;font-weight:400;color:${name ? '#1B2934' : '#AAAAAA'};
-                line-height:1.1;mso-line-height-rule:exactly;">
+                line-height:16.5pt;mso-line-height-rule:exactly;">
         ${esc(name) || 'Your Name'}
       </p>
-      <p style="margin:0 0 9px 0;padding:0;
+      <p class="MsoNormal" style="margin:0 0 9px 0;mso-margin-top-alt:0;mso-margin-bottom-alt:9px;padding:0;
                 font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;
                 font-size:8pt;font-weight:400;color:${title ? '#1B2934' : '#AAAAAA'};
-                line-height:1.2;letter-spacing:0.2px;mso-line-height-rule:exactly;">
+                line-height:9.6pt;mso-line-height-rule:exactly;letter-spacing:0.2px;">
         ${esc(title) || 'YOUR TITLE'}
       </p>
-      <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"
-             style="border-collapse:collapse;margin:0 0 9px 0;
-                    mso-table-lspace:0pt;mso-table-rspace:0pt;">
-        <tr>
-          <td style="padding:0;line-height:0;font-size:0;">
-            <img src="https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/divider.png"
-                 width="${contentW}" height="1" border="0" alt=""
-                 style="display:block;width:${contentW}px;height:1px;border:0;outline:none;" />
-          </td>
-        </tr>
-      </table>
-      <table cellpadding="0" cellspacing="0" border="0" role="presentation"
+      <table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%"
              style="border-collapse:collapse;
                     mso-table-lspace:0pt;mso-table-rspace:0pt;">
         <tr>
-          <td valign="middle" style="vertical-align:middle;padding-right:6px;">
+          <td colspan="4"
+              style="padding:0 0 9px 0;line-height:0;font-size:0;
+                     border-top:1px solid #53A3DA;mso-line-height-rule:exactly;">&nbsp;</td>
+        </tr>
+        <tr>
+          <td width="18" valign="middle" style="width:18px;vertical-align:middle;padding-right:6px;">
             <img src="https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/mobile_icon.png" width="18" height="18" alt=""
                  style="display:block;width:18px;height:18px;border:0;" />
           </td>
@@ -445,9 +439,10 @@ function buildSig(name, title, phone, email, withAddr) {
               style="width:88px;vertical-align:middle;padding-right:12px;white-space:nowrap;
                      font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;
                      font-size:9pt;font-weight:400;color:#1B2934;">
-            ${phoneCell}
+            <p class="MsoNormal" style="margin:0;mso-margin-top-alt:0;mso-margin-bottom-alt:0;padding:0;
+                      line-height:10.8pt;mso-line-height-rule:exactly;">${phoneCell}</p>
           </td>
-          <td valign="middle" style="vertical-align:middle;padding-right:6px;">
+          <td width="18" valign="middle" style="width:18px;vertical-align:middle;padding-right:6px;">
             <img src="https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/email_icon.png" width="18" height="18" alt=""
                  style="display:block;width:18px;height:18px;border:0;" />
           </td>
@@ -455,7 +450,8 @@ function buildSig(name, title, phone, email, withAddr) {
               style="vertical-align:middle;white-space:nowrap;
                      font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;
                      font-size:9pt;font-weight:400;color:#1B2934;">
-            ${emailCell}
+            <p class="MsoNormal" style="margin:0;mso-margin-top-alt:0;mso-margin-bottom-alt:0;padding:0;
+                      line-height:10.8pt;mso-line-height-rule:exactly;">${emailCell}</p>
           </td>
         </tr>
         ${addrRow}
@@ -464,28 +460,32 @@ function buildSig(name, title, phone, email, withAddr) {
   </tr>
   <tr>
     <td colspan="3" style="padding-top:14px;">
-      <p style="margin:0 0 6px 0;padding:0;
-                font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;
-                font-size:6px;font-weight:400;color:#7F7F7F;line-height:1.5;
-                mso-line-height-rule:exactly;">
-        This email message may contain confidential and/or privileged information and is for the sole use of the intended recipient. Any unauthorized review, use, disclosure or distribution is strictly prohibited. If you have received this communication in error, please notify the sender immediately by return email and delete the original message. Thank you for your cooperation.
-      </p>
-      <p style="margin:0;padding:0;
-                font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;
-                font-size:6px;font-weight:400;color:#7F7F7F;line-height:1.5;
-                mso-line-height-rule:exactly;">
-        Ce message courriel peut contenir des informations confidentielles et / ou privil&#233;gi&#233;es et est &#224; l&#8217;usage unique du destinataire. N&#8217;importe quelle r&#233;vision faite sans autorisation, l&#8217;utilisation, la divulgation ou la distribution est strictement interdite. Si vous avez re&#231;u ce message par erreur, s&#8217;il vous pla&#238;t aviser imm&#233;diatement l&#8217;exp&#233;diteur par courriel de retour et effacez le message d&#8217;origine. Nous vous remercions de votre collaboration.
-      </p>
+      <table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%"
+             style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;">
+        <tr>
+          <td style="padding:0;mso-padding-alt:0pt 0pt 0pt 0pt;
+                     font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;
+                     font-size:6px;font-weight:400;color:#7F7F7F;">
+            <p class="MsoNormal" style="margin:0;mso-margin-top-alt:0;mso-margin-bottom-alt:0;padding:0;
+                      line-height:6.75pt;mso-line-height-rule:exactly;">
+              This email message may contain confidential and/or privileged information and is for the sole use of the intended recipient. Any unauthorized review, use, disclosure or distribution is strictly prohibited. If you have received this communication in error, please notify the sender immediately by return email and delete the original message. Thank you for your cooperation.
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0 0 0;mso-padding-alt:6pt 0pt 0pt 0pt;
+                     font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;
+                     font-size:6px;font-weight:400;color:#7F7F7F;">
+            <p class="MsoNormal" style="margin:0;mso-margin-top-alt:0;mso-margin-bottom-alt:0;padding:0;
+                      line-height:6.75pt;mso-line-height-rule:exactly;">
+              Ce message courriel peut contenir des informations confidentielles et / ou privil&#233;gi&#233;es et est &#224; l&#8217;usage unique du destinataire. N&#8217;importe quelle r&#233;vision faite sans autorisation, l&#8217;utilisation, la divulgation ou la distribution est strictement interdite. Si vous avez re&#231;u ce message par erreur, s&#8217;il vous pla&#238;t aviser imm&#233;diatement l&#8217;exp&#233;diteur par courriel de retour et effacez le message d&#8217;origine. Nous vous remercions de votre collaboration.
+            </p>
+          </td>
+        </tr>
+      </table>
     </td>
   </tr>
 </table>`;
-}
-
-/* ── Wrap the signature table in a full standalone HTML document
-     (used both for the clipboard's text/html payload and the
-     downloadable .html file) ─────────────────────────────────── */
-function wrapAsDocument(sigHtml) {
-  return `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>${sigHtml}</body></html>`;
 }
 
 /* ── Refresh preview + button state ──────────────────────────── */
@@ -502,7 +502,6 @@ function refresh() {
 
   const ready = !!(name && title);
   document.getElementById('copy-btn').disabled = !ready;
-  document.getElementById('download-btn').disabled = !ready;
 }
 
 /* ── Inline validation ────────────────────────────────────────── */
@@ -579,33 +578,12 @@ async function copySignature() {
   } catch(e) {
     alert(
       'Automatic copy failed.\n\n' +
-      'Use the Download HTML button instead, open the file in your ' +
-      'browser, select all (Ctrl+A) and copy (Ctrl+C) from there.'
+      'Please try again in Chrome or Edge, or select the signature ' +
+      'preview manually and copy it with Ctrl+C.'
     );
   } finally {
     document.body.removeChild(tmp);
   }
-}
-
-/* ── Download rendered signature as a standalone .html file ──── */
-function downloadSignature() {
-  const name  = document.getElementById('f-name').value.trim();
-  const title = document.getElementById('f-title').value.trim();
-  if (!name || !title) return;
-
-  const sigHtml = document.getElementById('sig-render').innerHTML;
-  const fullDoc = wrapAsDocument(sigHtml);
-
-  const blob = new Blob([fullDoc], { type: 'text/html' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  const safeName = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-  a.href = url;
-  a.download = `${safeName || 'signature'}-slg-signature.html`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
 }
 
 /* ── Init ─────────────────────────────────────────────────────── */
