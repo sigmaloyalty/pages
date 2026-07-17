@@ -154,22 +154,28 @@
       user-select: none;
     }
 
-    /* ── Copy button ──────────────────────────────────────────── */
-    .copy-btn {
-      display: block;
-      width: 100%;
+    /* ── Buttons ──────────────────────────────────────────────── */
+    .btn-row {
+      display: flex;
+      gap: 10px;
       margin-top: 18px;
-      padding: 12px 20px;
-      background: #53A3DA;
-      color: #ffffff;
+    }
+    .copy-btn, .download-btn {
+      display: block;
+      flex: 1;
+      padding: 12px 14px;
       border: none;
       border-radius: 7px;
       font-family: inherit;
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 600;
-      letter-spacing: 0.3px;
+      letter-spacing: 0.2px;
       cursor: pointer;
       transition: background 0.15s, transform 0.1s;
+    }
+    .copy-btn {
+      background: #53A3DA;
+      color: #ffffff;
     }
     .copy-btn:hover { background: #3D91CC; }
     .copy-btn:active { transform: scale(0.98); }
@@ -179,6 +185,20 @@
       transform: none;
     }
     .copy-btn.success { background: #2A7A4B; }
+
+    .download-btn {
+      background: #ffffff;
+      color: #1B2934;
+      border: 1.5px solid #DDE2E7;
+    }
+    .download-btn:hover { border-color: #53A3DA; color: #53A3DA; }
+    .download-btn:active { transform: scale(0.98); }
+    .download-btn:disabled {
+      color: #B0C8DC;
+      border-color: #EEF0F2;
+      cursor: not-allowed;
+      transform: none;
+    }
 
     /* ── Instructions ─────────────────────────────────────────── */
     .instructions { margin-top: 20px; }
@@ -280,13 +300,18 @@
         </span>
       </label>
 
-      <button class="copy-btn" id="copy-btn" onclick="copySignature()" disabled>
-        Copy Signature to Clipboard
-      </button>
+      <div class="btn-row">
+        <button class="copy-btn" id="copy-btn" onclick="copySignature()" disabled>
+          Copy Signature
+        </button>
+        <button class="download-btn" id="download-btn" onclick="downloadSignature()" disabled>
+          Download HTML
+        </button>
+      </div>
 
       <div class="instructions">
         <ol>
-          <li>Fill in your details above, then click <strong>Copy Signature to Clipboard</strong>.</li>
+          <li>Fill in your details above, then click <strong>Copy Signature</strong>.</li>
           <li>Open <strong>Outlook</strong> (desktop or web) and go to<br>
               <em>Settings &rarr; Signatures &rarr; New Signature</em>.</li>
           <li>Give your signature a name (e.g. <em>SLG Standard</em>).</li>
@@ -299,7 +324,10 @@
         </ol>
         <div class="callout">
           <strong>Use Chrome or Edge</strong> for this tool — other browsers
-          may not preserve the signature formatting when copying.
+          may not preserve the signature formatting when copying. If the paste
+          ever comes through as plain text, use <strong>Download HTML</strong>
+          instead: open the downloaded file in your browser, select all
+          (Ctrl+A) inside it, and copy (Ctrl+C) from there.
         </div>
       </div>
     </div>
@@ -453,6 +481,13 @@ function buildSig(name, title, phone, email, withAddr) {
 </table>`;
 }
 
+/* ── Wrap the signature table in a full standalone HTML document
+     (used both for the clipboard's text/html payload and the
+     downloadable .html file) ─────────────────────────────────── */
+function wrapAsDocument(sigHtml) {
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>${sigHtml}</body></html>`;
+}
+
 /* ── Refresh preview + button state ──────────────────────────── */
 function refresh() {
   const name       = document.getElementById('f-name').value.trim();
@@ -465,8 +500,9 @@ function refresh() {
   document.getElementById('sig-render').innerHTML =
     buildSig(name, title, phone, email, withAddr);
 
-  const btn = document.getElementById('copy-btn');
-  btn.disabled = !(name && title);
+  const ready = !!(name && title);
+  document.getElementById('copy-btn').disabled = !ready;
+  document.getElementById('download-btn').disabled = !ready;
 }
 
 /* ── Inline validation ────────────────────────────────────────── */
@@ -479,16 +515,51 @@ function validate(input) {
 }
 
 /* ── Copy rendered signature to clipboard ────────────────────── */
-function copySignature() {
+async function copySignature() {
   const name  = document.getElementById('f-name').value.trim();
   const title = document.getElementById('f-title').value.trim();
   if (!name || !title) return;
 
-  /* Render into an off-screen div so page styles don't bleed in */
+  const sigHtml = document.getElementById('sig-render').innerHTML;
+  const plainText = document.getElementById('sig-render').innerText;
+
+  const showSuccess = () => {
+    const btn = document.getElementById('copy-btn');
+    const orig = btn.textContent;
+    btn.textContent = '✓  Copied';
+    btn.classList.add('success');
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.classList.remove('success');
+      btn.disabled = false;
+    }, 2800);
+  };
+
+  /* Preferred path: modern Clipboard API writing explicit
+     text/html + text/plain payloads. This is what keeps the rich
+     formatting intact when pasting into Outlook, and is more
+     reliable across browsers than execCommand. */
+  if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
+    try {
+      const htmlBlob = new Blob([sigHtml], { type: 'text/html' });
+      const textBlob = new Blob([plainText], { type: 'text/plain' });
+      await navigator.clipboard.write([
+        new ClipboardItem({ 'text/html': htmlBlob, 'text/plain': textBlob })
+      ]);
+      showSuccess();
+      return;
+    } catch (e) {
+      /* fall through to legacy method below */
+    }
+  }
+
+  /* Fallback: select the rendered DOM node and use execCommand.
+     Works in most Chromium browsers even when the async
+     Clipboard API is blocked (e.g. no user-gesture context). */
   const tmp = document.createElement('div');
-  tmp.style.cssText =
-    'position:fixed;left:-9999px;top:0;background:#ffffff;';
-  tmp.innerHTML = document.getElementById('sig-render').innerHTML;
+  tmp.style.cssText = 'position:fixed;left:-9999px;top:0;background:#ffffff;';
+  tmp.innerHTML = sigHtml;
   document.body.appendChild(tmp);
 
   try {
@@ -501,28 +572,40 @@ function copySignature() {
     sel.removeAllRanges();
 
     if (ok) {
-      const btn = document.getElementById('copy-btn');
-      const orig = btn.textContent;
-      btn.textContent = '✓  Copied to Clipboard';
-      btn.classList.add('success');
-      btn.disabled = true;
-      setTimeout(() => {
-        btn.textContent = orig;
-        btn.classList.remove('success');
-        btn.disabled = false;
-      }, 2800);
+      showSuccess();
     } else {
       throw new Error('execCommand returned false');
     }
   } catch(e) {
     alert(
       'Automatic copy failed.\n\n' +
-      'Please scroll to the preview, click anywhere inside it, ' +
-      'press Ctrl+A to select all, then Ctrl+C to copy.'
+      'Use the Download HTML button instead, open the file in your ' +
+      'browser, select all (Ctrl+A) and copy (Ctrl+C) from there.'
     );
   } finally {
     document.body.removeChild(tmp);
   }
+}
+
+/* ── Download rendered signature as a standalone .html file ──── */
+function downloadSignature() {
+  const name  = document.getElementById('f-name').value.trim();
+  const title = document.getElementById('f-title').value.trim();
+  if (!name || !title) return;
+
+  const sigHtml = document.getElementById('sig-render').innerHTML;
+  const fullDoc = wrapAsDocument(sigHtml);
+
+  const blob = new Blob([fullDoc], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const safeName = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  a.href = url;
+  a.download = `${safeName || 'signature'}-slg-signature.html`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 /* ── Init ─────────────────────────────────────────────────────── */
