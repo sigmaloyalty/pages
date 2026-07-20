@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Option B &#8211; Securizone Alert Emails Preview Tool</title>
+<title>Option B &#8211; Securizone Alert Emails</title>
 <style>
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -157,18 +157,6 @@ select {
   padding: 20px 20px 40px;
   min-width: 0;
 }
-.preview-label {
-  font-size: 11px;
-  color: #90a0b0;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  margin-bottom: 8px;
-  text-transform: uppercase;
-  text-align: left;
-  width: 640px;
-  transition: width .15s ease;
-}
-.preview-label.mobile { width: 375px; }
 
 .meta-bar {
   width: 640px;
@@ -177,7 +165,11 @@ select {
   border-bottom: 2px solid #e2e8f0;
   border-radius: 6px 6px 0 0;
   padding: 10px 16px;
+  margin-bottom: 20px;
+  transition: width .15s ease;
 }
+.meta-bar.w-mobile { width: 375px; }
+.meta-bar.w-both { width: 1043px; }
 .meta-row {
   display: flex;
   align-items: baseline;
@@ -200,16 +192,61 @@ select {
   line-height: 1.4;
 }
 
+.preview-cols {
+  position: relative;
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+}
+.preview-col { display: flex; flex-direction: column; flex-shrink: 0; }
+.preview-col.desktop-col { width: 640px; }
+.preview-col.mobile-col  { width: 375px; }
+.preview-col.hidden {
+  visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.preview-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  color: #90a0b0;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  text-align: left;
+  width: 100%;
+}
+.screens-badge {
+  background: #dd6b20;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
 .preview-shell {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  width: 640px;
-  transition: width .15s ease;
+  width: 100%;
 }
-.preview-shell.mobile { width: 375px; }
 
-#email-frame {
+.frame-wrap { position: relative; }
+
+#email-frame-desktop, #email-frame-mobile {
   width: 100%;
   border: none;
   border-radius: 0 0 4px 4px;
@@ -219,10 +256,29 @@ select {
   background: white;
 }
 
-.meta-bar.mobile { width: 375px; }
+.screen-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px dashed #dd6b20;
+  pointer-events: none;
+}
+.screen-line-label {
+  position: absolute;
+  right: 0;
+  top: 3px;
+  background: #dd6b20;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  padding: 2px 6px;
+  border-radius: 3px 0 0 3px;
+  white-space: nowrap;
+}
 
 .size-stat {
-  width: 640px;
+  width: 100%;
   margin-top: 12px;
   padding: 10px 14px;
   background: #fff7ed;
@@ -231,9 +287,7 @@ select {
   font-size: 12px;
   color: #7c2d12;
   line-height: 1.6;
-  transition: width .15s ease;
 }
-.size-stat.mobile { width: 375px; }
 .size-stat b { font-weight: 700; }
 .size-stat .stat-note { display: block; color: #9a5a3a; font-size: 11px; margin-top: 2px; }
 
@@ -264,7 +318,7 @@ select {
 
 <header class="tool-header">
   <div>
-    <div class="header-title">Option B &#8211; Securizone Alert Emails Preview Tool</div>
+    <div class="header-title">Option B &#8211; Securizone Alert Emails</div>
     <div class="header-sub">Select alert type and detail to preview in real time</div>
   </div>
   <button id="btn-pdf" class="pdf-btn" onclick="downloadPDF()">&#8595; Download PDF</button>
@@ -279,8 +333,9 @@ select {
       <div class="ctrl-group">
         <label class="ctrl-label">Device</label>
         <div class="seg">
-          <button type="button" id="btn-desktop" class="active" onclick="setDevice('desktop')">Desktop</button>
+          <button type="button" id="btn-desktop" onclick="setDevice('desktop')">Desktop</button>
           <button type="button" id="btn-mobile" onclick="setDevice('mobile')">Mobile</button>
+          <button type="button" id="btn-both" class="active" onclick="setDevice('both')">Both</button>
         </div>
       </div>
     </div>
@@ -325,7 +380,6 @@ select {
   </aside>
 
   <main class="preview-area">
-    <div class="preview-label" id="preview-label">Desktop &#8211; 600px email, 640px canvas</div>
     <div class="meta-bar" id="meta-bar">
       <div class="meta-row">
         <span class="meta-label">Subject</span>
@@ -336,10 +390,26 @@ select {
         <span class="meta-value" id="meta-preheader">&#8212;</span>
       </div>
     </div>
-    <div class="preview-shell" id="preview-shell">
-      <iframe id="email-frame" title="Email preview"></iframe>
+    <div class="preview-cols" id="preview-cols">
+      <div class="preview-col desktop-col" id="col-desktop">
+        <div class="preview-label">Desktop &#8211; 600px email, 640px canvas</div>
+        <div class="preview-shell">
+          <div class="frame-wrap" id="frame-wrap-desktop">
+            <iframe id="email-frame-desktop" title="Email preview (desktop)"></iframe>
+          </div>
+        </div>
+        <div class="size-stat" id="size-stat-desktop">&#8212;</div>
+      </div>
+      <div class="preview-col mobile-col" id="col-mobile">
+        <div class="preview-label">Mobile &#8211; 375px canvas (iPhone SE/8 width)<span class="screens-badge" id="screens-badge">&#8212;</span></div>
+        <div class="preview-shell">
+          <div class="frame-wrap" id="frame-wrap-mobile">
+            <iframe id="email-frame-mobile" title="Email preview (mobile)"></iframe>
+          </div>
+        </div>
+        <div class="size-stat" id="size-stat-mobile">&#8212;</div>
+      </div>
     </div>
-    <div class="size-stat" id="size-stat">&#8212;</div>
   </main>
 
 </div>
@@ -440,44 +510,44 @@ const DARK_WEB = {
 const CREDIT = {
   inquiry: {
     label: "New Inquiry",
-    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Credit&nbsp;Inquiry</strong><br>on your ${v.bureau} credit report <br>",
-    preheader: "A new Credit Inquiry has appeared on your credit report.",
+    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Credit&nbsp;Inquiry</strong><br>on your ${v.bureau} credit file <br>",
+    preheader: "A new Credit Inquiry has appeared on your credit file.",
     bodyPara1Html: "Credit inquiries are recorded whenever a lender or organization requests access to your credit profile, most often when applying for a loan or credit product."
   },
   newaccount: {
     label: "New Account",
-    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Credit&nbsp;Account</strong><br>on your ${v.bureau} credit report <br>",
-    preheader: "A new Credit Account has appeared on your credit report.",
-    bodyPara1Html: "A new account on your credit report means a credit product &#8211; like a loan, credit card, or line of credit &#8211; has been opened in your name."
+    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Credit&nbsp;Account</strong><br>on your ${v.bureau} credit file <br>",
+    preheader: "A new Credit Account has appeared on your credit file.",
+    bodyPara1Html: "A new account on your credit file means a credit product &#8211; like a loan, credit card, or line of credit &#8211; has been opened in your name."
   },
   update: {
     label: "Account Update",
-    headingTpl: "We detected an <strong style=\"font-weight:bolder !important\">Account&nbsp;Change</strong><br>on your ${v.bureau} credit report <br>",
-    preheader: "An Account Change has appeared on your credit report.",
+    headingTpl: "We detected an <strong style=\"font-weight:bolder !important\">Account&nbsp;Change</strong><br>on your ${v.bureau} credit file <br>",
+    preheader: "An Account Change has appeared on your credit file.",
     bodyPara1Html: "Account changes like this typically reflect a routine update to an outstanding balance, credit limit, or payment status."
   },
   address: {
     label: "Address Update",
-    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Address</strong><br>on your ${v.bureau} credit report <br>",
-    preheader: "A new Address has appeared on your credit report.",
-    bodyPara1Html: "A new address on your credit report is usually a routine update reported by a lender or credit provider."
+    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Address</strong><br>on your ${v.bureau} credit file <br>",
+    preheader: "A new Address has appeared on your credit file.",
+    bodyPara1Html: "A new address on your credit file is usually a routine update reported by a lender or credit provider."
   },
   collections: {
     label: "Collections",
-    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Collections&nbsp;Entry</strong><br>on your ${v.bureau} credit report <br>",
-    preheader: "A new Collections Entry has appeared on your credit report.",
+    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Collections&nbsp;Entry</strong><br>on your ${v.bureau} credit file <br>",
+    preheader: "A new Collections Entry has appeared on your credit file.",
     bodyPara1Html: "A collections entry is recorded when a debt in your name has been referred to a collection agency &#8211; sometimes the result of a missed payment, sometimes of an account you never opened."
   },
   bankruptcy: {
     label: "Bankruptcy",
-    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Bankruptcy&nbsp;Record</strong><br>on your ${v.bureau} credit report <br>",
-    preheader: "A new Bankruptcy Record has appeared on your credit report.",
-    bodyPara1Html: "A bankruptcy record appears on your credit report after a bankruptcy filing, so it&#8217;s worth a closer look if you haven&#8217;t recently filed."
+    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Bankruptcy&nbsp;Record</strong><br>on your ${v.bureau} credit file <br>",
+    preheader: "A new Bankruptcy Record has appeared on your credit file.",
+    bodyPara1Html: "A bankruptcy record appears on your credit file after a bankruptcy filing, so it&#8217;s worth a closer look if you haven&#8217;t recently filed."
   },
   other: {
     label: "Other Change",
-    headingTpl: "We detected a <strong style=\"font-weight:bolder !important\">Credit&nbsp;File&nbsp;Change</strong><br>on your ${v.bureau} credit report <br>",
-    preheader: "A change has appeared on your credit report.",
+    headingTpl: "We detected a <strong style=\"font-weight:bolder !important\">Credit&nbsp;File&nbsp;Change</strong><br>on your ${v.bureau} credit file <br>",
+    preheader: "A change has appeared on your credit file.",
     bodyPara1Html: "Changes like this can span a range of activity, from account updates to personal information changes."
   }
 };
@@ -487,10 +557,10 @@ const CREDIT_IMG = { src: "https://raw.githubusercontent.com/sigmaloyalty/logos/
 const DW_PARA2 = "You&#8217;ll find full details of this finding in your Securizone account &#8211; including where it appeared and recommended next steps for this type of exposure.";
 const CR_PARA2 = "You&#8217;ll find full details of this alert in your Securizone account &#8211; including the specific change reported and recommended next steps.";
 
-const DW_STOPCHECKTALK = "If this exposure leads to any unexpected messages, pause before responding and verify the sender through contact information you look up yourself rather than using information they provide. If anything doesn&#8217;t check out, ignore and delete the message rather than responding.";
+const DW_STOPCHECKTALK = "If this exposure leads to any unexpected calls, emails, or texts, pause before responding and verify the sender through contact information you look up yourself rather than using information they provide. If anything doesn&#8217;t check out, ignore and delete the message rather than responding.";
 
 let currentBureau = 'Equifax';
-let currentDevice = 'desktop';
+let currentDevice = 'both';
 
 /* ════════════════════════════════════════════════════════════
    PRODUCTION EMAIL HTML BUILDER
@@ -1043,19 +1113,25 @@ function setDevice(name) {
   currentDevice = name;
   document.getElementById('btn-desktop').classList.toggle('active', name === 'desktop');
   document.getElementById('btn-mobile').classList.toggle('active', name === 'mobile');
+  document.getElementById('btn-both').classList.toggle('active', name === 'both');
   applyDeviceWidths();
-  updatePreview();
 }
 
 function applyDeviceWidths() {
-  const isMobile = currentDevice === 'mobile';
-  document.getElementById('preview-label').classList.toggle('mobile', isMobile);
-  document.getElementById('meta-bar').classList.toggle('mobile', isMobile);
-  document.getElementById('preview-shell').classList.toggle('mobile', isMobile);
-  document.getElementById('size-stat').classList.toggle('mobile', isMobile);
-  document.getElementById('preview-label').textContent = isMobile
-    ? 'Mobile \u2013 375px canvas (iPhone SE/8 width)'
-    : 'Desktop \u2013 600px email, 640px canvas';
+  const colDesktop = document.getElementById('col-desktop');
+  const colMobile  = document.getElementById('col-mobile');
+  const metaBar    = document.getElementById('meta-bar');
+
+  // Both frames are always kept rendered (see updatePreview/onload below), even
+  // while their column is hidden -- hidden columns use visibility:hidden rather
+  // than display:none specifically so their iframe still lays out and reports
+  // an accurate scrollHeight. That's what makes switching modes instant and
+  // keeps the mobile "screens of scrolling" figure correct at all times.
+  colDesktop.classList.toggle('hidden', currentDevice === 'mobile');
+  colMobile.classList.toggle('hidden', currentDevice === 'desktop');
+
+  metaBar.classList.remove('w-desktop', 'w-mobile', 'w-both');
+  metaBar.classList.add('w-' + currentDevice);
 }
 
 function onAlertTypeChange() {
@@ -1113,29 +1189,67 @@ function updatePreview() {
 
   document.getElementById('status-line').innerHTML = buildStatusHTML(alertType, subType);
 
-  const iframe   = document.getElementById('email-frame');
-  iframe.srcdoc  = buildEmail(v);
-  iframe.onload  = function () {
+  // Both the desktop and mobile frames are rendered on every update, regardless
+  // of which view is currently visible, so toggling Desktop/Mobile/Both is instant.
+  const html = buildEmail(v);
+
+  const dFrame  = document.getElementById('email-frame-desktop');
+  dFrame.srcdoc = html;
+  dFrame.onload = function () {
     try {
-      const h = iframe.contentDocument.body.scrollHeight;
-      iframe.style.height = Math.max(h + 20, 600) + 'px';
-      updateSizeStat(h);
+      const h = dFrame.contentDocument.body.scrollHeight;
+      dFrame.style.height = Math.max(h + 20, 600) + 'px';
+      updateSizeStat('size-stat-desktop', h, false);
     } catch(e) {
-      iframe.style.height = '1200px';
-      document.getElementById('size-stat').textContent = 'Could not measure rendered height.';
+      dFrame.style.height = '1200px';
+      document.getElementById('size-stat-desktop').textContent = 'Could not measure rendered height.';
+    }
+  };
+
+  const mFrame  = document.getElementById('email-frame-mobile');
+  mFrame.srcdoc = html;
+  mFrame.onload = function () {
+    try {
+      const h = mFrame.contentDocument.body.scrollHeight;
+      mFrame.style.height = Math.max(h + 20, 600) + 'px';
+      updateSizeStat('size-stat-mobile', h, true);
+      drawScreenLines(h);
+    } catch(e) {
+      mFrame.style.height = '1200px';
+      document.getElementById('size-stat-mobile').textContent = 'Could not measure rendered height.';
     }
   };
 }
 
-function updateSizeStat(heightPx) {
-  const stat = document.getElementById('size-stat');
-  if (currentDevice === 'mobile') {
+function updateSizeStat(elId, heightPx, isMobile) {
+  const stat = document.getElementById(elId);
+  if (isMobile) {
     const screens = (heightPx / MOBILE_VIEWPORT_H).toFixed(1);
     stat.innerHTML = `<b>${heightPx}px</b> tall on a 375\u00d7667 mobile viewport \u2014 `
       + `about <b>${screens} screens</b> of scrolling before reaching the footer.`
       + `<span class="stat-note">Reference viewport only (iPhone SE/8); taller phones will show slightly fewer screens.</span>`;
+    document.getElementById('screens-badge').textContent = '\u2248 ' + screens + ' screens';
   } else {
     stat.innerHTML = `<b>${heightPx}px</b> tall at desktop width.`;
+  }
+}
+
+// Draws a dashed line + label across the mobile frame at every 667px
+// (one iPhone SE/8 screen height), so reviewers can see at a glance where
+// each scroll/swipe boundary falls without doing the math themselves.
+function drawScreenLines(heightPx) {
+  const wrap = document.getElementById('frame-wrap-mobile');
+  wrap.querySelectorAll('.screen-line').forEach(el => el.remove());
+  const totalScreens = Math.floor(heightPx / MOBILE_VIEWPORT_H);
+  for (let i = 1; i <= totalScreens; i++) {
+    const line = document.createElement('div');
+    line.className = 'screen-line';
+    line.style.top = (i * MOBILE_VIEWPORT_H) + 'px';
+    const label = document.createElement('span');
+    label.className = 'screen-line-label';
+    label.textContent = 'Screen ' + (i + 1) + ' starts \u2193';
+    line.appendChild(label);
+    wrap.appendChild(line);
   }
 }
 
@@ -1147,18 +1261,22 @@ function buildFilename() {
   const alertType = document.getElementById('sel-alert-type').value;
   const subType   = document.getElementById('sel-sub-type').value;
   const bureau    = alertType === 'credit' ? '-' + currentBureau.toLowerCase() : '';
-  return `securizone-alert-${alertType}-${subType}${bureau}.pdf`;
+  const device    = currentDevice === 'mobile' ? '-mobile' : '';
+  return `securizone-alert-${alertType}-${subType}${bureau}${device}.pdf`;
 }
 
 function downloadPDF() {
-  const btn    = document.getElementById('btn-pdf');
-  const iframe = document.getElementById('email-frame');
+  const btn      = document.getElementById('btn-pdf');
+  // Both/Desktop modes export the desktop version (the canonical layout);
+  // Mobile mode exports what's actually on screen.
+  const frameId  = currentDevice === 'mobile' ? 'email-frame-mobile' : 'email-frame-desktop';
+  const iframe   = document.getElementById(frameId);
   try {
     const doc = iframe.contentDocument || iframe.contentWindow.document;
     if (!doc || !doc.body) return;
     btn.disabled    = true;
     btn.textContent = 'Generating\u2026';
-    const pw = 600;
+    const pw = currentDevice === 'mobile' ? MOBILE_WIDTH : 600;
     const ph = doc.body.scrollHeight + 100;
     html2pdf().set({
       margin:      [8, 0, 8, 0],
@@ -1178,7 +1296,7 @@ function downloadPDF() {
 }
 
 // Boot
-applyDeviceWidths();
+setDevice('both');
 populateSubType('darkweb');
 updatePreview();
 
