@@ -429,7 +429,7 @@
       <div class="preview-scroll">
         <div id="sig-render"></div>
       </div>
-      <p class="preview-hint" id="preview-hint">Shown at real size. Desktop is used for the Copy and Download buttons; Mobile is a compact version for the phone app.</p>
+      <p class="preview-hint" id="preview-hint">Shown at real size. Desktop is used for the Copy and Download buttons; Mobile is the same layout with phone-safe images for the app.</p>
     </div>
   </div>
 
@@ -481,7 +481,13 @@ function vals() {
    DESKTOP signature — the proven table-based markup (Word-friendly).
    Used for the preview, the Copy button, and the .htm download.
    ══════════════════════════════════════════════════════════════ */
-function buildSig(name, title, phone, email, withAddr) {
+function buildSig(name, title, phone, email, withAddr, opts) {
+  opts = opts || {};
+  const logoUrl   = opts.logoUrl   || "https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/sigma_blue_box.png";
+  const phoneIcon = opts.phoneIcon || "https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/mobile_icon.png";
+  const emailIcon = opts.emailIcon || "https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/email_icon.png";
+  const addrIcon  = opts.addrIcon  || "https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/location_icon.png";
+
   const telDigits = phone.replace(/\D/g,'').slice(0,10);
 
   const phoneCell = phone
@@ -494,13 +500,13 @@ function buildSig(name, title, phone, email, withAddr) {
 
   /* Logo shrinks when address is hidden so it matches the shorter content block.
      Content column always = 600 - logoSize - 20 (spacer) */
-  const logoSize = withAddr ? 120 : 82;
+  const logoSize = opts.forceLogo120 ? 120 : (withAddr ? 120 : 82);
   const contentW = 600 - logoSize - 20;
 
   const addrRow = withAddr ? `
         <tr>
           <td width="18" valign="middle" style="width:18px;vertical-align:middle;padding-top:7px;padding-right:6px;">
-            <img src="https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/location_icon.png" width="18" height="18" alt=""
+            <img src="${addrIcon}" width="18" height="18" alt=""
                  style="display:block;width:18px;height:18px;border:0;" />
           </td>
           <td colspan="3" valign="middle"
@@ -525,7 +531,7 @@ function buildSig(name, title, phone, email, withAddr) {
       <a href="https://www.sigmaloyaltygroup.com" target="_blank"
          style="display:block;text-decoration:none;border:0;outline:none;
                 color:#1B2934;font-size:0;line-height:0;">
-        <img src="https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/sigma_blue_box.png"
+        <img src="${logoUrl}"
              width="${logoSize}" height="${logoSize}" border="0"
              alt="Sigma Loyalty Group"
              style="display:block;width:${logoSize}px;height:${logoSize}px;border:0;outline:none;" />
@@ -557,7 +563,7 @@ function buildSig(name, title, phone, email, withAddr) {
         </tr>
         <tr>
           <td width="18" valign="middle" style="width:18px;vertical-align:middle;padding-right:6px;">
-            <img src="https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/mobile_icon.png" width="18" height="18" alt=""
+            <img src="${phoneIcon}" width="18" height="18" alt=""
                  style="display:block;width:18px;height:18px;border:0;" />
           </td>
           <td width="88" valign="middle"
@@ -568,7 +574,7 @@ function buildSig(name, title, phone, email, withAddr) {
                       line-height:10.8pt;mso-line-height-rule:exactly;">${phoneCell}</p>
           </td>
           <td width="18" valign="middle" style="width:18px;vertical-align:middle;padding-right:6px;">
-            <img src="https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/email_icon.png" width="18" height="18" alt=""
+            <img src="${emailIcon}" width="18" height="18" alt=""
                  style="display:block;width:18px;height:18px;border:0;" />
           </td>
           <td valign="middle"
@@ -614,77 +620,21 @@ function buildSig(name, title, phone, email, withAddr) {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   MOBILE signature — compact, single-column, stacked layout.
-   Every image (120×120 logo, 18×18 icons) is hosted at its true
-   display size, so the layout survives the Outlook mobile signature
-   editor, which discards sizing attributes and renders images at
-   their natural pixel size.
+   MOBILE signature — identical layout to the desktop version, but
+   every image (120×120 logo, 18×18 icons) points at an asset hosted
+   at its true display size. The Outlook mobile editor discards image
+   sizing attributes and renders at natural size, so size-safe assets
+   keep the layout intact instead of blowing up. The logo is forced
+   to 120px because there is no 82px intrinsic asset.
    ══════════════════════════════════════════════════════════════ */
 function buildMobileSig(name, title, phone, email, withAddr) {
-  const telDigits = phone.replace(/\D/g,'').slice(0,10);
-
-  const phoneVal = phone
-    ? `<a href="tel:${telDigits}" style="color:#1B2934;text-decoration:none;">${esc(phone)}</a>`
-    : `<span style="color:#AAAAAA;">Phone Number</span>`;
-  const emailVal = email
-    ? `<a href="mailto:${esc(email)}" style="color:#1B2934;text-decoration:none;">${esc(email)}</a>`
-    : `<span style="color:#AAAAAA;">email@sigmaloyaltygroup.com</span>`;
-
-  const contactRow = (icon, val, valign) => `
-        <tr>
-          <td valign="${valign}" style="padding:3px 8px 3px 0;font-size:0;line-height:0;">
-            <img src="${icon}" width="18" height="18" alt=""
-                 style="display:block;width:18px;height:18px;border:0;outline:none;" />
-          </td>
-          <td valign="${valign}" style="padding:3px 0;font-family:${FF};font-size:11pt;font-weight:400;color:#1B2934;line-height:15pt;">${val}</td>
-        </tr>`;
-
-  const addrRow = withAddr
-    ? contactRow(ICON_ADDR, '4881 Yonge Street &bull; Suite 701 &bull; Toronto &bull; ON &bull; M2N 5X3', 'top')
-    : '';
-
-  return `<table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-family:${FF};">
-  <tr>
-    <td style="padding:0 0 10px 0;font-size:0;line-height:0;">
-      <img src="${MOBILE_LOGO}" width="120" height="120" alt="Sigma Loyalty Group"
-           style="display:block;width:120px;height:120px;border:0;outline:none;" />
-    </td>
-  </tr>
-  <tr>
-    <td style="padding:0 0 2px 0;font-family:${FF};font-size:15pt;font-weight:400;
-               color:${name ? '#1B2934' : '#AAAAAA'};line-height:17pt;">
-      ${esc(name) || 'Your Name'}
-    </td>
-  </tr>
-  <tr>
-    <td style="padding:0 0 9px 0;font-family:${FF};font-size:8pt;font-weight:400;letter-spacing:0.3px;
-               color:${title ? '#1B2934' : '#AAAAAA'};line-height:10pt;">
-      ${esc(title) || 'YOUR TITLE'}
-    </td>
-  </tr>
-  <tr>
-    <td style="padding:0 0 8px 0;border-top:1px solid #53A3DA;font-size:0;line-height:0;">&nbsp;</td>
-  </tr>
-  <tr>
-    <td style="padding:0;">
-      <table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
-        ${contactRow(ICON_PHONE, phoneVal, 'middle')}
-        ${contactRow(ICON_EMAIL, emailVal, 'middle')}
-        ${addrRow}
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td style="padding:12px 0 0 0;font-family:${FF};font-size:6px;font-weight:400;color:#7F7F7F;line-height:8px;">
-      ${DISCLAIMER_EN}
-    </td>
-  </tr>
-  <tr>
-    <td style="padding:5px 0 0 0;font-family:${FF};font-size:6px;font-weight:400;color:#7F7F7F;line-height:8px;">
-      ${DISCLAIMER_FR}
-    </td>
-  </tr>
-</table>`;
+  return buildSig(name, title, phone, email, withAddr, {
+    logoUrl:      MOBILE_LOGO,
+    phoneIcon:    ICON_PHONE,
+    emailIcon:    ICON_EMAIL,
+    addrIcon:     ICON_ADDR,
+    forceLogo120: true
+  });
 }
 
 /* ── Convert a signature HTML string to plain text ───────────── */
@@ -714,7 +664,7 @@ function setMode(mode) {
   document.getElementById('seg-desktop').classList.toggle('active', mode === 'desktop');
   document.getElementById('seg-mobile').classList.toggle('active', mode === 'mobile');
   document.getElementById('preview-hint').textContent = mode === 'mobile'
-    ? 'Compact version for the Outlook mobile app. Copy this one from your phone.'
+    ? 'Same layout, with phone-safe images for the Outlook mobile app. Copy this one from your phone.'
     : 'Shown at real size. Desktop is used for the Copy and Download buttons; Mobile is a compact version for the phone app.';
   refresh();
 }
