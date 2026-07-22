@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sigma Loyalty Group — Email Signature Generator</title>
+  <title>Sigma Loyalty Group — Email Signature Generator (v23)</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -298,7 +298,7 @@
        alt="Sigma Loyalty Group">
   <div class="header-text">
     <h1>Email Signature Generator</h1>
-    <p>Internal Tool &mdash; Sigma Loyalty Group</p>
+    <p>Internal Tool &mdash; Sigma Loyalty Group &mdash; v23</p>
   </div>
 </div>
 
@@ -526,20 +526,21 @@ function buildSig(name, title, phone, email, withAddr, opts) {
           </td>
         </tr>` : '';
 
-  return `<table border="0" cellpadding="0" cellspacing="0" width="600"
+  return `<!--SLG-SIG v23-->
+<table border="0" cellpadding="0" cellspacing="0" width="600" role="presentation"
        style="border-collapse:collapse;width:600px;max-width:600px;
               font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;">
   <tr>
     <td width="${logoSize}" valign="top"
-        style="width:${logoSize}px;vertical-align:top;padding:0;font-size:0;line-height:0;
+        style="width:${logoSize}px;vertical-align:top;padding:0;
+               line-height:${logoSize}px;mso-line-height-rule:exactly;
                mso-padding-alt:0pt 0pt 0pt 0pt;">
       <a href="https://www.sigmaloyaltygroup.com" target="_blank"
-         style="display:block;text-decoration:none;border:0;outline:none;
-                color:#1B2934;font-size:0;line-height:0;">
+         style="display:block;text-decoration:none;border:0;outline:none;color:#1B2934;">
         <img src="${o.logoUrl}"
-             width="${logoSize}" border="0"
+             width="${logoSize}" height="${logoSize}" border="0"
              alt="Sigma Loyalty Group"
-             style="display:block;width:${logoSize}px;max-width:${logoSize}px;height:auto;border:0;outline:none;" />
+             style="display:block;width:${logoSize}px;max-width:${logoSize}px;height:${logoSize}px;border:0;outline:none;" />
       </a>
     </td>
     <td width="20" style="width:20px;padding:0;mso-padding-alt:0pt 0pt 0pt 0pt;"></td>
@@ -562,28 +563,27 @@ function buildSig(name, title, phone, email, withAddr, opts) {
              style="border-collapse:collapse;
                     mso-table-lspace:0pt;mso-table-rspace:0pt;">
         <tr>
-          <td colspan="4"
-              style="padding:0 0 9px 0;line-height:0;font-size:0;
-                     border-top:1px solid #53A3DA;mso-line-height-rule:exactly;">&nbsp;</td>
-        </tr>
-        <tr>
-          <td width="18" valign="middle" style="width:18px;vertical-align:middle;padding-right:6px;">
+          <td width="18" valign="middle" style="width:18px;vertical-align:middle;padding-right:6px;
+                     border-top:1px solid #53A3DA;padding-top:9px;">
             <img src="${o.phoneIcon}" width="18" height="18" alt=""
                  style="display:block;width:18px;height:18px;border:0;" />
           </td>
           <td width="88" valign="middle"
               style="width:88px;vertical-align:middle;padding-right:12px;white-space:nowrap;
+                     border-top:1px solid #53A3DA;padding-top:9px;
                      font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;
                      font-size:9pt;font-weight:400;color:#1B2934;">
             <p class="MsoNormal" style="margin:0;mso-margin-top-alt:0;mso-margin-bottom-alt:0;padding:0;
                       line-height:10.8pt;mso-line-height-rule:exactly;">${phoneCell}</p>
           </td>
-          <td width="18" valign="middle" style="width:18px;vertical-align:middle;padding-right:6px;">
+          <td width="18" valign="middle" style="width:18px;vertical-align:middle;padding-right:6px;
+                     border-top:1px solid #53A3DA;padding-top:9px;">
             <img src="${o.emailIcon}" width="18" height="18" alt=""
                  style="display:block;width:18px;height:18px;border:0;" />
           </td>
           <td valign="middle"
               style="vertical-align:middle;white-space:nowrap;
+                     border-top:1px solid #53A3DA;padding-top:9px;
                      font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;
                      font-size:9pt;font-weight:400;color:#1B2934;">
             <p class="MsoNormal" style="margin:0;mso-margin-top-alt:0;mso-margin-bottom-alt:0;padding:0;
@@ -594,31 +594,25 @@ function buildSig(name, title, phone, email, withAddr, opts) {
       </table>
     </td>
   </tr>
+</table>
+<table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%"
+       style="border-collapse:collapse;width:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;">
   <tr>
-    <td colspan="3" style="padding-top:14px;">
-      <table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%"
-             style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;">
-        <tr>
-          <td style="padding:0;mso-padding-alt:0pt 0pt 0pt 0pt;
-                     font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;
-                     font-size:6px;font-weight:400;color:#7F7F7F;">
-            <p class="MsoNormal" style="margin:0;mso-margin-top-alt:0;mso-margin-bottom-alt:0;padding:0;
-                      line-height:6.75pt;mso-line-height-rule:exactly;">
-              ${DISCLAIMER_EN}
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding:6px 0 0 0;mso-padding-alt:6pt 0pt 0pt 0pt;
-                     font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;
-                     font-size:6px;font-weight:400;color:#7F7F7F;">
-            <p class="MsoNormal" style="margin:0;mso-margin-top-alt:0;mso-margin-bottom-alt:0;padding:0;
-                      line-height:6.75pt;mso-line-height-rule:exactly;">
-              ${DISCLAIMER_FR}
-            </p>
-          </td>
-        </tr>
-      </table>
+    <td style="padding:14px 0 0 0;mso-padding-alt:10.5pt 0pt 0pt 0pt;">
+      <p class="MsoNormal" style="margin:0;mso-margin-top-alt:0;mso-margin-bottom-alt:0;padding:0;
+                font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;
+                font-size:7px;font-weight:400;color:#7F7F7F;line-height:135%;">
+        ${DISCLAIMER_EN}
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:5px 0 0 0;mso-padding-alt:4pt 0pt 0pt 0pt;">
+      <p class="MsoNormal" style="margin:0;mso-margin-top-alt:0;mso-margin-bottom-alt:0;padding:0;
+                font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;
+                font-size:7px;font-weight:400;color:#7F7F7F;line-height:135%;">
+        ${DISCLAIMER_FR}
+      </p>
     </td>
   </tr>
 </table>`;
@@ -759,14 +753,15 @@ function downloadHtml() {
     logoUrl:   MOBILE_LOGO,
     phoneIcon: ICON_PHONE,
     emailIcon: ICON_EMAIL,
-    addrIcon:  ICON_ADDR
+    addrIcon:  ICON_ADDR,
+    forceLogo120: true
   });
   const doc =
 `<!DOCTYPE html>
 <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta name="generator" content="SLG Signature Generator">
+<meta name="generator" content="SLG Signature Generator v23">
 <title>SLG Email Signature</title>
 </head>
 <body lang="EN-CA" style="margin:0;padding:0;">
