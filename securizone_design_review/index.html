@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Alerts & Monthly Summaries — Design Review</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/IDAssist%20button.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0F1E33;
+    --slate:#2F4C6B;
+    --teal:#3FA79E;
+    --teal-dim:#3FA79E33;
+    --bg:#F5F6F4;
+    --panel:#FFFFFF;
+    --text:#1B2733;
+    --text-dim:#5B6570;
+    --line:#E1E4E1;
+    --radius:10px;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-font-smoothing:antialiased;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    line-height:1.5;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
+  }
+
+  .wrap{
+    max-width:920px;
+    margin:0 auto;
+    padding:0 24px;
+  }
+
+  header{
+    padding:56px 0 40px;
+    border-bottom:1px solid var(--line);
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-bottom:36px;
+  }
+
+  .brand img{
+    height:64px;
+    width:auto;
+    display:block;
+  }
+
+  .eyebrow{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:12px;
+    font-weight:500;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--teal);
+    margin:0 0 12px;
+  }
+
+  h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:clamp(28px, 4vw, 38px);
+    line-height:1.15;
+    color:var(--ink);
+    margin:0 0 14px;
+    letter-spacing:-0.01em;
+  }
+
+  header p.lede{
+    font-size:16px;
+    color:var(--text-dim);
+    max-width:56ch;
+    margin:0;
+  }
+
+  main{ padding:44px 0 64px; }
+
+  .group-label{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:13px;
+    font-weight:600;
+    color:var(--slate);
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    margin:0 0 16px;
+  }
+
+  .cards{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:14px;
+  }
+
+  .card{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:24px 26px;
+    text-decoration:none;
+    color:inherit;
+    transition:border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+    overflow:hidden;
+  }
+
+  .card::before{
+    content:"";
+    position:absolute;
+    top:0; left:0;
+    width:3px; height:100%;
+    background:var(--teal);
+    transform:scaleY(0);
+    transform-origin:top;
+    transition:transform 0.22s ease;
+  }
+
+  .card:hover, .card:focus-visible{
+    border-color:var(--teal);
+    transform:translateX(2px);
+    box-shadow:0 6px 20px -12px rgba(15,30,51,0.25);
+  }
+
+  .card:hover::before, .card:focus-visible::before{
+    transform:scaleY(1);
+  }
+
+  .card:focus-visible{
+    outline:2px solid var(--teal);
+    outline-offset:2px;
+  }
+
+  .card-text .tag{
+    display:inline-block;
+    font-family:'Space Grotesk',sans-serif;
+    font-size:14px;
+    font-weight:600;
+    letter-spacing:0.01em;
+    color:var(--ink);
+    background:var(--teal-dim);
+    padding:6px 14px;
+    border-radius:100px;
+    margin-bottom:12px;
+  }
+
+  .card-text p{
+    margin:0;
+    font-size:14.5px;
+    color:var(--text-dim);
+    max-width:52ch;
+  }
+
+  .arrow{
+    flex-shrink:0;
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    border:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+  }
+
+  .card:hover .arrow, .card:focus-visible .arrow{
+    background:var(--teal);
+    border-color:var(--teal);
+    transform:translateX(2px);
+  }
+
+  .arrow svg{
+    width:15px; height:15px;
+    stroke:var(--slate);
+    transition:stroke 0.18s ease;
+  }
+
+  .card:hover .arrow svg, .card:focus-visible .arrow svg{
+    stroke:#fff;
+  }
+
+  .section-gap{ margin-top:34px; }
+
+  footer{
+    border-top:1px solid var(--line);
+    padding:26px 0 40px;
+  }
+
+  footer p{
+    margin:0;
+    font-size:13px;
+    color:var(--text-dim);
+  }
+
+  @media (max-width:560px){
+    .card{ flex-direction:column; align-items:flex-start; }
+    .arrow{ align-self:flex-end; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <img src="https://fmltes.stripocdn.email/content/guids/CABINET_683cc971e61085c3a6333230921397cda21dea5c0c72ffab28c2e26cc6ea2a76/images/securizonelogogenericen_2000px_orx.png" alt="Securizone">
+    </div>
+    <p class="eyebrow">Design Review</p>
+    <h1>Email Alerts &amp; Monthly Summaries</h1>
+    <p class="lede">Here's how we'd bring your members' alerts to life — two takes on the email alert, built around different moments of urgency, plus the monthly summary that ties it all together.</p>
+  </header>
+
+  <main>
+    <p class="group-label">Email Alerts</p>
+    <div class="cards">
+      <a class="card" href="https://sigmaloyalty.github.io/pages/email_alerts_option_a/" target="_blank" rel="noopener">
+        <div class="card-text">
+          <span class="tag">Email Alerts — Option A</span>
+          <p>Leads with context — what happened, why it matters, and what it means for the member — so the alert itself does the explaining before asking for action.</p>
+        </div>
+        <span class="arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </span>
+      </a>
+
+      <a class="card" href="https://sigmaloyalty.github.io/pages/email_alerts_option_b/" target="_blank" rel="noopener">
+        <div class="card-text">
+          <span class="tag">Email Alerts — Option B</span>
+          <p>Leads with the action — what to do right now — with supporting detail kept close by but out of the way, for members who want to move fast.</p>
+        </div>
+        <span class="arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </span>
+      </a>
+    </div>
+
+    <div class="section-gap">
+      <p class="group-label">Monthly Summary</p>
+      <div class="cards">
+        <a class="card" href="https://sigmaloyalty.github.io/pages/monthly_summaries/" target="_blank" rel="noopener">
+          <div class="card-text">
+            <span class="tag">Monthly Summary Email</span>
+            <p>A recurring digest that rolls up the month's activity, so members stay informed even when there's nothing urgent to report.</p>
+          </div>
+          <span class="arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </span>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>Prepared by Sigma Loyalty Group.</p>
+  </footer>
+</div>
+
+</body>
+</html>
