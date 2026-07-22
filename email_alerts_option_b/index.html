@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Option B &#8211; Securizone Alert Emails</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/IDAssist%20button.png">
 <style>
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -311,6 +312,73 @@ select {
 }
 .pdf-btn:disabled { opacity: 0.5; cursor: default; }
 
+/* Collapsible sidebar
+   The sidebar slides fully off-screen to the left via a negative margin
+   (clipped by .tool-body's overflow:hidden), while .preview-area -- being
+   flex:1 -- smoothly reflows to fill the freed space. A small floating
+   tab appears at the left edge to bring it back. Especially useful on
+   mobile widths, where the 248px sidebar otherwise eats most of the
+   viewport. */
+.sidebar {
+  transition: margin-left .22s ease;
+}
+.sidebar.collapsed {
+  margin-left: -249px;
+}
+
+.sidebar-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid #edf0f4;
+  flex-shrink: 0;
+}
+.sidebar-top-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #a0aec0;
+}
+.sidebar-collapse-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #4a5568;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.sidebar-collapse-btn:hover { background: #edf0f4; }
+
+.btn-sidebar-open {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  position: fixed;
+  left: 0;
+  top: 66px;
+  z-index: 20;
+  padding: 10px 12px 10px 10px;
+  background: #1a202c;
+  color: #fff;
+  border: none;
+  border-radius: 0 8px 8px 0;
+  box-shadow: 0 2px 12px rgba(0,0,0,.28);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+}
+.btn-sidebar-open:hover { background: #207292; }
+.btn-sidebar-open.show { display: flex; }
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"></script>
 </head>
@@ -324,9 +392,16 @@ select {
   <button id="btn-pdf" class="pdf-btn" onclick="downloadPDF()">&#8595; Download PDF</button>
 </header>
 
+<button type="button" id="btn-sidebar-open" class="btn-sidebar-open" onclick="toggleSidebar(false)" aria-label="Show controls">&#9776; Show controls</button>
+
 <div class="tool-body">
 
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
+
+    <div class="sidebar-top-row">
+      <span class="sidebar-top-label">Controls</span>
+      <button type="button" class="sidebar-collapse-btn" onclick="toggleSidebar(true)" aria-label="Hide controls" title="Hide controls">&#8249;</button>
+    </div>
 
     <div class="ctrl-section">
       <div class="ctrl-section-title">Preview As</div>
@@ -1092,6 +1167,13 @@ function populateSubType(alertType) {
     opt.textContent = source[k].label;
     sel.appendChild(opt);
   });
+}
+
+function toggleSidebar(collapse) {
+  const sidebar = document.getElementById('sidebar');
+  const openBtn = document.getElementById('btn-sidebar-open');
+  sidebar.classList.toggle('collapsed', collapse);
+  openBtn.classList.toggle('show', collapse);
 }
 
 function setBureau(name) {
