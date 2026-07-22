@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sigma Loyalty Group — Email Signature Generator (v24)</title>
+  <title>Sigma Loyalty Group — Email Signature Generator (v25)</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -298,7 +298,7 @@
        alt="Sigma Loyalty Group">
   <div class="header-text">
     <h1>Email Signature Generator</h1>
-    <p>Internal Tool &mdash; Sigma Loyalty Group &mdash; v24</p>
+    <p>Internal Tool &mdash; Sigma Loyalty Group &mdash; v25</p>
   </div>
 </div>
 
@@ -444,7 +444,7 @@ const MOBILE_LOGO = "https://sigmaloyaltygroup.com/wp-content/uploads/Signature_
    editors (like Outlook mobile) that strip width/height attributes. */
 const ICON_PHONE = "https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/mobile_icon.png";
 const ICON_EMAIL = "https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/email_icon.png";
-const ICON_ADDR  = "https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/location_icon.png";
+const ICON_ADDR  = "https://sigmaloyaltygroup.com/wp-content/uploads/Signature_images/location.png";
 
 const DISCLAIMER_EN = "This email message may contain confidential and/or privileged information and is for the sole use of the intended recipient. Any unauthorized review, use, disclosure or distribution is strictly prohibited. If you have received this communication in error, please notify the sender immediately by return email and delete the original message. Thank you for your cooperation.";
 const DISCLAIMER_FR = "Ce message courriel peut contenir des informations confidentielles et / ou privil&#233;gi&#233;es et est &#224; l&#8217;usage unique du destinataire. N&#8217;importe quelle r&#233;vision faite sans autorisation, l&#8217;utilisation, la divulgation ou la distribution est strictement interdite. Si vous avez re&#231;u ce message par erreur, s&#8217;il vous pla&#238;t aviser imm&#233;diatement l&#8217;exp&#233;diteur par courriel de retour et effacez le message d&#8217;origine. Nous vous remercions de votre collaboration.";
@@ -526,23 +526,14 @@ function buildSig(name, title, phone, email, withAddr, opts) {
           </td>
         </tr>` : '';
 
-  return `<!--SLG-SIG v24-->
+  return `<!--SLG-SIG v25-->
 <table border="0" cellpadding="0" cellspacing="0" width="600" role="presentation"
        style="border-collapse:collapse;width:600px;max-width:600px;
               font-family:'Avenir Next','Century Gothic',Calibri,Arial,sans-serif;">
   <tr>
     <td width="${logoSize}" valign="top"
         style="width:${logoSize}px;vertical-align:top;padding:0;
-               line-height:${logoSize}px;mso-line-height-rule:exactly;
-               mso-padding-alt:0pt 0pt 0pt 0pt;">
-      <a href="https://www.sigmaloyaltygroup.com" target="_blank"
-         style="display:block;text-decoration:none;border:0;outline:none;color:#1B2934;">
-        <img src="${o.logoUrl}"
-             width="${logoSize}" height="${logoSize}" border="0"
-             alt="Sigma Loyalty Group"
-             style="display:block;width:${logoSize}px;max-width:${logoSize}px;height:auto;border:0;outline:none;" />
-      </a>
-    </td>
+               mso-padding-alt:0pt 0pt 0pt 0pt;"><a href="https://www.sigmaloyaltygroup.com" target="_blank" style="display:block;text-decoration:none;border:0;outline:none;color:#1B2934;"><img src="${o.logoUrl}" width="${logoSize}" height="${logoSize}" border="0" alt="Sigma Loyalty Group" style="display:block;width:${logoSize}px;max-width:${logoSize}px;height:auto;border:0;outline:none;" /></a></td>
     <td width="20" style="width:20px;padding:0;mso-padding-alt:0pt 0pt 0pt 0pt;"></td>
     <td width="${contentW}" valign="top"
         style="width:${contentW}px;vertical-align:top;padding-top:6px;
@@ -761,7 +752,7 @@ function downloadHtml() {
 <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta name="generator" content="SLG Signature Generator v24">
+<meta name="generator" content="SLG Signature Generator v25">
 <title>SLG Email Signature</title>
 </head>
 <body lang="EN-CA" style="margin:0;padding:0;">
