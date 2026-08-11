@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Securizone Email Alerts & Monthly Summaries — Design Review</title>
+<title data-i18n="DR.meta.title">Securizone Email Alerts & Monthly Summaries — Design Review</title>
 <meta name="robots" content="noindex">
 <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/IDAssist%20button.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -209,6 +209,34 @@
     color:var(--text-dim);
   }
 
+
+  /* ── EN/FR toggle ───────────────────────────────────────── */
+  .lang-switch{
+    margin-left:auto;
+    display:flex;
+    gap:2px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:100px;
+    padding:3px;
+  }
+  .lang-btn{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.06em;
+    padding:6px 14px;
+    border:none;
+    border-radius:100px;
+    background:transparent;
+    color:var(--text-dim);
+    cursor:pointer;
+    transition:background 0.18s ease, color 0.18s ease;
+  }
+  .lang-btn:hover{ color:var(--ink); }
+  .lang-btn.active{ background:var(--teal); color:#fff; }
+  .lang-btn:focus-visible{ outline:2px solid var(--teal); outline-offset:2px; }
+
   @media (max-width:560px){
     .card{ flex-direction:column; align-items:flex-start; }
     .arrow{ align-self:flex-end; }
@@ -221,43 +249,38 @@
   <header>
     <div class="brand">
       <img src="https://fmltes.stripocdn.email/content/guids/CABINET_683cc971e61085c3a6333230921397cda21dea5c0c72ffab28c2e26cc6ea2a76/images/securizonelogogenericen_2000px_orx.png" alt="Securizone">
+      <div class="lang-switch" role="group" data-i18n-aria="DR.aria.lang">
+        <button type="button" class="lang-btn active" data-lang="en" onclick="setLang('en')">EN</button>
+        <button type="button" class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+      </div>
     </div>
-    <p class="eyebrow">Design Review</p>
-    <h1>Email Alerts &amp; Monthly Summaries</h1>
-    <p class="lede">Here's how we'd bring your members' alerts to life — two takes on the email alert, built around different moments of urgency, plus the monthly summary that ties it all together.</p>
+    <p class="eyebrow" data-i18n="DR.eyebrow">Design Review</p>
+    <h1 data-i18n="DR.h1">Email Alerts &amp; Monthly Summaries</h1>
+    <p class="lede" data-i18n="DR.lede">Here's how we'd bring your members' alerts to life — two takes on the email alert, built around different moments of urgency, plus the monthly summary that ties it all together.</p>
   </header>
 
   <main>
-    <p class="group-label">Email Alerts</p>
+    <p class="group-label" data-i18n="DR.group.alerts">Email Alerts</p>
     <div class="cards">
-      <a class="card" href="https://sigmaloyalty.github.io/pages/email_alerts_option_a/" target="_blank" rel="noopener">
+      <a class="card" href="https://sigmaloyalty.github.io/pages/email_alerts_option_a/" data-langlink target="_blank" rel="noopener">
         <div class="card-text">
-          <span class="tag">Email Alerts — Option A</span>
-          <p>Leads with context — what happened, why it matters, and what it means for the member — so the alert itself does the explaining before asking for action.</p>
+          <span class="tag" data-i18n="DR.card.a.tag">Email Alerts — Option A</span>
+          <p data-i18n="DR.card.a.desc">Leads with context — what happened, why it matters, and what it means for the member — so the alert itself does the explaining before asking for action.</p>
         </div>
         <span class="arrow" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </span>
       </a>
 
-      <a class="card" href="https://sigmaloyalty.github.io/pages/email_alerts_option_b/" target="_blank" rel="noopener">
-        <div class="card-text">
-          <span class="tag">Email Alerts — Option B</span>
-          <p>Leads with the action — what to do right now — with supporting detail kept close by but out of the way, for members who want to move fast.</p>
-        </div>
-        <span class="arrow" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </span>
-      </a>
     </div>
 
     <div class="section-gap">
-      <p class="group-label">Monthly Summary</p>
+      <p class="group-label" data-i18n="DR.group.monthly">Monthly Summary</p>
       <div class="cards">
-        <a class="card" href="https://sigmaloyalty.github.io/pages/monthly_summaries/" target="_blank" rel="noopener">
+        <a class="card" href="https://sigmaloyalty.github.io/pages/monthly_summaries/" data-langlink target="_blank" rel="noopener">
           <div class="card-text">
-            <span class="tag">Monthly Summary Email</span>
-            <p>A recurring digest that rolls up the month's activity, so members stay informed even when there's nothing urgent to report.</p>
+            <span class="tag" data-i18n="DR.card.m.tag">Monthly Summary Email</span>
+            <p data-i18n="DR.card.m.desc">A recurring digest that rolls up the month's activity, so members stay informed even when there's nothing urgent to report.</p>
           </div>
           <span class="arrow" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -268,9 +291,147 @@
   </main>
 
   <footer>
-    <p>Prepared by Sigma Loyalty Group.</p>
+    <p data-i18n="DR.footer">Prepared by Sigma Loyalty Group.</p>
   </footer>
 </div>
 
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   COPY TABLE -- generated from copy_master.json. Do not hand-edit;
+   edit the copy deck and re-run apply_copydeck.py.
+   ════════════════════════════════════════════════════════════ */
+const I18N = {
+ "DR.aria.lang": {
+  "en": "Language",
+  "fr": "Langue"
+ },
+ "DR.footer": {
+  "en": "Prepared by Sigma Loyalty Group.",
+  "fr": "Préparé par Sigma Loyalty Group."
+ },
+ "DR.eyebrow": {
+  "en": "Design Review",
+  "fr": "Revue de conception"
+ },
+ "DR.h1": {
+  "en": "Email Alerts &amp; Monthly Summaries",
+  "fr": "Alertes courriel et sommaires mensuels"
+ },
+ "DR.lede": {
+  "en": "Here&#8217;s how we&#8217;d bring your members&#8217; alerts to life &#8212; the email alert, built around the moment it matters most, plus the monthly summary that ties it all together.",
+  "fr": "Voici comment nous proposons de donner vie aux alertes destinées à vos membres&nbsp;: l&#8217;alerte courriel, conçue autour du moment où elle compte le plus, ainsi que le sommaire mensuel qui relie le tout."
+ },
+ "DR.card.m.desc": {
+  "en": "A recurring digest that rolls up the month's activity, so members stay informed even when there's nothing urgent to report.",
+  "fr": "Un récapitulatif périodique de l'activité du mois, pour que les membres restent informés même lorsqu'il n'y a rien d'urgent à signaler."
+ },
+ "DR.card.m.tag": {
+  "en": "Monthly Summary Email",
+  "fr": "Courriel de sommaire mensuel"
+ },
+ "DR.card.a.desc": {
+  "en": "Leads with context — what happened, why it matters, and what it means for the member — so the alert itself does the explaining before asking for action.",
+  "fr": "Commence par fournir le contexte: ce qui s&#8217;est passé, pourquoi c&#8217;est important et ce que cela signifie pour le membre. L&#8217;alerte explique la situation avant de demander une action."
+ },
+ "DR.card.a.tag": {
+  "en": "Email Alerts",
+  "fr": "Alertes courriel"
+ },
+ "DR.meta.title": {
+  "en": "Securizone Email Alerts &amp; Monthly Summaries — Design Review",
+  "fr": "Alertes courriel et sommaires mensuels Sécurizone &#8212; Revue de conception"
+ },
+ "DR.group.alerts": {
+  "en": "Email Alerts",
+  "fr": "Alertes courriel"
+ },
+ "DR.group.monthly": {
+  "en": "Monthly Summary",
+  "fr": "Sommaire mensuel"
+ }
+};
+
+/* ════════════════════════════════════════════════════════════
+   BILINGUAL RUNTIME
+   Every visible string lives in I18N above. Nothing here needs
+   editing when copy changes -- edit the copy deck and re-run
+   apply_copydeck.py instead.
+   ════════════════════════════════════════════════════════════ */
+'use strict';
+
+var LANG = 'en';
+
+/* Read ?lang=fr from the URL so a link can be shared in either language. */
+(function () {
+  var m = /[?&]lang=(fr|en)/i.exec(window.location.search);
+  if (m) { LANG = m[1].toLowerCase(); }
+})();
+
+/* t('KEY')            -> string in the current language
+   t('KEY', {n: 3})    -> same, with {n} substituted                        */
+function t(key, vars) {
+  var entry = I18N[key];
+  var s = entry ? (entry[LANG] || entry.en) : '[[' + key + ']]';
+  if (vars) {
+    for (var p in vars) {
+      if (Object.prototype.hasOwnProperty.call(vars, p)) {
+        s = s.split('{' + p + '}').join(vars[p]);
+      }
+    }
+  }
+  return s;
+}
+
+/* Fills every element carrying data-i18n, plus data-i18n-alt / -title /
+   -href / -aria for attribute-only strings. */
+function applyI18n() {
+  document.documentElement.setAttribute('lang', LANG);
+
+  document.querySelectorAll('[data-i18n]').forEach(function (el) {
+    el.innerHTML = t(el.getAttribute('data-i18n'));
+  });
+  [['data-i18n-alt', 'alt'],
+   ['data-i18n-title', 'title'],
+   ['data-i18n-href', 'href'],
+   ['data-i18n-aria', 'aria-label']].forEach(function (pair) {
+    document.querySelectorAll('[' + pair[0] + ']').forEach(function (el) {
+      el.setAttribute(pair[1], t(el.getAttribute(pair[0])));
+    });
+  });
+
+  document.querySelectorAll('.lang-btn').forEach(function (b) {
+    var on = b.getAttribute('data-lang') === LANG;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+}
+
+/* Switches language in place -- no reload, so any selections the reviewer
+   has made in the sidebar survive the switch. */
+function setLang(lang) {
+  if (lang !== 'en' && lang !== 'fr') { return; }
+  LANG = lang;
+
+  var url = new URL(window.location.href);
+  url.searchParams.set('lang', lang);
+  try { history.replaceState(null, '', url); } catch (e) { /* file:// */ }
+
+  applyI18n();
+  if (typeof onLangChange === 'function') { onLangChange(); }
+}
+
+/* Keeps the chosen language when the reviewer clicks through to a preview. */
+function onLangChange(){
+  document.querySelectorAll('[data-langlink]').forEach(function(a){
+    var u = new URL(a.getAttribute('href'));
+    u.searchParams.set('lang', LANG);
+    a.setAttribute('href', u.toString());
+  });
+}
+
+applyI18n();
+onLangChange();
+</script>
 </body>
 </html>
