@@ -248,7 +248,7 @@
 <div class="wrap">
   <header>
     <div class="brand">
-      <img src="https://fmltes.stripocdn.email/content/guids/CABINET_683cc971e61085c3a6333230921397cda21dea5c0c72ffab28c2e26cc6ea2a76/images/securizonelogogenericen_2000px_orx.png" alt="Securizone">
+      <img src="https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/securizone-logo-generic-EN.png.png" alt="Securizone" data-i18n-src="SH.asset.logo" data-i18n-alt="SH.asset.logo.alt">
       <div class="lang-switch" role="group" data-i18n-aria="DR.aria.lang">
         <button type="button" class="lang-btn active" data-lang="en" onclick="setLang('en')">EN</button>
         <button type="button" class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
@@ -349,6 +349,14 @@ const I18N = {
  "DR.group.monthly": {
   "en": "Monthly Summary",
   "fr": "Sommaire mensuel"
+ },
+ "SH.asset.logo": {
+  "en": "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/securizone-logo-generic-EN.png.png",
+  "fr": "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/securizone-logo-generic-FR.png"
+ },
+ "SH.asset.logo.alt": {
+  "en": "Securizone",
+  "fr": "Sécurizone"
  }
 };
 
@@ -392,6 +400,7 @@ function applyI18n() {
     el.innerHTML = t(el.getAttribute('data-i18n'));
   });
   [['data-i18n-alt', 'alt'],
+   ['data-i18n-src', 'src'],
    ['data-i18n-title', 'title'],
    ['data-i18n-href', 'href'],
    ['data-i18n-aria', 'aria-label']].forEach(function (pair) {
