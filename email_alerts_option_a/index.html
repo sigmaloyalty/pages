@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Option A &#8211; Securizone Alert Emails</title>
-<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/IDAssist%20button.png">
+<title data-i18n="AL.ui.doctitle">Option A &#8211; Securizone Alert Emails</title>
 <style>
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -292,6 +291,31 @@ select {
 .size-stat b { font-weight: 700; }
 .size-stat .stat-note { display: block; color: #9a5a3a; font-size: 11px; margin-top: 2px; }
 
+/* ── LANGUAGE TOGGLE ─────────────────────────────────────── */
+.lang-switch {
+  display: flex;
+  background: #2d3748;
+  border-radius: 6px;
+  padding: 3px;
+  gap: 2px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+.lang-btn {
+  padding: 5px 13px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .4px;
+  background: transparent;
+  color: #90a0b0;
+  transition: all .15s;
+}
+.lang-btn:hover { color: #fff; }
+.lang-btn.active { background: #207292; color: #fff; }
+
 .pdf-btn {
   padding: 5px 14px;
   border: 1px solid #4a6580;
@@ -312,73 +336,6 @@ select {
 }
 .pdf-btn:disabled { opacity: 0.5; cursor: default; }
 
-/* Collapsible sidebar
-   The sidebar slides fully off-screen to the left via a negative margin
-   (clipped by .tool-body's overflow:hidden), while .preview-area -- being
-   flex:1 -- smoothly reflows to fill the freed space. A small floating
-   tab appears at the left edge to bring it back. Especially useful on
-   mobile widths, where the 248px sidebar otherwise eats most of the
-   viewport. */
-.sidebar {
-  transition: margin-left .22s ease;
-}
-.sidebar.collapsed {
-  margin-left: -249px;
-}
-
-.sidebar-top-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 12px;
-  border-bottom: 1px solid #edf0f4;
-  flex-shrink: 0;
-}
-.sidebar-top-label {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: #a0aec0;
-}
-.sidebar-collapse-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  background: #f8fafc;
-  color: #4a5568;
-  cursor: pointer;
-  font-size: 14px;
-  line-height: 1;
-  flex-shrink: 0;
-}
-.sidebar-collapse-btn:hover { background: #edf0f4; }
-
-.btn-sidebar-open {
-  display: none;
-  align-items: center;
-  gap: 6px;
-  position: fixed;
-  left: 0;
-  top: 66px;
-  z-index: 20;
-  padding: 10px 12px 10px 10px;
-  background: #1a202c;
-  color: #fff;
-  border: none;
-  border-radius: 0 8px 8px 0;
-  box-shadow: 0 2px 12px rgba(0,0,0,.28);
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 600;
-}
-.btn-sidebar-open:hover { background: #207292; }
-.btn-sidebar-open.show { display: flex; }
-
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"></script>
 </head>
@@ -386,42 +343,39 @@ select {
 
 <header class="tool-header">
   <div>
-    <div class="header-title">Option A &#8211; Securizone Alert Emails</div>
-    <div class="header-sub">Select alert type and detail to preview in real time</div>
+    <div class="header-title" data-i18n="AL.ui.header.title">Option A &#8211; Securizone Alert Emails</div>
+    <div class="header-sub" data-i18n="AL.ui.header.sub">Select alert type and detail to preview in real time</div>
   </div>
-  <button id="btn-pdf" class="pdf-btn" onclick="downloadPDF()">&#8595; Download PDF</button>
+  <div class="lang-switch" role="group" data-i18n-aria="AL.ui.lang.label">
+    <button type="button" class="lang-btn active" data-lang="en" onclick="setLang('en')">EN</button>
+    <button type="button" class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+  </div>
+  <button id="btn-pdf" class="pdf-btn" onclick="downloadPDF()" data-i18n="AL.ui.btn.pdf">&#8595; Download PDF</button>
 </header>
-
-<button type="button" id="btn-sidebar-open" class="btn-sidebar-open" onclick="toggleSidebar(false)" aria-label="Show controls">&#9776; Show controls</button>
 
 <div class="tool-body">
 
-  <aside class="sidebar" id="sidebar">
-
-    <div class="sidebar-top-row">
-      <span class="sidebar-top-label">Controls</span>
-      <button type="button" class="sidebar-collapse-btn" onclick="toggleSidebar(true)" aria-label="Hide controls" title="Hide controls">&#8249;</button>
-    </div>
+  <aside class="sidebar">
 
     <div class="ctrl-section">
-      <div class="ctrl-section-title">Preview As</div>
+      <div class="ctrl-section-title" data-i18n="AL.ui.sec.previewas">Preview As</div>
       <div class="ctrl-group">
-        <label class="ctrl-label">Device</label>
+        <label class="ctrl-label" data-i18n="AL.ui.label.device">Device</label>
         <div class="seg">
-          <button type="button" id="btn-desktop" onclick="setDevice('desktop')">Desktop</button>
-          <button type="button" id="btn-mobile" onclick="setDevice('mobile')">Mobile</button>
-          <button type="button" id="btn-both" class="active" onclick="setDevice('both')">Both</button>
+          <button type="button" id="btn-desktop" onclick="setDevice('desktop')" data-i18n="AL.ui.btn.desktop">Desktop</button>
+          <button type="button" id="btn-mobile" onclick="setDevice('mobile')" data-i18n="AL.ui.btn.mobile">Mobile</button>
+          <button type="button" id="btn-both" class="active" onclick="setDevice('both')" data-i18n="AL.ui.btn.both">Both</button>
         </div>
       </div>
     </div>
 
     <div class="ctrl-section">
-      <div class="ctrl-section-title">Alert Type</div>
+      <div class="ctrl-section-title" data-i18n="AL.ui.sec.alerttype">Alert Type</div>
       <div class="ctrl-group">
-        <label class="ctrl-label" for="sel-alert-type">Category</label>
+        <label class="ctrl-label" for="sel-alert-type" data-i18n="AL.ui.label.category">Category</label>
         <select id="sel-alert-type" onchange="onAlertTypeChange()">
-          <option value="darkweb">Dark Web / Identity Alert</option>
-          <option value="credit">Credit Bureau Alert</option>
+          <option value="darkweb" data-i18n="AL.ui.opt.darkweb">Dark Web / Identity Alert</option>
+          <option value="credit" data-i18n="AL.ui.opt.credit">Credit Bureau Alert</option>
         </select>
       </div>
     </div>
@@ -435,7 +389,7 @@ select {
         </select>
       </div>
       <div class="ctrl-group" id="bureau-group">
-        <label class="ctrl-label">Credit bureau</label>
+        <label class="ctrl-label" data-i18n="AL.ui.label.bureau">Credit bureau</label>
         <div class="seg">
           <button type="button" id="btn-equifax" class="active" onclick="setBureau('Equifax')">Equifax</button>
           <button type="button" id="btn-transunion" onclick="setBureau('TransUnion')">TransUnion</button>
@@ -444,11 +398,11 @@ select {
     </div>
 
     <div class="status-box">
-      <div class="status-box-label">Currently viewing</div>
+      <div class="status-box-label" data-i18n="AL.ui.status.label">Currently viewing</div>
       <div class="status-line" id="status-line">&#8212;</div>
     </div>
 
-    <div class="sidebar-footer">
+    <div class="sidebar-footer" data-i18n="AL.ui.sidebar.footer">
       {{contact.FIRSTNAME}} resolves to the subscriber&#8217;s first name in deployed emails.
     </div>
 
@@ -457,17 +411,17 @@ select {
   <main class="preview-area">
     <div class="meta-bar" id="meta-bar">
       <div class="meta-row">
-        <span class="meta-label">Subject</span>
+        <span class="meta-label" data-i18n="AL.ui.meta.subject">Subject</span>
         <span class="meta-value" id="meta-subject">&#8212;</span>
       </div>
       <div class="meta-row">
-        <span class="meta-label">Pre-header</span>
+        <span class="meta-label" data-i18n="AL.ui.meta.preheader">Pre-header</span>
         <span class="meta-value" id="meta-preheader">&#8212;</span>
       </div>
     </div>
     <div class="preview-cols" id="preview-cols">
       <div class="preview-col desktop-col" id="col-desktop">
-        <div class="preview-label">Desktop &#8211; 600px email, 640px canvas</div>
+        <div class="preview-label" data-i18n="AL.ui.preview.desktop">Desktop &#8211; 600px email, 640px canvas</div>
         <div class="preview-shell">
           <div class="frame-wrap" id="frame-wrap-desktop">
             <iframe id="email-frame-desktop" title="Email preview (desktop)"></iframe>
@@ -476,7 +430,7 @@ select {
         <div class="size-stat" id="size-stat-desktop">&#8212;</div>
       </div>
       <div class="preview-col mobile-col" id="col-mobile">
-        <div class="preview-label">Mobile &#8211; 375px canvas (iPhone SE/8 width)<span class="screens-badge" id="screens-badge">&#8212;</span></div>
+        <div class="preview-label"><span data-i18n="AL.ui.preview.mobile">Mobile &#8211; 375px canvas (iPhone SE/8 width)</span><span class="screens-badge" id="screens-badge">&#8212;</span></div>
         <div class="preview-shell">
           <div class="frame-wrap" id="frame-wrap-mobile">
             <iframe id="email-frame-mobile" title="Email preview (mobile)"></iframe>
@@ -493,144 +447,823 @@ select {
 'use strict';
 
 /* ════════════════════════════════════════════════════════════
+   COPY TABLE -- generated from copy_master.json. Do not hand-edit;
+   edit the copy deck and re-run apply_copydeck.py.
+   ════════════════════════════════════════════════════════════ */
+const I18N = {
+ "AL.dw.bankaccount.body": {
+  "en": "Bank account numbers may be found on the dark web when they have been part of a previous data breach. They can be discovered within lists of breached data that hackers have stolen from information sources around the world. <br> <br>For stolen bank account numbers to be valuable, they must be open and available to withdraw funds. Thieves may test the account by attempting small unauthorized transactions. Stay aware of your account activity to help prevent larger fraudulent withdrawals. <br>",
+  "fr": "Les numéros de compte bancaire peuvent se retrouver sur le Web clandestin après avoir fait partie d&#8217;une fuite de données. Ils peuvent apparaître dans des listes de données compromises que des pirates informatiques ont volées auprès de diverses sources d&#8217;information à travers le monde.. <br> <br>Pour qu&#8217;un numéro de compte bancaire volé ait de la valeur, le compte doit être actif et permettre d&#8217;effectuer des retraits de fonds. Les fraudeurs peuvent tester le compte en tentant de petites transactions  non autorisées. Surveillez l&#8217;activité de vos comptes pour aider à prévenir des retraits frauduleux plus importants. <br>"
+ },
+ "AL.dw.bankaccount.heading": {
+  "en": "We found a match to your <strong style=\"font-weight:bolder !important\">Bank&nbsp;Account&nbsp;Number</strong><br>on the dark web <br>",
+  "fr": "Nous avons détecté votre <strong style=\"font-weight:bolder !important\">numéro&nbsp;de&nbsp;compte&nbsp;bancaire</strong><br>sur le Web clandestin <br>"
+ },
+ "AL.dw.bankaccount.label": {
+  "en": "Bank Account Number",
+  "fr": "Numéro de compte bancaire"
+ },
+ "AL.dw.bankaccount.preheader": {
+  "en": "We found a match to your Bank Account Number",
+  "fr": "Nous avons détecté votre numéro de compte bancaire"
+ },
+ "AL.dw.creditcard.body": {
+  "en": "Credit card and debit card numbers are often found on the dark web when they have been part of a previous data breach. They can be discovered within lists of breached data that hackers have stolen from information sources around the world. <br> <br>For stolen credit card and debit card numbers to be valuable, they must be open and available to charge purchases or withdraw funds. Thieves may test the account by attempting small unauthorized transactions. Stay aware of your account activity to help prevent larger fraudulent charges. <br>",
+  "fr": "Les numéros de carte de crédit et de débit se retrouvent souvent sur le Web clandestin après avoir fait partie d&#8217;une fuite de données. Ils peuvent apparaître dans des listes de données compromises que des pirates informatiques ont volées auprès de diverses sources d&#8217;information à travers le monde.<br> <br>Pour qu&#8217;un numéro de carte volé ait de la valeur, le compte doit être actif et permettre d&#8217;effectuer des achats ou des retraits de fonds. Les fraudeurs peuvent tester le compte en tentant de petites transactions  non autorisées. Surveillez l&#8217;activité de vos comptes pour aider à prévenir des fraudes plus importantes. <br>"
+ },
+ "AL.dw.creditcard.heading": {
+  "en": "We found a match to your <strong style=\"font-weight:bolder !important\">Credit&nbsp;or&nbsp;Debit&nbsp;Card&nbsp;Number</strong><br>on the dark web <br>",
+  "fr": "Nous avons détecté votre <strong style=\"font-weight:bolder !important\">numéro&nbsp;de&nbsp;carte&nbsp;de&nbsp;crédit&nbsp;ou&nbsp;de&nbsp;débit</strong><br>sur le Web clandestin <br>"
+ },
+ "AL.dw.creditcard.label": {
+  "en": "Credit or Debit Card Number",
+  "fr": "Numéro de carte de crédit ou de débit"
+ },
+ "AL.dw.creditcard.preheader": {
+  "en": "We found a match to your Payment Card Number",
+  "fr": "Nous avons détecté votre  numéro de carte de paiement"
+ },
+ "AL.dw.licence.body": {
+  "en": "Driver&#8217;s licence numbers found on the dark web require attention. As a government-issued identification, a driver&#8217;s licence can be used to fraudulently apply for credit or access services in your name. It is a versatile piece of information fraudsters can use and important to take action to help prevent future harm. <br>",
+  "fr": "La présence d&#8217;un numéro de permis de conduire sur le Web clandestin exige votre attention. En tant que pièce d&#8217;identité délivrée par le gouvernement, un permis de conduire peut être utilisé frauduleusement pour demander du crédit ou accéder à des services en votre nom. C&#8217;est un renseignement polyvalent pour les fraudeurs&nbsp;; il est important d&#8217;agir pour aider à prévenir d&#8217;éventuels problèmes. <br>"
+ },
+ "AL.dw.licence.heading": {
+  "en": "We found a match to your <strong style=\"font-weight:bolder !important\">Driver&#8217;s&nbsp;Licence&nbsp;Number</strong><br>on the dark web <br>",
+  "fr": "Nous avons détecté votre <strong style=\"font-weight:bolder !important\">numéro&nbsp;de&nbsp;permis&nbsp;de&nbsp;conduire</strong><br>sur le Web clandestin <br>"
+ },
+ "AL.dw.licence.label": {
+  "en": "Driver’s Licence Number",
+  "fr": "Numéro de permis de conduire"
+ },
+ "AL.dw.licence.preheader": {
+  "en": "We found a match to your Driver&#8217;s Licence Number",
+  "fr": "Nous avons détecté votre numéro de permis de conduire"
+ },
+ "AL.dw.email.body": {
+  "en": "Email addresses are the most common personal ID found on the dark web and the most frequent data to trigger an identity monitoring alert. &nbsp;Emails are often discovered within lists of breached data that hackers have stolen from information sources around the world. <br> <br>On its own, a stolen email address may be low risk. But you may also experience an increase in phishing and spam emails attempting to persuade you to share more personal information. <br>",
+  "fr": "Les adresses courriel sont les renseignements personnels les plusfréquemment retrouvés  sur le Web clandestin et la donnée qui déclenche le plus souvent une alerte de surveillance de l&#8217;identité. &nbsp;Elles se retrouvent souvent dans des listes de données compromises que des pirates informatiques ont volées auprès de diverses sources d&#8217;information à travers le monde.. <br> <br>À elle seule, une adresse courriel volée présente un risque faible. Vous pourriez toutefois constater une augmentation de courriels d&#8217;hameçonnage et de pourriels cherchant à vous convaincre de communiquer davantage de renseignements personnels. <br>"
+ },
+ "AL.dw.email.heading": {
+  "en": "We found a match to your <strong style=\"font-weight:bolder !important\">Email&nbsp;Address</strong><br>on the dark web <br>",
+  "fr": "Nous avons détecté votre <strong style=\"font-weight:bolder !important\">adresse&nbsp;courriel</strong><br>sur le Web clandestin <br>"
+ },
+ "AL.dw.email.label": {
+  "en": "Email Address",
+  "fr": "Adresse courriel"
+ },
+ "AL.dw.email.preheader": {
+  "en": "We found a match to your Email Address",
+  "fr": "Nous avons détecté votre adresse courriel"
+ },
+ "AL.dw.health.body": {
+  "en": "Health benefit plan numbers found on the dark web require attention. In the wrong hands, health benefit plan numbers can be used to fraudulently access benefits and file false claims in your name. Stay aware of your health benefits activity to help prevent future harm. <br>",
+  "fr": "La présence d&#8217;un numéro de régime d&#8217;assurance collective sur le Web clandestin exige votre attention. Entre de mauvaises mains, ce numéro peut servir à obtenir frauduleusement des prestations et à soumettre de fausses réclamations en votre nom. Surveillez l&#8217;activité liée à vos assurances pour aider à prévenir d&#8217;éventuels problèmes. <br>"
+ },
+ "AL.dw.health.heading": {
+  "en": "We found a match to your <strong style=\"font-weight:bolder !important\">Health&nbsp;Benefit&nbsp;Plan&nbsp;Number</strong><br>on the dark web <br>",
+  "fr": "Nous avons détecté votre <strong style=\"font-weight:bolder !important\">numéro&nbsp;de&nbsp;régime&nbsp;d&#8217;assurance&nbsp;collective</strong><br>sur le Web clandestin <br>"
+ },
+ "AL.dw.health.label": {
+  "en": "Health Benefit Plan Number",
+  "fr": "Numéro de régime d&#8217;assurance collective"
+ },
+ "AL.dw.health.preheader": {
+  "en": "We found a match to your Health Benefit Plan Number",
+  "fr": "Nous avons détecté votre numéro de régime d&#8217;assurance collective"
+ },
+ "AL.dw.loyalty.body": {
+  "en": "Loyalty card numbers may be found on the dark web when they have been part of a previous data breach. They can be discovered within lists of breached data that hackers have stolen from information sources around the world. <br> <br>A stolen loyalty card number should be treated like other payment cards, as fraudsters may attempt to drain accumulated points balances for cash or other rewards. Stay aware of your loyalty program activity to help prevent larger acts of fraud. <br>",
+  "fr": "Les numéros de carte de fidélité peuvent se retrouver sur le Web clandestin après avoir fait partie d&#8217;une fuite de données. Ils peuvent apparaître dans des listes de données compromises que des pirates informatiques ont volées auprès de diverses sources d&#8217;information à travers le monde. <br> <br>Un numéro de carte de fidélité volé doit être traité comme une carte de paiement, car les fraudeurs peuvent tenter de vider les soldes de points accumulés pour les convertir en argent ou en récompenses. Surveillez l&#8217;activité de vos programmes de fidélité pour aider à prévenir des fraudes de plus grande ampleur.. <br>"
+ },
+ "AL.dw.loyalty.heading": {
+  "en": "We found a match to your <strong style=\"font-weight:bolder !important\">Loyalty&nbsp;Card&nbsp;Number</strong><br>on the dark web <br>",
+  "fr": "Nous avons détecté votre <strong style=\"font-weight:bolder !important\">numéro&nbsp;de&nbsp;carte&nbsp;de&nbsp;fidélité</strong><br>sur le Web clandestin <br>"
+ },
+ "AL.dw.loyalty.label": {
+  "en": "Loyalty Card Number",
+  "fr": "Numéro de carte de fidélité"
+ },
+ "AL.dw.loyalty.preheader": {
+  "en": "We found a match to your Loyalty Card Number",
+  "fr": "Nous avons détecté votre numéro de carte de fidélité"
+ },
+ "AL.dw.passport.body": {
+  "en": "Passport numbers found on the dark web require attention. As a government-issued identification, passports can be used to fraudulently apply for credit, open financial accounts, or access services in your name. It is one of the more versatile pieces of information fraudsters can use and important to take action to help prevent future harm. <br>",
+  "fr": "La présence d&#8217;un numéro de passeport sur le Web clandestin exige votre attention. Comme il s&#8217;agit d&#8217;une pièce d&#8217;identité délivrée par le gouvernement, un passeport peut être utilisé de manière frauduleuse pour demander ducrédit,  ouvrir des comptes financiers ou  obtenir des services en votre nom. C&#8217;est l&#8217;un des renseignements les plus polyvalents pour les fraudeurs&nbsp;; il est important d&#8217;agir pour aider à prévenir d&#8217;éventuels problèmes. <br>"
+ },
+ "AL.dw.passport.heading": {
+  "en": "We found a match to your <strong style=\"font-weight:bolder !important\">Passport&nbsp;Number</strong><br>on the dark web <br>",
+  "fr": "Nous avons détecté votre <strong style=\"font-weight:bolder !important\">numéro&nbsp;de&nbsp;passeport</strong><br>sur le Web clandestin <br>"
+ },
+ "AL.dw.passport.label": {
+  "en": "Passport Number",
+  "fr": "Numéro de passeport"
+ },
+ "AL.dw.passport.preheader": {
+  "en": "We found a match to your Passport Number",
+  "fr": "Nous avons détecté votre numéro de passeport"
+ },
+ "AL.dw.pr.body": {
+  "en": "Permanent resident card numbers found on the dark web require attention. As a government-issued identification, permanent resident numbers can be used to fraudulently access services or file documentation in your name. It may also be valuable to fraudsters attempting immigration-related fraud. It is a versatile piece of identification making it important to take action to help prevent future harm. <br>",
+  "fr": "La présence d&#8217;un numéro de carte de résident permanent sur le Web clandestin exige votre attention. Comme il s&#8217;agit d&#8217;une pièce d&#8217;identité délivrée par le gouvernement, un numéro de résident permanent peut être utilisé de manière frauduleuse pour accéder à des services ou présenter des documents en votre nom.. Il peut aussi intéresser des fraudeurs qui tentent de commettre une fraude liée à l&#8217;immigration. Comme il s&#8217;agit d&#8217;une pièce d&#8217;identité polyvalente, il est important d&#8217;agir pour aider à prévenir d&#8217;éventuels problèmes. <br>"
+ },
+ "AL.dw.pr.heading": {
+  "en": "We found a match to your <strong style=\"font-weight:bolder !important\">Permanent&nbsp;Resident&nbsp;Card&nbsp;Number</strong><br>on the dark web <br>",
+  "fr": "Nous avons détecté votre <strong style=\"font-weight:bolder !important\">numéro&nbsp;de&nbsp;carte&nbsp;de&nbsp;résident&nbsp;permanent</strong><br>sur le Web clandestin <br>"
+ },
+ "AL.dw.pr.label": {
+  "en": "Permanent Resident Card Number",
+  "fr": "Numéro de carte de résident permanent"
+ },
+ "AL.dw.pr.preheader": {
+  "en": "We found a match to your Permanent Resident Card Number",
+  "fr": "Nous avons détecté votre numéro de carte de résident permanent"
+ },
+ "AL.dw.phone.body": {
+  "en": "Phone numbers are often considered public information, commonly available through online directories and social profiles. They are also shared widely when making online purchases and scheduling deliveries. This widespread use means they are often discovered within lists of breached data that hackers have stolen from information sources around the world. <br> <br>On its own, a stolen phone number may be low risk. But it can lead to targeted scams and increased experiences of &#8220;vishing&#8221; (fraudulent phone calls) and &#8220;smishing&#8221; (fraudulent text messages) attempting to persuade you to share more personal information. <br>",
+  "fr": "Les numéros de téléphone sont souvent considérés comme des renseignements publics, couramment accessibles dans les annuaires en ligne et les profils de réseaux sociaux. Ils sont aussi largement communiqués lors d&#8217;achats en ligne et de la planification de livraisons. Cet usage répandu fait qu&#8217;ils se retrouvent souvent dans des listes de données données compromises que des pirates informatiques ont volées auprès de diverses sources d&#8217;information à travers le monde. <br> <br>À lui seul, un numéro de téléphone volé présente un risque faible. Il peut toutefois mener à des arnaques ciblées et à une hausse des cas d&#8217;&#171;&nbsp;hameçonnage vocal&nbsp;&#187; (appels frauduleux) et d&#8217;&#171;&nbsp;hameçonnage par texto&nbsp;&#187; (messages textes frauduleux) visant à vous convaincre de communiquer d&#8217;autres renseignements personnels. <br>"
+ },
+ "AL.dw.phone.heading": {
+  "en": "We found a match to your <strong style=\"font-weight:bolder !important\">Phone&nbsp;Number</strong><br>on the dark web <br>",
+  "fr": "Nous avons détecté votre <strong style=\"font-weight:bolder !important\">numéro&nbsp;de&nbsp;téléphone</strong><br>sur le Web clandestin <br>"
+ },
+ "AL.dw.phone.label": {
+  "en": "Phone Number",
+  "fr": "Numéro de téléphone"
+ },
+ "AL.dw.phone.preheader": {
+  "en": "We found a match to your Phone Number",
+  "fr": "Nous avons détecté votre numéro de téléphone"
+ },
+ "AL.dw.sin.body": {
+  "en": "Social Insurance Numbers found on the dark web require immediate attention. As a government-issued identification, Social Insurance Numbers can be used to fraudulently apply for credit, access government benefits, or file tax returns in your name. It is one of the highest-value pieces of information fraudsters can use and important to take action to help prevent future harm. <br>",
+  "fr": "La présence d&#8217;un numéro d&#8217;assurance sociale sur le Web clandestin exige une attention immédiate. En tant que numéro d&#8217;identification délivré par le gouvernement, un numéro d&#8217;assurance sociale (NAS) peut être utilisé de manière frauduleuse pour demander du crédit, obtenir des prestations gouvernementales ou produire des déclarations de revenus en votre nom. C&#8217;est l&#8217;un des renseignements les plus précieux pour les fraudeurs&nbsp;; il est important d&#8217;agir pour aider à prévenir d&#8217;éventuels problèmes. <br>"
+ },
+ "AL.dw.sin.heading": {
+  "en": "We found a match to your <strong style=\"font-weight:bolder !important\">Social&nbsp;Insurance&nbsp;Number</strong><br>on the dark web <br>",
+  "fr": "Nous avons détecté votre <strong style=\"font-weight:bolder !important\">numéro&nbsp;d&#8217;assurance&nbsp;sociale</strong><br>sur le Web clandestin <br>"
+ },
+ "AL.dw.sin.label": {
+  "en": "Social Insurance Number (SIN)",
+  "fr": "Numéro d&#8217;assurance sociale (NAS)"
+ },
+ "AL.dw.sin.preheader": {
+  "en": "We found a match to your Social Insurance Number",
+  "fr": "Nous avons détecté votre numéro d&#8217;assurance sociale"
+ },
+ "AL.cr.update.body": {
+  "en": "Account changes reported on your credit bureau file often reflect routine updates to an outstanding credit balance, credit limit, payment status, or overall account standing. <br> <br>Review the complete details of this alert to be sure you recognize this as a legitimate change. If you have concerns, refer to the recommended next steps to help determine any further action that may be required. <br>",
+  "fr": "Les modifications apportées à votre dossier de crédit reflètent souvent des mises à jour courantes d&#8217;un solde de crédit, d&#8217;une limite de crédit, d&#8217;un état de paiement ou de la situation générale d&#8217;un compte. <br> <br>Consultez les détails complets de cette alerte pour vous assurer qu&#8217;il s&#8217;agit bien d&#8217;une modification légitime. Si vous avez des doutes, reportez-vous aux prochaines étapes recommandées pour déterminer les mesures qui pourraient s&#8217;imposer. <br>"
+ },
+ "AL.cr.update.heading": {
+  "en": "We detected an <strong style=\"font-weight:bolder !important\">Account&nbsp;Change</strong><br>on your ${v.bureau} credit bureau file <br>",
+  "fr": "Nous avons détecté un <strong style=\"font-weight:bolder !important\">changement concernant un compte</strong><br>à votre dossier de crédit ${v.bureau} <br>"
+ },
+ "AL.cr.update.label": {
+  "en": "Account Update",
+  "fr": "Mise à jour de compte"
+ },
+ "AL.cr.update.preheader": {
+  "en": "An Account Change has appeared on your credit bureau file.",
+  "fr": "Votre dossier de crédit indique une modification liée à l&#8217;un de vos comptes."
+ },
+ "AL.cr.address.body": {
+  "en": "A new address appearing on your credit bureau file can often be a routine update from a lender or credit provider. <br> <br>Review the complete details of this alert to be sure the new address is familiar and you recognize this as a legitimate change. If you have concerns, refer to the recommended next steps to help determine any further action that may be required. <br>",
+  "fr": "Une nouvelle adresse figurant à votre dossier de crédit découle souvent d&#8217;une mise à jour courante effectuée par un prêteur ou un fournisseur de crédit. <br> <br>Consultez les détails complets de cette alerte pour vous assurer que la nouvelle adresse vous est familière et qu&#8217;il s&#8217;agit bien d&#8217;un changement légitime. Si vous avez des doutes, reportez-vous aux prochaines étapes recommandées pour déterminer les mesures qui pourraient s&#8217;imposer. <br>"
+ },
+ "AL.cr.address.heading": {
+  "en": "We detected a new <strong style=\"font-weight:bolder !important\">Address</strong><br>on your ${v.bureau} credit bureau file <br>",
+  "fr": "Nous avons détecté une nouvelle <strong style=\"font-weight:bolder !important\">adresse</strong><br>à votre dossier de crédit ${v.bureau} <br>"
+ },
+ "AL.cr.address.label": {
+  "en": "Address Update",
+  "fr": "Mise à jour de l&#8217;adresse"
+ },
+ "AL.cr.address.preheader": {
+  "en": "A new Address has appeared on your credit bureau file.",
+  "fr": "Une nouvelle adresse figure désormais dans votre dossier de crédit."
+ },
+ "AL.cr.bankruptcy.body": {
+  "en": "A bankruptcy record appears on your credit bureau file after filing for bankruptcy. If you recently filed, this may simply reflect that process. If this record is unexpected, it&#8217;s important to act right away. <br> <br>Review the complete details of this alert for more information on what has been reported. If you have concerns, refer to the recommended next steps to help determine any further action that may be required. <br>",
+  "fr": "Une inscription de faillite apparaît à votre dossier de crédit après le dépôt d&#8217;une faillite. Si vous avez récemment entrepris cette démarche, l&#8217;inscription ne fait que la refléter. Si cette information  ne vous semble pas familière, il est important d&#8217;agir immédiatement. <br> <br>Consultez les détails complets de cette alerte pour en savoir plus sur ce qui a été signalé. Si vous avez des doutes, reportez-vous aux prochaines étapes recommandées pour déterminer les mesures qui pourraient s&#8217;imposer. <br>"
+ },
+ "AL.cr.bankruptcy.heading": {
+  "en": "We detected a new <strong style=\"font-weight:bolder !important\">Bankruptcy&nbsp;Record</strong><br>on your ${v.bureau} credit bureau file <br>",
+  "fr": "Nous avons détecté une nouvelle <strong style=\"font-weight:bolder !important\">inscription&nbsp;de&nbsp;faillite</strong><br>à votre dossier de crédit ${v.bureau} <br>"
+ },
+ "AL.cr.bankruptcy.label": {
+  "en": "Bankruptcy",
+  "fr": "Faillite"
+ },
+ "AL.cr.bankruptcy.preheader": {
+  "en": "A new Bankruptcy Record has appeared on your credit bureau file.",
+  "fr": "Une nouvelle inscription de faillite figure  à votre dossier de crédit."
+ },
+ "AL.cr.collections.body": {
+  "en": "A collections entry appears on your credit bureau file when a debt in your name has been referred to a collection agency. It may reflect a payment that was missed or overlooked but can also be the result of a credit account opened without your knowledge. <br> <br>Review the complete details of this alert for more information on what has been reported. If you have concerns, refer to the recommended next steps to help determine any further action that may be required. <br>",
+  "fr": "Une inscription en recouvrement apparaît à votre dossier de crédit lorsqu&#8217;une dette en votre nom est confiée à une agence de recouvrement. Elle peut refléter un paiement manqué ou oublié, mais aussi résulter d&#8217;un compte de crédit ouvert à votre insu. <br> <br>Consultez les détails complets de cette alerte pour en savoir plus sur ce qui a été signalé. Si vous avez des doutes, reportez-vous aux prochaines étapes recommandées pour déterminer les mesures qui pourraient s&#8217;imposer. <br>"
+ },
+ "AL.cr.collections.heading": {
+  "en": "We detected a new <strong style=\"font-weight:bolder !important\">Collections&nbsp;Entry</strong><br>on your ${v.bureau} credit bureau file <br>",
+  "fr": "Nous avons détecté une nouvelle <strong style=\"font-weight:bolder !important\">inscription&nbsp;en&nbsp;recouvrement</strong><br>à votre dossier de crédit ${v.bureau} <br>"
+ },
+ "AL.cr.collections.label": {
+  "en": "Collections",
+  "fr": "Recouvrement"
+ },
+ "AL.cr.collections.preheader": {
+  "en": "A new Collections Entry has appeared on your credit bureau file.",
+  "fr": "Une nouvelle inscription en recouvrement figure à votre dossier de crédit."
+ },
+ "AL.cr.newaccount.body": {
+  "en": "A new credit account appears on your credit bureau file after opening a credit account in your name. Things like mortgages, loans, lines of credit, and credit cards will all appear as accounts on your credit profile. <br> <br>If you recently opened a new credit account and are aware of this change, then there is nothing more you need to do. <br> <br>If you do not recognize this account, act now to review the complete alert details. Refer to the recommended next steps to help determine any further action that may be required. <br>",
+  "fr": "Un nouveau compte de crédit apparaît à votre dossier de crédit après l&#8217;ouverture d&#8217;un compte  à votre nom. Les prêts hypothécaires, les prêts, les marges de crédit et les cartes de crédit figurent tous comme des comptes à votre profil de crédit. <br> <br>Si vous avez récemment ouvert un compte de crédit et que ce changement vous est connu, vous n&#8217;avez rien d&#8217;autre à faire. <br> <br>Si vous ne reconnaissez pas ce compte, consultez sans tarder les détails complets de l&#8217;alerte. Reportez-vous aux prochaines étapes recommandées pour déterminer les mesures qui pourraient s&#8217;imposer. <br>"
+ },
+ "AL.cr.newaccount.heading": {
+  "en": "We detected a new <strong style=\"font-weight:bolder !important\">Credit&nbsp;Account</strong><br>on your ${v.bureau} credit bureau file <br>",
+  "fr": "Nous avons détecté un nouveau <strong style=\"font-weight:bolder !important\">compte&nbsp;de&nbsp;crédit</strong><br>dans votre dossier de crédit ${v.bureau} <br>"
+ },
+ "AL.cr.newaccount.label": {
+  "en": "New Account",
+  "fr": "Nouveau compte"
+ },
+ "AL.cr.newaccount.preheader": {
+  "en": "A new Credit Account has appeared on your credit bureau file.",
+  "fr": "Un nouveau compte de crédit a été ajouté  à votre dossier de crédit."
+ },
+ "AL.cr.inquiry.body": {
+  "en": "A new credit inquiry appears on your credit bureau file when a bank or other organization requests access to your credit profile. This most often occurs when applying for products like mortgages, loans, and credit cards or when opening a new telecommunications service account. <br> <br>If you are aware of this inquiry and authorized access to your credit file, then there is nothing more you need to do. <br> <br>If you do not recognize this inquiry, act now to review the complete alert details. Refer to the recommended next steps to help determine whether further action is required. <br>",
+  "fr": "Une nouvelle demande de consultation de votre dossier de solvabilité apparaît à votre dossier de crédit lorsqu&#8217;une banque ou une autre organisation demande à consulter votre profil de crédit. Cela se produit le plus souvent au moment d&#8217;une demande de prêt hypothécaire, de prêt ou de carte de crédit, ou encore à l&#8217;ouverture d&#8217;un nouveau compte de services de télécommunication. <br> <br>Si vous connaissez cette demande et avez autorisé l&#8217;accès à votre dossier de crédit, vous n&#8217;avez rien d&#8217;autre à faire. <br> <br>Si vous ne reconnaissez pas cette demande, consultez sans tarder les détails complets de l&#8217;alerte. Reportez-vous aux prochaines étapes recommandées pour déterminer si d&#8217;autres mesures s&#8217;imposent. <br>"
+ },
+ "AL.cr.inquiry.heading": {
+  "en": "We detected a new <strong style=\"font-weight:bolder !important\">Credit&nbsp;Inquiry</strong><br>on your ${v.bureau} credit bureau file <br>",
+  "fr": "Nous avons détecté une nouvelle <strong style=\"font-weight:bolder !important\">demande de consultation</strong><br>à votre dossier de crédit ${v.bureau} <br>"
+ },
+ "AL.cr.inquiry.label": {
+  "en": "New Inquiry",
+  "fr": "Nouvelle demande de consultation de votre dossier de solvabilité"
+ },
+ "AL.cr.inquiry.preheader": {
+  "en": "A new Credit Inquiry has appeared on your credit bureau file.",
+  "fr": "Nouvelle consultation de votre dossier de solvabilité a été ajoutée à votre dossier de crédit."
+ },
+ "AL.cr.other.body": {
+  "en": "Reported credit file changes like this can span a range of activity from account updates to personal information changes. <br> <br>Review the complete details of this alert to be sure you recognize this as a legitimate change. If you have concerns, refer to the recommended next steps to help determine any further action that may be required. <br>",
+  "fr": "Les changements signalés à un dossier de crédit comme celui-ci peuvent couvrir un éventail d&#8217;activités, des mises à jour de comptes aux modifications de renseignements personnels. <br> <br>Consultez les détails complets de cette alerte pour vous assurer qu&#8217;il s&#8217;agit bien d&#8217;un changement légitime. Si vous avez des doutes, reportez-vous aux prochaines étapes recommandées pour déterminer les mesures qui pourraient s&#8217;imposer. <br>"
+ },
+ "AL.cr.other.heading": {
+  "en": "We detected a <strong style=\"font-weight:bolder !important\">Credit&nbsp;File&nbsp;Change</strong><br>on your ${v.bureau} credit bureau file <br>",
+  "fr": "Nous avons détecté une <strong style=\"font-weight:bolder !important\">modification</strong><br>à votre dossier de crédit ${v.bureau} <br>"
+ },
+ "AL.cr.other.label": {
+  "en": "Other Change",
+  "fr": "Autre changement"
+ },
+ "AL.cr.other.preheader": {
+  "en": "A change has appeared on your credit bureau file.",
+  "fr": "Une modification a été apportéeà votre dossier de crédit."
+ },
+ "AL.label.credit": {
+  "en": "CREDIT BUREAU MONITORING ALERT",
+  "fr": "ALERTE DE SURVEILLANCE DU DOSSIER DE CRÉDIT"
+ },
+ "AL.label.identity": {
+  "en": "IDENTITY MONITORING ALERT",
+  "fr": "ALERTE DE SURVEILLANCE DE L&#8217;IDENTITÉ"
+ },
+ "AL.asset.logo": {
+  "en": "https://fmltes.stripocdn.email/content/guids/CABINET_b8d07fcdec4b8426abb0ebaa860b4cae55ac3e568970d411168cc4ebacf2fe49/images/securizonelogogenericen_2000px_orx_gtR.png",
+  "fr": "https://fmltes.stripocdn.email/content/guids/CABINET_b32d4a3160f5210bf61eed44739211b639b545530eeff57e210ca3aa009b9669/images/securizonelogogenericfr.jpg"
+ },
+ "AL.important.heading": {
+  "en": "Important things to know.",
+  "fr": "Ce qu&#8217;il faut savoir."
+ },
+ "AL.next.heading": {
+  "en": "What to do next.",
+  "fr": "Quoi faire maintenant."
+ },
+ "AL.cta.button": {
+  "en": "Review Your Alert",
+  "fr": "Consulter votre alerte"
+ },
+ "AL.cta.note": {
+  "en": "Click the button or access your Securizone ID Assist account through the sign&#8209;in link on National Bank's website.",
+  "fr": "Cliquez sur le bouton ou accédez à votre compte Sécurizone Assist Identité à partir du lien d&#8217;ouverture de session sur le site de la Banque Nationale."
+ },
+ "AL.subject": {
+  "en": "Securizone Alert Notice",
+  "fr": "Avis d&#8217;alerte Sécurizone"
+ },
+ "AL.intro.credit": {
+  "en": "Your Securizone service, in partnership with ID Assist, has detected a change on your credit bureau file.",
+  "fr": "Votre service Sécurizone, en partenariat avec  Assist identité, a détecté un changement à votre dossier de crédit."
+ },
+ "AL.intro.identity": {
+  "en": "Your Securizone service, in partnership with ID Assist, has detected a match to one of the personal IDs you registered for identity monitoring.",
+  "fr": "Votre service Sécurizone, en partenariat avec  Assist Identité, a détecté l&#8217;un des renseignements personnels que vous avez inscrits à la surveillance de l&#8217;identité."
+ },
+ "AL.step1.b": {
+  "en": "Log in to your Securizone ID Assist account to read everything we know about this alert.",
+  "fr": "Ouvrez une session dans votre compte Sécurizone  Assist Identité pour consulter tous les renseignements que nous avons au sujet de cette alerte.."
+ },
+ "AL.step1.h": {
+  "en": "Review alert details.",
+  "fr": "Consultez les détails de l&#8217;alerte."
+ },
+ "AL.step2.b": {
+  "en": "Follow the recommended next steps and take note of other things to look out for.",
+  "fr": "Suivez les prochaines étapes recommandées et notez les autres éléments à surveiller."
+ },
+ "AL.step2.h": {
+  "en": "Take action.",
+  "fr": "Passez à l&#8217;action."
+ },
+ "AL.step3.b": {
+  "en": "Receive an unexpected message? See something suspicious? Before you act, pause and evaluate. When in doubt, ignore and delete.",
+  "fr": "Vous recevez un message inattendu&nbsp;? Vous remarquez quelque chose de suspect&nbsp;? Avant d&#8217;agir, prenez un instant pour évaluer la situation. Dans le doute, ignorez et supprimez."
+ },
+ "AL.step3.h": {
+  "en": "Stay alert.",
+  "fr": "Restez vigilant."
+ },
+ "AL.thanks": {
+  "en": "Thank you for choosing Securizone.",
+  "fr": "Merci d&#8217;avoir choisi Sécurizone."
+ },
+ "AL.url.login": {
+  "en": "https://nban.idassist.com/en/login",
+  "fr": "https://bnra.assistidentite.com/fr/login"
+ },
+ "SH.app.body": {
+  "en": "Get the ID Assist mobile app on the App Store or Google Play for easy, on-the-go access to all your Securizone services anytime, anywhere.",
+  "fr": "Téléchargez l&#8217;application mobile Assist Identité sur l&#8217;App Store ou Google Play pour accéder facilement à tous vos services Sécurizone, en tout temps et où que vous soyez."
+ },
+ "SH.app.heading": {
+  "en": "Access Securizone on the go!",
+  "fr": "Sécurizone vous suit partout&nbsp;!"
+ },
+ "SH.asset.appstore": {
+  "en": "https://fmltes.stripocdn.email/content/guids/CABINET_15a25a8d176f8afe172c1cbc4e6ef71b943c02b9d83c9d125d80289d42ff9b2a/images/appstoreen_knf.png",
+  "fr": "https://www.assistidentite.com/assets/images/appstore-fr.svg"
+ },
+ "SH.asset.appstore.alt": {
+  "en": "Download on the App Store",
+  "fr": "Téléchargez dans l&#8217;App Store"
+ },
+ "SH.asset.logo": {
+  "en": "https://fmltes.stripocdn.email/content/guids/CABINET_683cc971e61085c3a6333230921397cda21dea5c0c72ffab28c2e26cc6ea2a76/images/securizonelogogenericen_2000px_orx.png",
+  "fr": "https://fmltes.stripocdn.email/content/guids/CABINET_b32d4a3160f5210bf61eed44739211b639b545530eeff57e210ca3aa009b9669/images/securizonelogogenericfr.jpg"
+ },
+ "SH.asset.logo.alt": {
+  "en": "Securizone",
+  "fr": "Sécurizone"
+ },
+ "SH.asset.playstore": {
+  "en": "https://fmltes.stripocdn.email/content/guids/CABINET_15a25a8d176f8afe172c1cbc4e6ef71b943c02b9d83c9d125d80289d42ff9b2a/images/playstoreen_vrP.png",
+  "fr": "https://fmltes.stripocdn.email/content/guids/CABINET_3e773934c6a07ee2243f8d84080a0183d4caa4c03ed8999a0dd58153a22baa24/images/googleplaybadgefr_ufW.png"
+ },
+ "SH.asset.playstore.alt": {
+  "en": "Get it on Google Play",
+  "fr": "Disponible sur Google Play"
+ },
+ "SH.greeting": {
+  "en": "Hi {{contact.FIRSTNAME}},",
+  "fr": "Bonjour {{contact.FIRSTNAME}},"
+ },
+ "SH.legal.auto": {
+  "en": "This is an automated notification email; please do not reply to it. If you require assistance, please call us at 1&#8209;888&#8209;535&#8209;0510.",
+  "fr": "Ceci est un courriel de réponse automatique&nbsp;; veuillez ne pas y répondre. Si vous avez besoin d&#8217;aide, composez le 1&#8209;888&#8209;535&#8209;0510."
+ },
+ "SH.legal.copyright": {
+  "en": "&#169; 2026 Sigma Loyalty Group Inc., all rights reserved. ID&nbsp;Assist, Sigma Loyalty Group Inc. and all associated marks and logos are registered trademarks owned or used under license. ID&nbsp;Assist is provided by Sigma Loyalty Group Inc. iPhone and App Store are trademarks of Apple Inc., registered in the U.S. and other countries. Android, Google Play and Play Store are trademarks of Google Inc., registered in the U.S. and other countries.",
+  "fr": "&#169; 2026 Sigma Loyalty Group inc., tous droits réservés.&nbsp;Assist Identité, Sigma Loyalty Group inc. ainsi que toutes les marques et tous les logos associés sont des marques déposées détenues ou utilisées sous licence.&nbsp;Assist Identité est offert par Sigma Loyalty Group inc. iPhone et App Store sont des marques de commerce d&#8217;Apple Inc., déposées aux États-Unis et dans d&#8217;autres pays. Android, Google Play et Play Store sont des marques de commerce de Google Inc., déposées aux États-Unis et dans d&#8217;autres pays."
+ },
+ "SH.legal.disclosure": {
+  "en": "Disclosure: You are receiving this communication because you have purchased a subscription to Securizone, a product of National Bank Assistance Network in partnership with ID Assist services from Sigma Loyalty Group Inc.",
+  "fr": "Avis&nbsp;: Vous recevez cette communication parce que vous avez souscrit un abonnement à Securizone, un produit du Réseau d&#8217;assistance Banque Nationale, offert en partenariat avec les services ID Assist de Sigma Loyalty Group inc."
+ },
+ "SH.legal.trademark": {
+  "en": "&#174;SECURIZONE and the NATIONAL BANK ASSISTANCE NETWORK logos are registered trademarks of National&nbsp;Bank&nbsp;of&nbsp;Canada, used under license by authorized third parties.",
+  "fr": "<sup style=\"display:inline-block;font-size:75% !important;line-height:1 !important;mso-text-raise:30%;vertical-align:top\">MD</sup>Les logos SÉCURIZONE et RÉSEAU D&#8217;ASSISTANCE BANQUE NATIONALE sont des marques déposées de la Banque&nbsp;Nationale&nbsp;du&nbsp;Canada, utilisées sous licence par des tiers autorisés."
+ },
+ "SH.legal.withsec": {
+  "en": "With Securizone<sup style=\"display:inline-block;font-size:75% !important;line-height:1 !important;mso-text-raise:30%;vertical-align:top\">&#174;</sup>, you have access to ID Assist<sup style=\"display:inline-block;font-size:75% !important;line-height:1 !important;mso-text-raise:30%;vertical-align:top\">&#174;</sup> from Sigma Loyalty, a partner of NBC Assistance Inc.",
+  "fr": "Avec Sécurizone<sup style=\"display:inline-block;font-size:75% !important;line-height:1 !important;mso-text-raise:30%;vertical-align:top\">MD</sup>, vous avez accès à Assist Identité<sup style=\"display:inline-block;font-size:75% !important;line-height:1 !important;mso-text-raise:30%;vertical-align:top\">MD</sup> de Sigma Loyalty, partenaire d&#8217;Assistance BNC inc."
+ },
+ "SH.link.privacy": {
+  "en": "Privacy Policy",
+  "fr": "Politique de confidentialité"
+ },
+ "SH.link.terms": {
+  "en": "Terms and Conditions",
+  "fr": "Conditions d&#8217;utilisation"
+ },
+ "SH.call": {
+  "en": "Give Us A Call",
+  "fr": "Nous téléphoner"
+ },
+ "SH.faq": {
+  "en": "View Our FAQs",
+  "fr": "Consulter la FAQ"
+ },
+ "SH.mail": {
+  "en": "Send An Email",
+  "fr": "Nous écrire"
+ },
+ "SH.need": {
+  "en": "Need Assistance?",
+  "fr": "Besoin d&#8217;aide&nbsp;?"
+ },
+ "SH.url.appstore": {
+  "en": "https://apps.apple.com/ca/app/id-assist-mobile/id540563542",
+  "fr": "https://apps.apple.com/ca/app/id-assist-mobile/id540563542"
+ },
+ "SH.url.help": {
+  "en": "https://nban.idassist.com/en/help",
+  "fr": "https://bnra.assistidentite.com/fr/help"
+ },
+ "SH.url.play": {
+  "en": "https://play.google.com/store/apps/details?id=com.finastra.myidentityassist&amp;hl=en",
+  "fr": "https://play.google.com/store/apps/details?id=com.finastra.myidentityassist&amp;hl=fr_CA"
+ },
+ "SH.url.privacy": {
+  "en": "https://nban.idassist.com/en/privacy-policy",
+  "fr": "https://bnra.assistidentite.com/fr/privacy-policy"
+ },
+ "SH.url.terms": {
+  "en": "https://nban.idassist.com/en/terms-conditions",
+  "fr": "https://bnra.assistidentite.com/fr/terms-conditions"
+ },
+ "AL.ui.badge.screens": {
+  "en": "≈ {n} screens",
+  "fr": "≈ {n} écrans"
+ },
+ "AL.ui.btn.both": {
+  "en": "Both",
+  "fr": "Les deux"
+ },
+ "AL.ui.btn.desktop": {
+  "en": "Desktop",
+  "fr": "Ordinateur"
+ },
+ "AL.ui.btn.mobile": {
+  "en": "Mobile",
+  "fr": "Mobile"
+ },
+ "AL.ui.btn.pdf": {
+  "en": "&#8595; Download PDF",
+  "fr": "&#8595; Télécharger le PDF"
+ },
+ "AL.ui.btn.pdf.busy": {
+  "en": "Generating&#8230;",
+  "fr": "En traitement&#8230;"
+ },
+ "AL.ui.detail.cr": {
+  "en": "Change Type",
+  "fr": "Type de changement"
+ },
+ "AL.ui.detail.dw": {
+  "en": "Item Detected",
+  "fr": "Élément détecté"
+ },
+ "AL.ui.doctitle": {
+  "en": "Securizone Alert Emails",
+  "fr": "Courriels d&#8217;alerte Sécurizone"
+ },
+ "AL.ui.header.sub": {
+  "en": "Select alert type and detail to preview in real time",
+  "fr": "Sélectionnez le type d&#8217;alerte et le détail pour afficher l&#8217;aperçu en temps réel"
+ },
+ "AL.ui.header.title": {
+  "en": "Securizone Alert Emails",
+  "fr": "Courriels d&#8217;alerte Sécurizone"
+ },
+ "AL.ui.label.bureau": {
+  "en": "Credit bureau",
+  "fr": "Bureau de crédit"
+ },
+ "AL.ui.label.category": {
+  "en": "Category",
+  "fr": "Catégorie"
+ },
+ "AL.ui.label.device": {
+  "en": "Device",
+  "fr": "Appareil"
+ },
+ "AL.ui.lang.label": {
+  "en": "Language",
+  "fr": "Langue"
+ },
+ "AL.ui.meta.preheader": {
+  "en": "Pre-header",
+  "fr": "Pré-en-tête"
+ },
+ "AL.ui.meta.subject": {
+  "en": "Subject",
+  "fr": "Objet"
+ },
+ "AL.ui.opt.credit": {
+  "en": "Credit Bureau Alert",
+  "fr": "Alerte du dossier de crédit"
+ },
+ "AL.ui.opt.darkweb": {
+  "en": "Dark Web / Identity Alert",
+  "fr": "Alerte Web clandestin / identité"
+ },
+ "AL.ui.pdf.error": {
+  "en": "Could not generate PDF. Check console for details.",
+  "fr": "Impossible de générer le PDF. Consultez la console pour plus de détails."
+ },
+ "AL.ui.pill.cr": {
+  "en": "Credit Alert",
+  "fr": "Alerte de crédit"
+ },
+ "AL.ui.pill.dw": {
+  "en": "Dark Web Alert",
+  "fr": "Alerte Web clandestin"
+ },
+ "AL.ui.preview.desktop": {
+  "en": "Desktop &#8211; 600px email, 640px canvas",
+  "fr": "Ordinateur &#8211; courriel de 600&nbsp;px, zone de 640&nbsp;px"
+ },
+ "AL.ui.preview.mobile": {
+  "en": "Mobile &#8211; 375px canvas (iPhone SE/8 width)",
+  "fr": "Mobile &#8211; zone de 375&nbsp;px (largeur iPhone SE/8)"
+ },
+ "AL.ui.screenline": {
+  "en": "Screen {n} starts ↓",
+  "fr": "Début de l&#8217;écran {n} ↓"
+ },
+ "AL.ui.sec.alerttype": {
+  "en": "Alert Type",
+  "fr": "Type d&#8217;alerte"
+ },
+ "AL.ui.sec.previewas": {
+  "en": "Preview As",
+  "fr": "Afficher en tant que"
+ },
+ "AL.ui.sidebar.footer": {
+  "en": "{{contact.FIRSTNAME}} resolves to the subscriber&#8217;s first name in deployed emails.",
+  "fr": "{{contact.FIRSTNAME}} est remplacé par le prénom de l&#8217;abonné dans les courriels envoyés"
+ },
+ "AL.ui.stat.desktop": {
+  "en": "<b>{px}px</b> tall at desktop width.",
+  "fr": "Hauteur de <b>{px}&nbsp;px</b> à la largeur ordinateur."
+ },
+ "AL.ui.stat.mobile": {
+  "en": "<b>{px}px</b> tall on a 375×667 mobile viewport &#8212; about <b>{n} screens</b> of scrolling before reaching the footer.",
+  "fr": "Hauteur de <b>{px}&nbsp;px</b> dans une fenêtre mobile de 375×667 &#8212; environ <b>{n} écrans</b> à faire défiler avant d&#8217;atteindre le pied de page."
+ },
+ "AL.ui.stat.note": {
+  "en": "Reference viewport only (iPhone SE/8); taller phones will show slightly fewer screens.",
+  "fr": "Fenêtre de référence seulement (iPhone SE/8)&nbsp;; les téléphones plus grands afficheront un peu moins d&#8217;écrans."
+ },
+ "AL.ui.status.label": {
+  "en": "Currently viewing",
+  "fr": "Présentement affiché"
+ },
+ "AL.ui.sublabel.cr": {
+  "en": "Change type",
+  "fr": "Type de changement"
+ },
+ "AL.ui.sublabel.dw": {
+  "en": "Information type",
+  "fr": "Type de renseignement"
+ }
+};
+
+/* ════════════════════════════════════════════════════════════
+   BILINGUAL RUNTIME
+   Every visible string lives in I18N above. Nothing here needs
+   editing when copy changes -- edit the copy deck and re-run
+   apply_copydeck.py instead.
+   ════════════════════════════════════════════════════════════ */
+'use strict';
+
+var LANG = 'en';
+
+/* Read ?lang=fr from the URL so a link can be shared in either language. */
+(function () {
+  var m = /[?&]lang=(fr|en)/i.exec(window.location.search);
+  if (m) { LANG = m[1].toLowerCase(); }
+})();
+
+/* t('KEY')            -> string in the current language
+   t('KEY', {n: 3})    -> same, with {n} substituted                        */
+function t(key, vars) {
+  var entry = I18N[key];
+  var s = entry ? (entry[LANG] || entry.en) : '[[' + key + ']]';
+  if (vars) {
+    for (var p in vars) {
+      if (Object.prototype.hasOwnProperty.call(vars, p)) {
+        s = s.split('{' + p + '}').join(vars[p]);
+      }
+    }
+  }
+  return s;
+}
+
+/* Fills every element carrying data-i18n, plus data-i18n-alt / -title /
+   -href / -aria for attribute-only strings. */
+function applyI18n() {
+  document.documentElement.setAttribute('lang', LANG);
+
+  document.querySelectorAll('[data-i18n]').forEach(function (el) {
+    el.innerHTML = t(el.getAttribute('data-i18n'));
+  });
+  [['data-i18n-alt', 'alt'],
+   ['data-i18n-title', 'title'],
+   ['data-i18n-href', 'href'],
+   ['data-i18n-aria', 'aria-label']].forEach(function (pair) {
+    document.querySelectorAll('[' + pair[0] + ']').forEach(function (el) {
+      el.setAttribute(pair[1], t(el.getAttribute(pair[0])));
+    });
+  });
+
+  document.querySelectorAll('.lang-btn').forEach(function (b) {
+    var on = b.getAttribute('data-lang') === LANG;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+}
+
+/* Switches language in place -- no reload, so any selections the reviewer
+   has made in the sidebar survive the switch. */
+function setLang(lang) {
+  if (lang !== 'en' && lang !== 'fr') { return; }
+  LANG = lang;
+
+  var url = new URL(window.location.href);
+  url.searchParams.set('lang', lang);
+  try { history.replaceState(null, '', url); } catch (e) { /* file:// */ }
+
+  applyI18n();
+  if (typeof onLangChange === 'function') { onLangChange(); }
+}
+
+/* alert() shows raw text, so entities have to be decoded first. */
+function strip(html){ var d = document.createElement('div'); d.innerHTML = html; return d.textContent; }
+
+/* Re-populates the dropdown (its option labels are translated too) and
+   rebuilds both preview frames. */
+function onLangChange(){
+  var sel = document.getElementById('sel-sub-type');
+  var keep = sel.value;
+  populateSubType(document.getElementById('sel-alert-type').value);
+  sel.value = keep;
+  onAlertTypeChange.length;
+  document.getElementById('detail-title').innerHTML =
+    document.getElementById('sel-alert-type').value === 'darkweb' ? t('AL.ui.detail.dw') : t('AL.ui.detail.cr');
+  document.getElementById('sub-label').innerHTML =
+    document.getElementById('sel-alert-type').value === 'darkweb' ? t('AL.ui.sublabel.dw') : t('AL.ui.sublabel.cr');
+  updatePreview();
+}
+
+/* ════════════════════════════════════════════════════════════
    COPY + ASSET DATA
    ════════════════════════════════════════════════════════════ */
 
 const DW_ORDER = ["email", "creditcard", "bankaccount", "phone", "sin", "licence", "passport", "pr", "loyalty", "health"];
 const CR_ORDER = ["inquiry", "newaccount", "update", "address", "collections", "bankruptcy", "other"];
 
-const DARK_WEB = {
-  email: {
-    label: "Email Address",
-    headerImgSrc: "https://fmltes.stripocdn.email/content/guids/CABINET_2c9f15536c96790034f1ed05ee765e8ffb107dfb9258f3989d468d00d5b62fe7/images/email_header.png",
-    headerImgH: 52,
-    headingHtml: "We found a match to your <strong style=\"font-weight:bolder !important\">Email&nbsp;Address</strong><br>on the dark web <br>",
-    preheader: "We found a match to your Email Address",
-    bodyHtml: "Email addresses are the most common personal ID found on the dark web and the most frequent data to trigger an identity monitoring alert. &nbsp;Emails are often discovered within lists of breached data that hackers have stolen from information sources around the world. <br> <br>On its own, a stolen email address may be low risk. But you may also experience an increase in phishing and spam emails attempting to persuade you to share more personal information. <br>"
-  },
-  creditcard: {
-    label: "Credit or Debit Card Number",
-    headerImgSrc: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/credit_card_header.png",
-    headerImgH: 50,
-    headingHtml: "We found a match to your <strong style=\"font-weight:bolder !important\">Credit&nbsp;or&nbsp;Debit&nbsp;Card&nbsp;Number</strong><br>on the dark web <br>",
-    preheader: "We found a match to your Payment Card Number",
-    bodyHtml: "Credit card and debit card numbers are often found on the dark web when they have been part of a previous data breach. They can be discovered within lists of breached data that hackers have stolen from information sources around the world. <br> <br>For stolen credit card and debit card numbers to be valuable, they must be open and available to charge purchases or withdraw funds. Thieves may test the account by attempting small unauthorized transactions. Stay aware of your account activity to help prevent larger fraudulent charges. <br>"
-  },
-  bankaccount: {
-    label: "Bank Account Number",
-    headerImgSrc: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/bank_account_header.png",
-    headerImgH: 50,
-    headingHtml: "We found a match to your <strong style=\"font-weight:bolder !important\">Bank&nbsp;Account&nbsp;Number</strong><br>on the dark web <br>",
-    preheader: "We found a match to your Bank Account Number",
-    bodyHtml: "Bank account numbers may be found on the dark web when they have been part of a previous data breach. They can be discovered within lists of breached data that hackers have stolen from information sources around the world. <br> <br>For stolen bank account numbers to be valuable, they must be open and available to withdraw funds. Thieves may test the account by attempting small unauthorized transactions. Stay aware of your account activity to help prevent larger fraudulent withdrawals. <br>"
-  },
-  phone: {
-    label: "Phone Number",
-    headerImgSrc: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/phone_header.png",
-    headerImgH: 51,
-    headingHtml: "We found a match to your <strong style=\"font-weight:bolder !important\">Phone&nbsp;Number</strong><br>on the dark web <br>",
-    preheader: "We found a match to your Phone Number",
-    bodyHtml: "Phone numbers are often considered public information, commonly available through online directories and social profiles. They are also shared widely when making online purchases and scheduling deliveries. This widespread use means they are often discovered within lists of breached data that hackers have stolen from information sources around the world. <br> <br>On its own, a stolen phone number may be low risk. But it can lead to targeted scams and increased experiences of &#8220;vishing&#8221; (fraudulent phone calls) and &#8220;smishing&#8221; (fraudulent text messages) attempting to persuade you to share more personal information. <br>"
-  },
-  sin: {
-    label: "Social Insurance Number (SIN)",
-    headerImgSrc: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/credit_card_header.png",
-    headerImgH: 50,
-    headingHtml: "We found a match to your <strong style=\"font-weight:bolder !important\">Social&nbsp;Insurance&nbsp;Number</strong><br>on the dark web <br>",
-    preheader: "We found a match to your Social Insurance Number",
-    bodyHtml: "Social Insurance Numbers found on the dark web require immediate attention. As a government-issued identification, Social Insurance Numbers can be used to fraudulently apply for credit, access government benefits, or file tax returns in your name. It is one of the highest-value pieces of information fraudsters can use and important to take action to help prevent future harm. <br>"
-  },
-  licence: {
-    label: "Driver’s Licence Number",
-    headerImgSrc: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/drivers_licence_header.png",
-    headerImgH: 50,
-    headingHtml: "We found a match to your <strong style=\"font-weight:bolder !important\">Driver&#8217;s&nbsp;Licence&nbsp;Number</strong><br>on the dark web <br>",
-    preheader: "We found a match to your Driver&#8217;s Licence Number",
-    bodyHtml: "Driver&#8217;s licence numbers found on the dark web require attention. As a government-issued identification, a driver&#8217;s licence can be used to fraudulently apply for credit or access services in your name. It is a versatile piece of information fraudsters can use and important to take action to help prevent future harm. <br>"
-  },
-  passport: {
-    label: "Passport Number",
-    headerImgSrc: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/passport_header.png",
-    headerImgH: 49,
-    headingHtml: "We found a match to your <strong style=\"font-weight:bolder !important\">Passport&nbsp;Number</strong><br>on the dark web <br>",
-    preheader: "We found a match to your Passport Number",
-    bodyHtml: "Passport numbers found on the dark web require attention. As a government-issued identification, passports can be used to fraudulently apply for credit, open financial accounts, or access services in your name. It is one of the more versatile pieces of information fraudsters can use and important to take action to help prevent future harm. <br>"
-  },
-  pr: {
-    label: "Permanent Resident Card Number",
-    headerImgSrc: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/drivers_licence_header.png",
-    headerImgH: 50,
-    headingHtml: "We found a match to your <strong style=\"font-weight:bolder !important\">Permanent&nbsp;Resident&nbsp;Card&nbsp;Number</strong><br>on the dark web <br>",
-    preheader: "We found a match to your Permanent Resident Card Number",
-    bodyHtml: "Permanent resident card numbers found on the dark web require attention. As a government-issued identification, permanent resident numbers can be used to fraudulently access services or file documentation in your name. It may also be valuable to fraudsters attempting immigration-related fraud. It is a versatile piece of identification making it important to take action to help prevent future harm. <br>"
-  },
-  loyalty: {
-    label: "Loyalty Card Number",
-    headerImgSrc: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/credit_card_header.png",
-    headerImgH: 50,
-    headingHtml: "We found a match to your <strong style=\"font-weight:bolder !important\">Loyalty&nbsp;Card&nbsp;Number</strong><br>on the dark web <br>",
-    preheader: "We found a match to your Loyalty Card Number",
-    bodyHtml: "Loyalty card numbers may be found on the dark web when they have been part of a previous data breach. They can be discovered within lists of breached data that hackers have stolen from information sources around the world. <br> <br>A stolen loyalty card number should be treated like other payment cards, as fraudsters may attempt to drain accumulated points balances for cash or other rewards. Stay aware of your loyalty program activity to help prevent larger acts of fraud. <br>"
-  },
-  health: {
-    label: "Health Benefit Plan Number",
-    headerImgSrc: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/drivers_licence_header.png",
-    headerImgH: 50,
-    headingHtml: "We found a match to your <strong style=\"font-weight:bolder !important\">Health&nbsp;Benefit&nbsp;Plan&nbsp;Number</strong><br>on the dark web <br>",
-    preheader: "We found a match to your Health Benefit Plan Number",
-    bodyHtml: "Health benefit plan numbers found on the dark web require attention. In the wrong hands, health benefit plan numbers can be used to fraudulently access benefits and file false claims in your name. Stay aware of your health benefits activity to help prevent future harm. <br>"
-  }
-};
+/* Rebuilt on each render so a language switch flows straight through
+   to the preview without a page reload. */
+function DARK_WEB() {
+  return {
+    email: {
+      label:        t('AL.dw.email.label'),
+      headerImgSrc: "https://fmltes.stripocdn.email/content/guids/CABINET_2c9f15536c96790034f1ed05ee765e8ffb107dfb9258f3989d468d00d5b62fe7/images/email_header.png",
+      headerImgH:   52,
+      headingHtml:  t('AL.dw.email.heading'),
+      preheader:    t('AL.dw.email.preheader'),
+      bodyHtml:     t('AL.dw.email.body')
+    },
+    creditcard: {
+      label:        t('AL.dw.creditcard.label'),
+      headerImgSrc: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/credit_card_header.png",
+      headerImgH:   50,
+      headingHtml:  t('AL.dw.creditcard.heading'),
+      preheader:    t('AL.dw.creditcard.preheader'),
+      bodyHtml:     t('AL.dw.creditcard.body')
+    },
+    bankaccount: {
+      label:        t('AL.dw.bankaccount.label'),
+      headerImgSrc: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/bank_account_header.png",
+      headerImgH:   50,
+      headingHtml:  t('AL.dw.bankaccount.heading'),
+      preheader:    t('AL.dw.bankaccount.preheader'),
+      bodyHtml:     t('AL.dw.bankaccount.body')
+    },
+    phone: {
+      label:        t('AL.dw.phone.label'),
+      headerImgSrc: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/phone_header.png",
+      headerImgH:   51,
+      headingHtml:  t('AL.dw.phone.heading'),
+      preheader:    t('AL.dw.phone.preheader'),
+      bodyHtml:     t('AL.dw.phone.body')
+    },
+    sin: {
+      label:        t('AL.dw.sin.label'),
+      headerImgSrc: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/credit_card_header.png",
+      headerImgH:   50,
+      headingHtml:  t('AL.dw.sin.heading'),
+      preheader:    t('AL.dw.sin.preheader'),
+      bodyHtml:     t('AL.dw.sin.body')
+    },
+    licence: {
+      label:        t('AL.dw.licence.label'),
+      headerImgSrc: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/drivers_licence_header.png",
+      headerImgH:   50,
+      headingHtml:  t('AL.dw.licence.heading'),
+      preheader:    t('AL.dw.licence.preheader'),
+      bodyHtml:     t('AL.dw.licence.body')
+    },
+    passport: {
+      label:        t('AL.dw.passport.label'),
+      headerImgSrc: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/passport_header.png",
+      headerImgH:   49,
+      headingHtml:  t('AL.dw.passport.heading'),
+      preheader:    t('AL.dw.passport.preheader'),
+      bodyHtml:     t('AL.dw.passport.body')
+    },
+    pr: {
+      label:        t('AL.dw.pr.label'),
+      headerImgSrc: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/drivers_licence_header.png",
+      headerImgH:   50,
+      headingHtml:  t('AL.dw.pr.heading'),
+      preheader:    t('AL.dw.pr.preheader'),
+      bodyHtml:     t('AL.dw.pr.body')
+    },
+    loyalty: {
+      label:        t('AL.dw.loyalty.label'),
+      headerImgSrc: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/credit_card_header.png",
+      headerImgH:   50,
+      headingHtml:  t('AL.dw.loyalty.heading'),
+      preheader:    t('AL.dw.loyalty.preheader'),
+      bodyHtml:     t('AL.dw.loyalty.body')
+    },
+    health: {
+      label:        t('AL.dw.health.label'),
+      headerImgSrc: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/drivers_licence_header.png",
+      headerImgH:   50,
+      headingHtml:  t('AL.dw.health.heading'),
+      preheader:    t('AL.dw.health.preheader'),
+      bodyHtml:     t('AL.dw.health.body')
+    }
+  };
+}
 
-const CREDIT = {
-  inquiry: {
-    label: "New Inquiry",
-    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Credit&nbsp;Inquiry</strong><br>on your ${v.bureau} credit bureau file <br>",
-    preheader: "A new Credit Inquiry has appeared on your credit bureau file.",
-    bodyHtml: "A new credit inquiry appears on your credit bureau file when a bank or other organization requests access to your credit profile. This most often occurs when applying for products like mortgages, loans, and credit cards or when opening a new telecommunications service account. <br> <br>If you are aware of this inquiry and authorized access to your credit file, then there is nothing more you need to do. <br> <br>If you do not recognize this inquiry, act now to review the complete alert details. Refer to the recommended next steps to help determine whether further action is required. <br>"
-  },
-  newaccount: {
-    label: "New Account",
-    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Credit&nbsp;Account</strong><br>on your ${v.bureau} credit bureau file <br>",
-    preheader: "A new Credit Account has appeared on your credit bureau file.",
-    bodyHtml: "A new credit account appears on your credit bureau file after opening a credit account in your name. Things like mortgages, loans, lines of credit, and credit cards will all appear as accounts on your credit profile. <br> <br>If you recently opened a new credit account and are aware of this change, then there is nothing more you need to do. <br> <br>If you do not recognize this account, act now to review the complete alert details. Refer to the recommended next steps to help determine any further action that may be required. <br>"
-  },
-  update: {
-    label: "Account Update",
-    headingTpl: "We detected an <strong style=\"font-weight:bolder !important\">Account&nbsp;Change</strong><br>on your ${v.bureau} credit bureau file <br>",
-    preheader: "An Account Change has appeared on your credit bureau file.",
-    bodyHtml: "Account changes reported on your credit bureau file often reflect routine updates to an outstanding credit balance, credit limit, payment status, or overall account standing. <br> <br>Review the complete details of this alert to be sure you recognize this as a legitimate change. If you have concerns, refer to the recommended next steps to help determine any further action that may be required. <br>"
-  },
-  address: {
-    label: "Address Update",
-    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Address</strong><br>on your ${v.bureau} credit bureau file <br>",
-    preheader: "A new Address has appeared on your credit bureau file.",
-    bodyHtml: "A new address appearing on your credit bureau file can often be a routine update from a lender or credit provider. <br> <br>Review the complete details of this alert to be sure the new address is familiar and you recognize this as a legitimate change. If you have concerns, refer to the recommended next steps to help determine any further action that may be required. <br>"
-  },
-  collections: {
-    label: "Collections",
-    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Collections&nbsp;Entry</strong><br>on your ${v.bureau} credit bureau file <br>",
-    preheader: "A new Collections Entry has appeared on your credit bureau file.",
-    bodyHtml: "A collections entry appears on your credit bureau file when a debt in your name has been referred to a collection agency. It may reflect a payment that was missed or overlooked but can also be the result of a credit account opened without your knowledge. <br> <br>Review the complete details of this alert for more information on what has been reported. If you have concerns, refer to the recommended next steps to help determine any further action that may be required. <br>"
-  },
-  bankruptcy: {
-    label: "Bankruptcy",
-    headingTpl: "We detected a new <strong style=\"font-weight:bolder !important\">Bankruptcy&nbsp;Record</strong><br>on your ${v.bureau} credit bureau file <br>",
-    preheader: "A new Bankruptcy Record has appeared on your credit bureau file.",
-    bodyHtml: "A bankruptcy record appears on your credit bureau file after filing for bankruptcy. If you recently filed, this may simply reflect that process. If this record is unexpected, it&#8217;s important to act right away. <br> <br>Review the complete details of this alert for more information on what has been reported. If you have concerns, refer to the recommended next steps to help determine any further action that may be required. <br>"
-  },
-  other: {
-    label: "Other Change",
-    headingTpl: "We detected a <strong style=\"font-weight:bolder !important\">Credit&nbsp;File&nbsp;Change</strong><br>on your ${v.bureau} credit bureau file <br>",
-    preheader: "A change has appeared on your credit bureau file.",
-    bodyHtml: "Reported credit file changes like this can span a range of activity from account updates to personal information changes. <br> <br>Review the complete details of this alert to be sure you recognize this as a legitimate change. If you have concerns, refer to the recommended next steps to help determine any further action that may be required. <br>"
-  }
-};
+function CREDIT() {
+  return {
+    inquiry: {
+      label:      t('AL.cr.inquiry.label'),
+      headingTpl: t('AL.cr.inquiry.heading'),
+      preheader:  t('AL.cr.inquiry.preheader'),
+      bodyHtml:   t('AL.cr.inquiry.body')
+    },
+    newaccount: {
+      label:      t('AL.cr.newaccount.label'),
+      headingTpl: t('AL.cr.newaccount.heading'),
+      preheader:  t('AL.cr.newaccount.preheader'),
+      bodyHtml:   t('AL.cr.newaccount.body')
+    },
+    update: {
+      label:      t('AL.cr.update.label'),
+      headingTpl: t('AL.cr.update.heading'),
+      preheader:  t('AL.cr.update.preheader'),
+      bodyHtml:   t('AL.cr.update.body')
+    },
+    address: {
+      label:      t('AL.cr.address.label'),
+      headingTpl: t('AL.cr.address.heading'),
+      preheader:  t('AL.cr.address.preheader'),
+      bodyHtml:   t('AL.cr.address.body')
+    },
+    collections: {
+      label:      t('AL.cr.collections.label'),
+      headingTpl: t('AL.cr.collections.heading'),
+      preheader:  t('AL.cr.collections.preheader'),
+      bodyHtml:   t('AL.cr.collections.body')
+    },
+    bankruptcy: {
+      label:      t('AL.cr.bankruptcy.label'),
+      headingTpl: t('AL.cr.bankruptcy.heading'),
+      preheader:  t('AL.cr.bankruptcy.preheader'),
+      bodyHtml:   t('AL.cr.bankruptcy.body')
+    },
+    other: {
+      label:      t('AL.cr.other.label'),
+      headingTpl: t('AL.cr.other.heading'),
+      preheader:  t('AL.cr.other.preheader'),
+      bodyHtml:   t('AL.cr.other.body')
+    }
+  };
+}
 
 const CREDIT_IMG = { src: "https://raw.githubusercontent.com/sigmaloyalty/logos/refs/heads/main/alert_headers/credit_monitoring_header.png", h: 50 };
 
-const INTRO_IDENTITY = "Your Securizone service, in partnership with ID Assist, has detected a match to one of the personal IDs you registered for identity monitoring.";
-const INTRO_CREDIT   = "Your Securizone service, in partnership with ID Assist, has detected a change on your credit bureau file.";
+/* Intro lines now come from the copy table -- see t('AL.intro.identity'). */
 
 let currentBureau = 'Equifax';
 let currentDevice = 'both';
@@ -646,14 +1279,14 @@ let currentDevice = 'both';
 
 function buildEmail(v) {
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html dir="ltr" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<html dir="ltr" xmlns:o="urn:schemas-microsoft-com:office:office" lang="${LANG}" xmlns="http://www.w3.org/1999/xhtml">
  <head>
   <meta charset="UTF-8">
   <meta content="width=device-width, initial-scale=1" name="viewport">
   <meta name="x-apple-disable-message-reformatting">
   <meta content="IE=edge" http-equiv="X-UA-Compatible">
   <meta content="telephone=no" name="format-detection">
-  <title>Securizone Alert Notice</title><!--[if (mso 16)]>
+  <title>${t('AL.subject')}</title><!--[if (mso 16)]>
       <style type="text/css">
          a {text-decoration: none;}
       </style>
@@ -760,7 +1393,7 @@ td .be:hover a.ba-7572 {
                    <table border="0" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                     <tbody>
                      <tr>
-                      <td align="center" style="padding:0;Margin:0;font-size:0px"><a target="_blank" href="https://www.idassist.com" style="mso-line-height-rule:exactly;text-decoration:none;color:#207292;font-size:16px;font-weight:inherit"><img src="https://fmltes.stripocdn.email/content/guids/CABINET_b8d07fcdec4b8426abb0ebaa860b4cae55ac3e568970d411168cc4ebacf2fe49/images/securizonelogogenericen_2000px_orx_gtR.png" alt="" width="535" class="adapt-img" style="display:block;font-size:16px;border:0;outline:none;text-decoration:none;margin:0" height="77"></a></td>
+                      <td align="center" style="padding:0;Margin:0;font-size:0px"><a target="_blank" href="https://www.idassist.com" style="mso-line-height-rule:exactly;text-decoration:none;color:#207292;font-size:16px;font-weight:inherit"><img src="${t('AL.asset.logo')}" alt="" width="535" class="adapt-img" style="display:block;font-size:16px;border:0;outline:none;text-decoration:none;margin:0" height="77"></a></td>
                      </tr>
                     </tbody>
                    </table></td>
@@ -788,7 +1421,7 @@ td .be:hover a.ba-7572 {
                    <table border="0" width="100%" cellspacing="0" cellpadding="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                     <tbody>
                      <tr>
-                      <td align="left" class="a" style="padding:40px 0 5px;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px">Hi {{contact.FIRSTNAME}},</p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"><br></p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px">${v.introHtml}</p></td>
+                      <td align="left" class="a" style="padding:40px 0 5px;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px">${t('SH.greeting')}</p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"><br></p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px">${v.introHtml}</p></td>
                      </tr>
                     </tbody>
                    </table></td>
@@ -842,7 +1475,7 @@ td .be:hover a.ba-7572 {
                    <table border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                     <tbody>
                      <tr>
-                      <td align="left" style="padding:0;Margin:0" class="a"><p class="e" style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:27px;letter-spacing:0;font-weight:normal;color:#333333;font-size:18px"><strong style="font-weight:bolder !important">Important things to know.</strong></p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"><br></p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px">${v.importantBodyHtml}</p></td>
+                      <td align="left" style="padding:0;Margin:0" class="a"><p class="e" style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:27px;letter-spacing:0;font-weight:normal;color:#333333;font-size:18px"><strong style="font-weight:bolder !important">${t('AL.important.heading')}</strong></p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"><br></p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px">${v.importantBodyHtml}</p></td>
                      </tr>
                     </tbody>
                    </table></td>
@@ -855,7 +1488,7 @@ td .be:hover a.ba-7572 {
                <table border="0" bgcolor="#eff2f4" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#eff2f4;width:560px" role="none">
                 <tbody>
                  <tr>
-                  <td align="left" style="padding:10px 0 10px 30px;Margin:0;background:#eff2f4"><p class="e" style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:27px;letter-spacing:0;font-weight:normal;color:#333333;font-size:18px"><strong style="font-weight:bolder !important">What to do next.</strong></p></td>
+                  <td align="left" style="padding:10px 0 10px 30px;Margin:0;background:#eff2f4"><p class="e" style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:27px;letter-spacing:0;font-weight:normal;color:#333333;font-size:18px"><strong style="font-weight:bolder !important">${t('AL.next.heading')}</strong></p></td>
                  </tr>
                 </tbody>
                </table></td>
@@ -904,7 +1537,7 @@ td .be:hover a.ba-7572 {
                            <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:465px">
                             <tbody>
                              <tr>
-                              <td bgcolor="#eff2f4" align="left" style="padding:0 0 10px;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"><strong style="font-weight:bolder !important">Review alert details.</strong> Log in to your Securizone ID Assist account to read everything we know about this alert.</p></td>
+                              <td bgcolor="#eff2f4" align="left" style="padding:0 0 10px;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"><strong style="font-weight:bolder !important">${t('AL.step1.h')}</strong> ${t('AL.step1.b')}</p></td>
                              </tr>
                             </tbody>
                            </table></td>
@@ -962,7 +1595,7 @@ td .be:hover a.ba-7572 {
                            <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:440px">
                             <tbody>
                              <tr>
-                              <td bgcolor="#eff2f4" align="left" style="padding:0 0 10px;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"><strong style="font-weight:bolder !important">Review alert details.</strong> Log in to your Securizone ID Assist account to read everything we know about this alert.</p></td>
+                              <td bgcolor="#eff2f4" align="left" style="padding:0 0 10px;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"><strong style="font-weight:bolder !important">${t('AL.step1.h')}</strong> ${t('AL.step1.b')}</p></td>
                              </tr>
                             </tbody>
                            </table></td>
@@ -1014,7 +1647,7 @@ td .be:hover a.ba-7572 {
                        <table border="0" role="presentation" cellpadding="0" cellspacing="0" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:465px">
                         <tbody>
                          <tr>
-                          <td bgcolor="#eff2f4" align="left" style="padding:0 0 10px;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"><strong style="font-weight:bolder !important">Take action.</strong> Follow the recommended next steps and take note of other things to look out for.</p></td>
+                          <td bgcolor="#eff2f4" align="left" style="padding:0 0 10px;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"><strong style="font-weight:bolder !important">${t('AL.step2.h')}</strong> ${t('AL.step2.b')}</p></td>
                          </tr>
                         </tbody>
                        </table></td>
@@ -1069,7 +1702,7 @@ td .be:hover a.ba-7572 {
                            <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:440px">
                             <tbody>
                              <tr>
-                              <td align="left" bgcolor="#eff2f4" style="padding:0 0 10px;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"><strong style="font-weight:bolder !important">Take action.</strong> Follow the recommended next steps and take note of other things to look out for.</p></td>
+                              <td align="left" bgcolor="#eff2f4" style="padding:0 0 10px;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"><strong style="font-weight:bolder !important">${t('AL.step2.h')}</strong> ${t('AL.step2.b')}</p></td>
                              </tr>
                             </tbody>
                            </table></td>
@@ -1127,7 +1760,7 @@ td .be:hover a.ba-7572 {
                            <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:465px">
                             <tbody>
                              <tr>
-                              <td bgcolor="#eff2f4" align="left" style="padding:0 0 10px;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"><strong style="font-weight:bolder !important">Stay alert.</strong> Receive an unexpected message? See something suspicious? Before you act, pause and evaluate. When in doubt, ignore and delete.</p></td>
+                              <td bgcolor="#eff2f4" align="left" style="padding:0 0 10px;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"><strong style="font-weight:bolder !important">${t('AL.step3.h')}</strong> ${t('AL.step3.b')}</p></td>
                              </tr>
                             </tbody>
                            </table></td>
@@ -1185,7 +1818,7 @@ td .be:hover a.ba-7572 {
                            <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:440px">
                             <tbody>
                              <tr>
-                              <td bgcolor="#eff2f4" align="left" class="bp" style="padding:0;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"><strong style="font-weight:bolder !important">Stay alert.</strong> Receive an unexpected message? See something suspicious? Before you act, pause and evaluate. When in doubt, ignore and delete.</p></td>
+                              <td bgcolor="#eff2f4" align="left" class="bp" style="padding:0;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px"><strong style="font-weight:bolder !important">${t('AL.step3.h')}</strong> ${t('AL.step3.b')}</p></td>
                              </tr>
                             </tbody>
                            </table></td>
@@ -1219,7 +1852,7 @@ td .be:hover a.ba-7572 {
                    <table border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                     <tbody>
                      <tr>
-                      <td align="left" style="padding:0;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px">Click the button or access your Securizone ID Assist account through the sign&#8209;in link on National Bank's website.</p></td>
+                      <td align="left" style="padding:0;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px">${t('AL.cta.note')}</p></td>
                      </tr>
                     </tbody>
                    </table></td>
@@ -1236,7 +1869,7 @@ td .be:hover a.ba-7572 {
                    <table border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                     <tbody>
                      <tr>
-                      <td align="left" style="padding:0;Margin:0"><span class="be" style="border-style:solid;border-color:#2CB543;background-color:#31CB4B;background:#FAAF42;border-width:0px;display:inline-block;border-radius:5px;width:auto"><a href="https://nban.idassist.com/en/login" target="_blank" class="ba ba-7572" style="mso-style-priority:100 !important;text-decoration:none !important;mso-line-height-rule:exactly;color:#000000;font-size:18px;font-weight:bold;padding:10px 20px;display:inline-block;background-color:#31CB4B;background:#FAAF42;border-radius:5px;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;font-style:normal;line-height:22px;width:auto;text-align:center;letter-spacing:0;mso-padding-alt:0;mso-border-alt:10px solid #FAAF42;text-transform:none">Review Your Alert</a></span></td>
+                      <td align="left" style="padding:0;Margin:0"><span class="be" style="border-style:solid;border-color:#2CB543;background-color:#31CB4B;background:#FAAF42;border-width:0px;display:inline-block;border-radius:5px;width:auto"><a href="${t('AL.url.login')}" target="_blank" class="ba ba-7572" style="mso-style-priority:100 !important;text-decoration:none !important;mso-line-height-rule:exactly;color:#000000;font-size:18px;font-weight:bold;padding:10px 20px;display:inline-block;background-color:#31CB4B;background:#FAAF42;border-radius:5px;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;font-style:normal;line-height:22px;width:auto;text-align:center;letter-spacing:0;mso-padding-alt:0;mso-border-alt:10px solid #FAAF42;text-transform:none">${t('AL.cta.button')}</a></span></td>
                      </tr>
                     </tbody>
                    </table></td>
@@ -1253,7 +1886,7 @@ td .be:hover a.ba-7572 {
                    <table border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                     <tbody>
                      <tr>
-                      <td align="left" style="padding:0 0 20px;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px">Thank you for choosing Securizone.</p></td>
+                      <td align="left" style="padding:0 0 20px;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px">${t('AL.thanks')}</p></td>
                      </tr>
                     </tbody>
                    </table></td>
@@ -1270,7 +1903,7 @@ td .be:hover a.ba-7572 {
                    <table border="0" cellspacing="0" width="100%" cellpadding="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                     <tbody>
                      <tr>
-                      <td align="center" style="padding:0;Margin:0" class="a"><h1 class="m c" style="Margin:0;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;mso-line-height-rule:exactly;letter-spacing:0;font-size:20px;font-style:normal;font-weight:bold;line-height:24px;color:#333333">Access Securizone on the go!</h1><p class="e" style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:30px;letter-spacing:0;font-weight:normal;color:#333333;font-size:20px"><br></p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px">Get the ID Assist mobile app on the App Store or Google Play for easy, on-the-go access to all your Securizone services anytime, anywhere.</p></td>
+                      <td align="center" style="padding:0;Margin:0" class="a"><h1 class="m c" style="Margin:0;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;mso-line-height-rule:exactly;letter-spacing:0;font-size:20px;font-style:normal;font-weight:bold;line-height:24px;color:#333333">${t('SH.app.heading')}</h1><p class="e" style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:30px;letter-spacing:0;font-weight:normal;color:#333333;font-size:20px"><br></p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;letter-spacing:0;font-weight:normal;color:#333333;font-size:16px">${t('SH.app.body')}</p></td>
                      </tr>
                     </tbody>
                    </table></td>
@@ -1291,7 +1924,7 @@ td .be:hover a.ba-7572 {
                        <table border="0" cellspacing="0" width="100%" cellpadding="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                         <tbody>
                          <tr>
-                          <td align="center" style="padding:0;Margin:0;font-size:0px"><a target="_blank" href="https://apps.apple.com/ca/app/id-assist-mobile/id540563542" style="mso-line-height-rule:exactly;text-decoration:none;color:#207292;font-size:16px;font-weight:inherit"><img height="49" src="https://fmltes.stripocdn.email/content/guids/CABINET_15a25a8d176f8afe172c1cbc4e6ef71b943c02b9d83c9d125d80289d42ff9b2a/images/appstoreen_knf.png" alt="Download on the App Store" title="Download on the App Store" class="img-1132" style="display:block;font-size:16px;border:0;outline:none;text-decoration:none;margin:0" width="145"></a></td>
+                          <td align="center" style="padding:0;Margin:0;font-size:0px"><a target="_blank" href="${t('SH.url.appstore')}" style="mso-line-height-rule:exactly;text-decoration:none;color:#207292;font-size:16px;font-weight:inherit"><img height="49" src="${t('SH.asset.appstore')}" alt="${t('SH.asset.appstore.alt')}" title="Download on the App Store" class="img-1132" style="display:block;font-size:16px;border:0;outline:none;text-decoration:none;margin:0" width="145"></a></td>
                          </tr>
                         </tbody>
                        </table></td>
@@ -1307,7 +1940,7 @@ td .be:hover a.ba-7572 {
                        <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                         <tbody>
                          <tr>
-                          <td align="center" style="padding:0;Margin:0;font-size:0px"><a target="_blank" href="https://play.google.com/store/apps/details?id=com.finastra.myidentityassist&hl=en" style="mso-line-height-rule:exactly;text-decoration:none;color:#207292;font-size:16px;font-weight:inherit"><img height="49" title="Get it on Google Play" src="https://fmltes.stripocdn.email/content/guids/CABINET_15a25a8d176f8afe172c1cbc4e6ef71b943c02b9d83c9d125d80289d42ff9b2a/images/playstoreen_vrP.png" alt="Get it on Google Play" style="display:block;font-size:16px;border:0;outline:none;text-decoration:none;margin:0" width="145"></a></td>
+                          <td align="center" style="padding:0;Margin:0;font-size:0px"><a target="_blank" href="${t('SH.url.play')}" style="mso-line-height-rule:exactly;text-decoration:none;color:#207292;font-size:16px;font-weight:inherit"><img height="49" title="Get it on Google Play" src="${t('SH.asset.playstore')}" alt="${t('SH.asset.playstore.alt')}" style="display:block;font-size:16px;border:0;outline:none;text-decoration:none;margin:0" width="145"></a></td>
                          </tr>
                         </tbody>
                        </table></td>
@@ -1341,7 +1974,7 @@ td .be:hover a.ba-7572 {
                       <td align="center" style="padding:0;Margin:0;font-size:0px"><img src="https://fmltes.stripocdn.email/content/guids/CABINET_8c58f51d58caeb09194ccf5cc1dcdc6450742d8ad6cab23e7ae1e695abffb494/images/idassist_logo_thumb.png" alt="" width="44" style="display:block;font-size:16px;border:0;outline:none;text-decoration:none;margin:0" height="44"></td>
                      </tr>
                      <tr>
-                      <td align="center" style="padding:20px 0 0;Margin:0"><h3 class="m" style="Margin:0;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;mso-line-height-rule:exactly;letter-spacing:0;font-size:18px;font-style:normal;font-weight:bold;line-height:22px;color:#ffffff">Need Assistance?</h3></td>
+                      <td align="center" style="padding:20px 0 0;Margin:0"><h3 class="m" style="Margin:0;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;mso-line-height-rule:exactly;letter-spacing:0;font-size:18px;font-style:normal;font-weight:bold;line-height:22px;color:#ffffff">${t('SH.need')}</h3></td>
                      </tr>
                     </tbody>
                    </table></td>
@@ -1362,7 +1995,7 @@ td .be:hover a.ba-7572 {
                        <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                         <tbody>
                          <tr>
-                          <td align="right" style="padding:0;Margin:0"><p class="m" style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:23px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:15px"><a target="_blank" href="https://nban.idassist.com/en/help" style="mso-line-height-rule:exactly;text-decoration:underline;color:#adadad;font-size:15px;font-weight:inherit">View Our FAQs</a></p></td>
+                          <td align="right" style="padding:0;Margin:0"><p class="m" style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:23px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:15px"><a target="_blank" href="${t('SH.url.help')}" style="mso-line-height-rule:exactly;text-decoration:underline;color:#adadad;font-size:15px;font-weight:inherit">${t('SH.faq')}</a></p></td>
                          </tr>
                         </tbody>
                        </table></td>
@@ -1377,7 +2010,7 @@ td .be:hover a.ba-7572 {
                        <table border="0" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                         <tbody>
                          <tr>
-                          <td align="center" style="padding:0;Margin:0"><p class="m" style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:23px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:15px"><a href="mailto:customerservice@idassist.com" target="_blank" style="mso-line-height-rule:exactly;text-decoration:underline;color:#adadad;font-size:15px;font-weight:inherit">Send An Email</a></p></td>
+                          <td align="center" style="padding:0;Margin:0"><p class="m" style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:23px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:15px"><a href="mailto:customerservice@idassist.com" target="_blank" style="mso-line-height-rule:exactly;text-decoration:underline;color:#adadad;font-size:15px;font-weight:inherit">${t('SH.mail')}</a></p></td>
                          </tr>
                         </tbody>
                        </table></td>
@@ -1392,7 +2025,7 @@ td .be:hover a.ba-7572 {
                        <table border="0" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                         <tbody>
                          <tr>
-                          <td align="left" style="padding:0;Margin:0"><p class="m" style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:23px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:15px"><a target="_blank" href="tel:18885350510" style="mso-line-height-rule:exactly;text-decoration:underline;color:#adadad;font-size:15px;font-weight:inherit">Give Us A Call</a></p></td>
+                          <td align="left" style="padding:0;Margin:0"><p class="m" style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:23px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:15px"><a target="_blank" href="tel:18885350510" style="mso-line-height-rule:exactly;text-decoration:underline;color:#adadad;font-size:15px;font-weight:inherit">${t('SH.call')}</a></p></td>
                          </tr>
                         </tbody>
                        </table></td>
@@ -1440,7 +2073,7 @@ td .be:hover a.ba-7572 {
                    <table border="0" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                     <tbody>
                      <tr>
-                      <td align="left" bgcolor="#404145" style="Margin:0;padding:30px 30px 20px"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px">This is an automated notification email; please do not reply to it. If you require assistance, please call us at 1&#8209;888&#8209;535&#8209;0510.</p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px"><br></p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px">Disclosure: You are receiving this communication because you have purchased a subscription to Securizone, a product of National Bank Assistance Network in partnership with ID Assist services from Sigma Loyalty Group Inc.</p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px"><br></p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px">© 2026 Sigma Loyalty Group Inc., all rights reserved. ID&nbsp;Assist, Sigma Loyalty Group Inc. and all associated marks and logos are registered trademarks owned or used under license. ID&nbsp;Assist is provided by Sigma Loyalty Group Inc. iPhone and App Store are trademarks of Apple Inc., registered in the U.S. and other countries. Android, Google Play and Play Store are trademarks of Google Inc., registered in the U.S. and other countries.</p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px"><br></p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px">With Securizone<sup style="display:inline-block;font-size:75% !important;line-height:1 !important;mso-text-raise:30%;vertical-align:top">®</sup>, you have access to ID Assist<sup style="display:inline-block;font-size:75% !important;line-height:1 !important;mso-text-raise:30%;vertical-align:top">®</sup> from Sigma Loyalty, a partner of NBC Assistance Inc.</p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px"><br></p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px">®SECURIZONE and the NATIONAL BANK ASSISTANCE NETWORK logos are registered trademarks of National&nbsp;Bank&nbsp;of&nbsp;Canada, used under license by authorized third parties.</p></td>
+                      <td align="left" bgcolor="#404145" style="Margin:0;padding:30px 30px 20px"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px">${t('SH.legal.auto')}</p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px"><br></p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px">${t('SH.legal.disclosure')}</p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px"><br></p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px">${t('SH.legal.copyright')}</p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px"><br></p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px">${t('SH.legal.withsec')}</p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px"><br></p><p style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px">${t('SH.legal.trademark')}</p></td>
                      </tr>
                     </tbody>
                    </table></td>
@@ -1457,11 +2090,11 @@ td .be:hover a.ba-7572 {
                    <table border="0" align="left" cellpadding="0" cellspacing="0" class="x" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:left">
                     <tbody>
                      <tr>
-                      <td align="center" class="bo" style="padding:0;Margin:0;width:187px">
+                      <td align="center" class="bo" style="padding:0;Margin:0;width:280px">
                        <table border="0" cellspacing="0" width="100%" cellpadding="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                         <tbody>
                          <tr>
-                          <td align="right" style="padding:0;Margin:0"><p class="m" style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px"><a target="_blank" href="https://nban.idassist.com/assets/docs/en/IDAssist-TermsOfUse.pdf" style="mso-line-height-rule:exactly;text-decoration:underline;color:#adadad;font-size:12px;font-weight:inherit">Terms and &nbsp;Conditions</a></p></td>
+                          <td align="right" style="padding:0;Margin:0"><p class="m" style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px"><a target="_blank" href="${t('SH.url.terms')}" style="mso-line-height-rule:exactly;text-decoration:underline;color:#adadad;font-size:12px;font-weight:inherit">${t('SH.link.terms')}</a></p></td>
                          </tr>
                         </tbody>
                        </table></td>
@@ -1472,32 +2105,18 @@ td .be:hover a.ba-7572 {
                    <table border="0" cellpadding="0" cellspacing="0" align="left" class="x" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:left">
                     <tbody>
                      <tr>
-                      <td align="center" style="padding:0;Margin:0;width:187px">
+                      <td align="center" style="padding:0;Margin:0;width:280px">
                        <table border="0" cellspacing="0" width="100%" cellpadding="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                         <tbody>
                          <tr>
-                          <td align="center" style="padding:0;Margin:0"><p class="m" style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px"><a href="https://nban.idassist.com/assets/docs/en/IDAssist-PrivacyPolicy.pdf" target="_blank" style="mso-line-height-rule:exactly;text-decoration:underline;color:#adadad;font-size:12px;font-weight:inherit">Privacy Policy</a></p></td>
+                          <td align="center" style="padding:0;Margin:0"><p class="m" style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px"><a href="${t('SH.url.privacy')}" target="_blank" style="mso-line-height-rule:exactly;text-decoration:underline;color:#adadad;font-size:12px;font-weight:inherit">${t('SH.link.privacy')}</a></p></td>
                          </tr>
                         </tbody>
                        </table></td>
                      </tr>
                     </tbody>
                    </table></td>
-                  <td valign="top" class="esdev-mso-td h" style="padding:0;Margin:0">
-                   <table border="0" align="right" cellpadding="0" cellspacing="0" class="y" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:right">
-                    <tbody>
-                     <tr>
-                      <td align="center" style="padding:0;Margin:0;width:186px">
-                       <table border="0" cellspacing="0" width="100%" cellpadding="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-                        <tbody>
-                         <tr>
-                          <td align="left" style="padding:0;Margin:0"><p class="m" style="Margin:0;mso-line-height-rule:exactly;font-family:'source sans pro', 'helvetica neue', helvetica, arial, sans-serif;line-height:18px;letter-spacing:0;font-weight:normal;color:#adadad;font-size:12px"><a href="https://nban.idassist.com/assets/docs/EN/IDAssist-CancellationPolicy.pdf" target="_blank" style="mso-line-height-rule:exactly;text-decoration:underline;color:#adadad;font-size:12px;font-weight:inherit">Cancellation Policy</a></p></td>
-                         </tr>
-                        </tbody>
-                       </table></td>
-                     </tr>
-                    </tbody>
-                   </table></td>
+                  
                  </tr>
                 </tbody>
                </table></td>
@@ -1524,20 +2143,13 @@ function populateSubType(alertType) {
   const sel    = document.getElementById('sel-sub-type');
   sel.innerHTML = '';
   const keys   = alertType === 'darkweb' ? DW_ORDER : CR_ORDER;
-  const source = alertType === 'darkweb' ? DARK_WEB : CREDIT;
+  const source = alertType === 'darkweb' ? DARK_WEB() : CREDIT();
   keys.forEach(k => {
     const opt       = document.createElement('option');
     opt.value       = k;
     opt.textContent = source[k].label;
     sel.appendChild(opt);
   });
-}
-
-function toggleSidebar(collapse) {
-  const sidebar = document.getElementById('sidebar');
-  const openBtn = document.getElementById('btn-sidebar-open');
-  sidebar.classList.toggle('collapsed', collapse);
-  openBtn.classList.toggle('show', collapse);
 }
 
 function setBureau(name) {
@@ -1583,8 +2195,8 @@ function applyDeviceWidths() {
 function onAlertTypeChange() {
   const alertType = document.getElementById('sel-alert-type').value;
   const isDW      = alertType === 'darkweb';
-  document.getElementById('detail-title').textContent = isDW ? 'Item Detected' : 'Change Type';
-  document.getElementById('sub-label').textContent    = isDW ? 'Information type' : 'Change type';
+  document.getElementById('detail-title').innerHTML = isDW ? t('AL.ui.detail.dw') : t('AL.ui.detail.cr');
+  document.getElementById('sub-label').innerHTML    = isDW ? t('AL.ui.sublabel.dw') : t('AL.ui.sublabel.cr');
   document.getElementById('bureau-group').style.display = isDW ? 'none' : 'block';
   populateSubType(alertType);
   updatePreview();
@@ -1593,9 +2205,9 @@ function onAlertTypeChange() {
 function buildStatusHTML(alertType, subType) {
   const pill = (label, cls) => `<span class="status-pill${cls ? ' ' + cls : ''}">${label}</span>`;
   if (alertType === 'darkweb') {
-    return pill('Dark Web Alert') + '<br>' + pill(DARK_WEB[subType].label);
+    return pill(t('AL.ui.pill.dw')) + '<br>' + pill(DARK_WEB()[subType].label);
   }
-  return pill('Credit Alert', 'credit') + '<br>' + pill(CREDIT[subType].label, 'credit') + '<br>' + pill(currentBureau, 'credit');
+  return pill(t('AL.ui.pill.cr'), 'credit') + '<br>' + pill(CREDIT()[subType].label, 'credit') + '<br>' + pill(currentBureau, 'credit');
 }
 
 function updatePreview() {
@@ -1604,31 +2216,31 @@ function updatePreview() {
 
   let v;
   if (alertType === 'darkweb') {
-    const item = DARK_WEB[subType];
+    const item = DARK_WEB()[subType];
     v = {
       hiddenPreheader:  item.preheader,
       headerImgSrc:     item.headerImgSrc,
       headerImgH:       item.headerImgH,
-      alertLabel:       'IDENTITY MONITORING ALERT',
+      alertLabel:       t('AL.label.identity'),
       headingHtml:      item.headingHtml,
-      introHtml:        INTRO_IDENTITY,
+      introHtml:        t('AL.intro.identity'),
       importantBodyHtml: item.bodyHtml
     };
-    document.getElementById('meta-subject').textContent   = 'Securizone Alert Notice';
+    document.getElementById('meta-subject').innerHTML     = t('AL.subject');
     document.getElementById('meta-preheader').innerHTML   = item.preheader;
   } else {
-    const item = CREDIT[subType];
+    const item = CREDIT()[subType];
     const headingHtml = item.headingTpl.replace('${v.bureau}', currentBureau);
     v = {
       hiddenPreheader:  item.preheader,
       headerImgSrc:     CREDIT_IMG.src,
       headerImgH:       CREDIT_IMG.h,
-      alertLabel:       'CREDIT BUREAU MONITORING ALERT',
+      alertLabel:       t('AL.label.credit'),
       headingHtml:      headingHtml,
-      introHtml:        INTRO_CREDIT,
+      introHtml:        t('AL.intro.credit'),
       importantBodyHtml: item.bodyHtml
     };
-    document.getElementById('meta-subject').textContent   = 'Securizone Alert Notice';
+    document.getElementById('meta-subject').innerHTML     = t('AL.subject');
     document.getElementById('meta-preheader').innerHTML   = item.preheader;
   }
 
@@ -1670,12 +2282,11 @@ function updateSizeStat(elId, heightPx, isMobile) {
   const stat = document.getElementById(elId);
   if (isMobile) {
     const screens = (heightPx / MOBILE_VIEWPORT_H).toFixed(1);
-    stat.innerHTML = `<b>${heightPx}px</b> tall on a 375\u00d7667 mobile viewport \u2014 `
-      + `about <b>${screens} screens</b> of scrolling before reaching the footer.`
-      + `<span class="stat-note">Reference viewport only (iPhone SE/8); taller phones will show slightly fewer screens.</span>`;
-    document.getElementById('screens-badge').textContent = '\u2248 ' + screens + ' screens';
+    stat.innerHTML = t('AL.ui.stat.mobile', { px: heightPx, n: screens })
+      + `<span class="stat-note">${t('AL.ui.stat.note')}</span>`;
+    document.getElementById('screens-badge').innerHTML = t('AL.ui.badge.screens', { n: screens });
   } else {
-    stat.innerHTML = `<b>${heightPx}px</b> tall at desktop width.`;
+    stat.innerHTML = t('AL.ui.stat.desktop', { px: heightPx });
   }
 }
 
@@ -1692,7 +2303,7 @@ function drawScreenLines(heightPx) {
     line.style.top = (i * MOBILE_VIEWPORT_H) + 'px';
     const label = document.createElement('span');
     label.className = 'screen-line-label';
-    label.textContent = 'Screen ' + (i + 1) + ' starts \u2193';
+    label.innerHTML = t('AL.ui.screenline', { n: i + 1 });
     line.appendChild(label);
     wrap.appendChild(line);
   }
@@ -1720,7 +2331,7 @@ function downloadPDF() {
     const doc = iframe.contentDocument || iframe.contentWindow.document;
     if (!doc || !doc.body) return;
     btn.disabled    = true;
-    btn.textContent = 'Generating\u2026';
+    btn.innerHTML = t('AL.ui.btn.pdf.busy');
     const pw = currentDevice === 'mobile' ? MOBILE_WIDTH : 600;
     const ph = doc.body.scrollHeight + 100;
     html2pdf().set({
@@ -1731,16 +2342,17 @@ function downloadPDF() {
       jsPDF:       { unit: 'px', format: [pw, ph], hotfixes: ['px_scaling'] }
     }).from(doc.body).save().finally(() => {
       btn.disabled    = false;
-      btn.textContent = '\u2195 Download PDF';
+      btn.innerHTML = t('AL.ui.btn.pdf');
     });
   } catch(e) {
     btn.disabled    = false;
-    btn.textContent = '\u2195 Download PDF';
-    alert('Could not generate PDF. Check console for details.');
+    btn.innerHTML = t('AL.ui.btn.pdf');
+    alert(strip(t('AL.ui.pdf.error')));
   }
 }
 
 // Boot
+applyI18n();
 setDevice('both');
 populateSubType('darkweb');
 updatePreview();
